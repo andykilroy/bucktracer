@@ -85,3 +85,12 @@ impl Neg for Direction {
         }
     }
 }
+
+impl Direction {
+    pub fn scale(self, c: f64) -> Direction {
+        match self {
+            Direction(x, y, z, w) =>
+                Direction(c*x, c*y, c*z, c*w)
+        }
+    }
+}

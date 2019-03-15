@@ -57,3 +57,8 @@ fn negation() {
     assert_eq!( vector(-1.0, 2.0, -3.0),
                 vector( 0.0, 0.0,  0.0) - vector(1.0, -2.0, 3.0));
 }
+
+fn scaling() {
+    assert_eq!(vector(3.5, -7.0, 10.5), vector(1.0, -2.0, 3.0).scale(3.5));
+    assert_eq!(vector(0.5, -1.0, 1.5), vector(1.0, -2.0, 3.0).scale(0.5));
+}
