@@ -18,3 +18,30 @@ fn simple_point_creation() {
     assert_eq!(false, is_vector(point(4.3, 4.2, 3.1)));
     assert_eq!(true,  is_vector(vector(4.3, 4.2, 3.1)));
 }
+
+#[test]
+fn almost_equal() {
+    assert_eq!(true, equalish(point(4.3, -4.2, 3.1), point(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(point(4.300001, -4.2, 3.1), point(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(point(4.3, -4.200001, 3.1), point(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(point(4.3, -4.2, 3.100001), point(4.3, -4.2, 3.1)));
+
+    assert_eq!(true, equalish(vector(4.3, -4.2, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(vector(4.300001, -4.2, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(vector(4.3, -4.200001, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(true, equalish(vector(4.3, -4.2, 3.100001), vector(4.3, -4.2, 3.1)));
+}
+
+#[test]
+fn definitely_not_equal() {
+    assert_eq!(false, equalish(point(4.35, -4.2, 3.1), point(4.3, -4.2, 3.1)));
+    assert_eq!(false, equalish(point(4.3, -4.25, 3.1), point(4.3, -4.2, 3.1)));
+    assert_eq!(false, equalish(point(4.3, -4.2, 3.15), point(4.3, -4.2, 3.1)));
+
+    assert_eq!(false, equalish(vector(4.35, -4.2, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(false, equalish(vector(4.3, -4.25, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(false, equalish(vector(4.3, -4.2, 3.15), vector(4.3, -4.2, 3.1)));
+
+    assert_eq!(false, equalish(point(4.3, -4.2, 3.1), vector(4.3, -4.2, 3.1)));
+    assert_eq!(false, equalish(vector(4.3, -4.2, 3.1), point(4.3, -4.2, 3.1)));
+}
