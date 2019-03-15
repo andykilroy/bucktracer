@@ -49,3 +49,11 @@ fn test_subtraction() {
     assert_eq!(point(-2.0, -4.0, -6.0),
                point(3.0, 2.0, 1.0) - vector(5.0, 6.0, 7.0));
 }
+
+#[test]
+fn negation() {
+    assert_eq!( - vector( 1.0, -2.0,  3.0),
+                  vector(-1.0,  2.0, -3.0));
+    assert_eq!( vector(-1.0, 2.0, -3.0),
+                vector( 0.0, 0.0,  0.0) - vector(1.0, -2.0, 3.0));
+}

@@ -74,3 +74,14 @@ impl Sub for Direction {
         }
     }
 }
+
+impl Neg for Direction {
+    type Output = Direction;
+
+    fn neg(self) -> Direction {
+        match self {
+            Direction(x, y, z, w) =>
+                Direction(-x, -y, -z, -w)
+        }
+    }
+}
