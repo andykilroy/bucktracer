@@ -1,0 +1,7 @@
+[package]
+name = "bucktracer"
+version = "0.1.0"
+authors = ["Andrew Kilroy <7545475+andykilroy@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
