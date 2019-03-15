@@ -58,11 +58,13 @@ fn negation() {
                 vector( 0.0, 0.0,  0.0) - vector(1.0, -2.0, 3.0));
 }
 
+#[test]
 fn scaling() {
     assert_eq!(vector(3.5, -7.0, 10.5), vector(1.0, -2.0, 3.0).scale(3.5));
     assert_eq!(vector(0.5, -1.0, 1.5), vector(1.0, -2.0, 3.0).scale(0.5));
 }
 
+#[test]
 fn magnitude() {
     assert_eq!(0.0, vector(0.0, 0.0, 0.0).magni());
     assert_eq!(1.0, vector(1.0, 0.0, 0.0).magni());
@@ -71,4 +73,23 @@ fn magnitude() {
 
     assert_eq!(f64::sqrt(14.0), vector(1.0, 2.0, 3.0).magni());
     assert_eq!(f64::sqrt(14.0), vector(-1.0, -2.0, -3.0).magni());
+}
+
+#[test]
+fn normalize() {
+    assert_eq!(vector(1.0, 0.0, 0.0), vector(4.0, 0.0, 0.0).norm());
+    assert_eq!(vector(0.0, 1.0, 0.0), vector(0.0, 2.0, 0.0).norm());
+    assert_eq!(vector(0.0, 0.0, 1.0), vector(0.0, 0.0, 5.0).norm());
+
+    assert_eq!(vector(-1.0, 0.0, 0.0), vector(-4.0, 0.0, 0.0).norm());
+    assert_eq!(vector(0.0, -1.0, 0.0), vector(0.0, -2.0, 0.0).norm());
+    assert_eq!(vector(0.0, 0.0, -1.0), vector(0.0, 0.0, -5.0).norm());
+
+    assert_eq!(1.0, vector(4.0, 0.0, 0.0).norm().magni());
+    assert_eq!(1.0, vector(0.0, 2.0, 0.0).norm().magni());
+    assert_eq!(1.0, vector(0.0, 0.0, 5.0).norm().magni());
+
+    assert_eq!(1.0, vector(-4.0, 0.0, 0.0).norm().magni());
+    assert_eq!(1.0, vector(0.0, -2.0, 0.0).norm().magni());
+    assert_eq!(1.0, vector(0.0, 0.0, -5.0).norm().magni());
 }

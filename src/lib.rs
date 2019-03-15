@@ -100,4 +100,14 @@ impl Direction {
                 f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2))
         }
     }
+
+    pub fn norm(self) -> Direction {
+
+        match self {
+            Direction(x, y, z, w) => {
+                let c = self.magni();
+                Direction(x/c, y/c, z/c, w/c)
+            }
+        }
+    }
 }
