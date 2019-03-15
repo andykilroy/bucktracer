@@ -93,4 +93,11 @@ impl Direction {
                 Direction(c*x, c*y, c*z, c*w)
         }
     }
+
+    pub fn magni(self) -> f64 {
+        match self {
+            Direction(x, y, z, w) =>
+                f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2))
+        }
+    }
 }
