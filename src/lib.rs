@@ -63,3 +63,14 @@ impl Add for Direction {
         }
     }
 }
+
+impl Sub for Direction {
+    type Output = Direction;
+
+    fn sub(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+        match self {
+            Direction(a1, a2, a3, a4) =>
+                Direction(a1 - b1, a2 - b2, a3 - b3, a4 - b4)
+        }
+    }
+}
