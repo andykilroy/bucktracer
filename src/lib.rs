@@ -1,3 +1,4 @@
+use std::ops::*;
 
 const EPSILON: f64 = 1e-5;
 
@@ -50,4 +51,15 @@ impl PartialEq for Direction {
 
 fn almost_eq(x1: f64, x2: f64) -> bool {
     f64::abs(x1 - x2) < EPSILON
+}
+
+impl Add for Direction {
+    type Output = Direction;
+
+    fn add(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+        match self {
+            Direction(a1, a2, a3, a4) =>
+                Direction(a1 + b1, a2 + b2, a3 + b3, a4 + b4)
+        }
+    }
 }

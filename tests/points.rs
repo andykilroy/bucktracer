@@ -38,5 +38,6 @@ fn definitely_not_equal() {
 
 #[test]
 fn test_addition() {
-    
+    assert_eq!(point(1.0,  1.0, 6.0), 
+               point(3.0, -2.0, 5.0) + vector(-2.0, 3.0, 1.0));
 }
