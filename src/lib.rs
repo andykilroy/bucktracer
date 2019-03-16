@@ -3,29 +3,29 @@ use std::ops::*;
 const EPSILON: f64 = 1e-5;
 
 #[derive(Debug, Copy, Clone)]
-pub struct Direction(f64, f64, f64, f64);
+pub struct Tuple4(f64, f64, f64, f64);
 
-pub fn is_point(Direction(_, _, _, w): Direction) -> bool {
+pub fn is_point(Tuple4(_, _, _, w): Tuple4) -> bool {
     w == 1.0
 }
 
-pub fn is_vector(v: Direction) -> bool {
+pub fn is_vector(v: Tuple4) -> bool {
     !is_point(v)
 }
 
-pub fn point(x: f64, y: f64, z: f64) -> Direction {
-    Direction(x, y, z, 1.0)
+pub fn point(x: f64, y: f64, z: f64) -> Tuple4 {
+    Tuple4(x, y, z, 1.0)
 }
 
-pub fn vector(x: f64, y: f64, z: f64) -> Direction {
-    Direction(x, y, z, 0.0)
+pub fn vector(x: f64, y: f64, z: f64) -> Tuple4 {
+    Tuple4(x, y, z, 0.0)
 }
 
-impl PartialEq for Direction {
+impl PartialEq for Tuple4 {
 
-    fn eq(&self, Direction(b1, b2, b3, b4): &Direction) -> bool {
+    fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
         match self {
-            Direction(a1, a2, a3, a4) => {
+            Tuple4(a1, a2, a3, a4) => {
                 if *a4 != *b4 {
                     return false;
                 }
@@ -53,66 +53,66 @@ fn almost_eq(x1: f64, x2: f64) -> bool {
     f64::abs(x1 - x2) < EPSILON
 }
 
-impl Add for Direction {
-    type Output = Direction;
+impl Add for Tuple4 {
+    type Output = Tuple4;
 
-    fn add(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+    fn add(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
         match self {
-            Direction(a1, a2, a3, a4) =>
-                Direction(a1 + b1, a2 + b2, a3 + b3, a4 + b4)
+            Tuple4(a1, a2, a3, a4) =>
+                Tuple4(a1 + b1, a2 + b2, a3 + b3, a4 + b4)
         }
     }
 }
 
-impl Sub for Direction {
-    type Output = Direction;
+impl Sub for Tuple4 {
+    type Output = Tuple4;
 
-    fn sub(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+    fn sub(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
         match self {
-            Direction(a1, a2, a3, a4) =>
-                Direction(a1 - b1, a2 - b2, a3 - b3, a4 - b4)
+            Tuple4(a1, a2, a3, a4) =>
+                Tuple4(a1 - b1, a2 - b2, a3 - b3, a4 - b4)
         }
     }
 }
 
-impl Neg for Direction {
-    type Output = Direction;
+impl Neg for Tuple4 {
+    type Output = Tuple4;
 
-    fn neg(self) -> Direction {
+    fn neg(self) -> Tuple4 {
         match self {
-            Direction(x, y, z, w) =>
-                Direction(-x, -y, -z, -w)
+            Tuple4(x, y, z, w) =>
+                Tuple4(-x, -y, -z, -w)
         }
     }
 }
 
-impl Direction {
-    pub fn scale(self, c: f64) -> Direction {
+impl Tuple4 {
+    pub fn scale(self, c: f64) -> Tuple4 {
         match self {
-            Direction(x, y, z, w) =>
-                Direction(c*x, c*y, c*z, c*w)
+            Tuple4(x, y, z, w) =>
+                Tuple4(c*x, c*y, c*z, c*w)
         }
     }
 
     pub fn magnitude(self) -> f64 {
         match self {
-            Direction(x, y, z, w) =>
+            Tuple4(x, y, z, w) =>
                 f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2))
         }
     }
 
-    pub fn normalize(self) -> Direction {
+    pub fn normalize(self) -> Tuple4 {
         match self {
-            Direction(x, y, z, w) => {
+            Tuple4(x, y, z, w) => {
                 let c = self.magnitude();
-                Direction(x/c, y/c, z/c, w/c)
+                Tuple4(x/c, y/c, z/c, w/c)
             }
         }
     }
 
-    pub fn dot(self, Direction(x2, y2, z2, w2): Direction) -> f64 {
+    pub fn dot(self, Tuple4(x2, y2, z2, w2): Tuple4) -> f64 {
         match self {
-            Direction(x1, y1, z1, w1) => {
+            Tuple4(x1, y1, z1, w1) => {
                 x1 * x2 +
                 y1 * y2 +
                 z1 * z2 +
@@ -121,9 +121,9 @@ impl Direction {
         }
     }
 
-    pub fn cross(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+    pub fn cross(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
         match self {
-            Direction(a1, a2, a3, a4) => {
+            Tuple4(a1, a2, a3, a4) => {
                 vector(a2 * b3 - a3 * b2,
                        a3 * b1 - a1 * b3,
                        a1 * b2 - a2 * b1)
