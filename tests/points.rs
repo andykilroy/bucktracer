@@ -96,4 +96,7 @@ fn normalize() {
 
 #[test]
 fn dot_product() {
+    let a = vector(1.0, 2.0, 3.0);
+    let b = vector(2.0, 3.0, 4.0);
+    assert_eq!(20.0, a.dot(b));
 }

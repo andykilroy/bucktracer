@@ -102,11 +102,21 @@ impl Direction {
     }
 
     pub fn normalize(self) -> Direction {
-
         match self {
             Direction(x, y, z, w) => {
                 let c = self.magnitude();
                 Direction(x/c, y/c, z/c, w/c)
+            }
+        }
+    }
+
+    pub fn dot(self, Direction(x2, y2, z2, w2): Direction) -> f64 {
+        match self {
+            Direction(x1, y1, z1, w1) => {
+                x1 * x2 +
+                y1 * y2 +
+                z1 * z2 +
+                w1 * w2
             }
         }
     }
