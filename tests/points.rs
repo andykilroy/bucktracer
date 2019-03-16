@@ -100,3 +100,11 @@ fn dot_product() {
     let b = vector(2.0, 3.0, 4.0);
     assert_eq!(20.0, a.dot(b));
 }
+
+#[test]
+fn cross_product() {
+    let a = vector(1.0, 2.0, 3.0);
+    let b = vector(2.0, 3.0, 4.0);
+    assert_eq!(vector(-1.0, 2.0, -1.0), a.cross(b));
+    assert_eq!(vector(1.0, -2.0,  1.0), b.cross(a));
+}

@@ -2,7 +2,7 @@ use std::ops::*;
 
 const EPSILON: f64 = 1e-5;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Direction(f64, f64, f64, f64);
 
 pub fn is_point(Direction(_, _, _, w): Direction) -> bool {
@@ -117,6 +117,16 @@ impl Direction {
                 y1 * y2 +
                 z1 * z2 +
                 w1 * w2
+            }
+        }
+    }
+
+    pub fn cross(self, Direction(b1, b2, b3, b4): Direction) -> Direction {
+        match self {
+            Direction(a1, a2, a3, a4) => {
+                vector(a2 * b3 - a3 * b2,
+                       a3 * b1 - a1 * b3,
+                       a1 * b2 - a2 * b1)
             }
         }
     }
