@@ -66,30 +66,34 @@ fn scaling() {
 
 #[test]
 fn magnitude() {
-    assert_eq!(0.0, vector(0.0, 0.0, 0.0).magni());
-    assert_eq!(1.0, vector(1.0, 0.0, 0.0).magni());
-    assert_eq!(1.0, vector(0.0, 1.0, 0.0).magni());
-    assert_eq!(1.0, vector(0.0, 0.0, 1.0).magni());
+    assert_eq!(0.0, vector(0.0, 0.0, 0.0).magnitude());
+    assert_eq!(1.0, vector(1.0, 0.0, 0.0).magnitude());
+    assert_eq!(1.0, vector(0.0, 1.0, 0.0).magnitude());
+    assert_eq!(1.0, vector(0.0, 0.0, 1.0).magnitude());
 
-    assert_eq!(f64::sqrt(14.0), vector(1.0, 2.0, 3.0).magni());
-    assert_eq!(f64::sqrt(14.0), vector(-1.0, -2.0, -3.0).magni());
+    assert_eq!(f64::sqrt(14.0), vector(1.0, 2.0, 3.0).magnitude());
+    assert_eq!(f64::sqrt(14.0), vector(-1.0, -2.0, -3.0).magnitude());
 }
 
 #[test]
 fn normalize() {
-    assert_eq!(vector(1.0, 0.0, 0.0), vector(4.0, 0.0, 0.0).norm());
-    assert_eq!(vector(0.0, 1.0, 0.0), vector(0.0, 2.0, 0.0).norm());
-    assert_eq!(vector(0.0, 0.0, 1.0), vector(0.0, 0.0, 5.0).norm());
+    assert_eq!(vector(1.0, 0.0, 0.0), vector(4.0, 0.0, 0.0).normalize());
+    assert_eq!(vector(0.0, 1.0, 0.0), vector(0.0, 2.0, 0.0).normalize());
+    assert_eq!(vector(0.0, 0.0, 1.0), vector(0.0, 0.0, 5.0).normalize());
 
-    assert_eq!(vector(-1.0, 0.0, 0.0), vector(-4.0, 0.0, 0.0).norm());
-    assert_eq!(vector(0.0, -1.0, 0.0), vector(0.0, -2.0, 0.0).norm());
-    assert_eq!(vector(0.0, 0.0, -1.0), vector(0.0, 0.0, -5.0).norm());
+    assert_eq!(vector(-1.0, 0.0, 0.0), vector(-4.0, 0.0, 0.0).normalize());
+    assert_eq!(vector(0.0, -1.0, 0.0), vector(0.0, -2.0, 0.0).normalize());
+    assert_eq!(vector(0.0, 0.0, -1.0), vector(0.0, 0.0, -5.0).normalize());
 
-    assert_eq!(1.0, vector(4.0, 0.0, 0.0).norm().magni());
-    assert_eq!(1.0, vector(0.0, 2.0, 0.0).norm().magni());
-    assert_eq!(1.0, vector(0.0, 0.0, 5.0).norm().magni());
+    assert_eq!(1.0, vector(4.0, 0.0, 0.0).normalize().magnitude());
+    assert_eq!(1.0, vector(0.0, 2.0, 0.0).normalize().magnitude());
+    assert_eq!(1.0, vector(0.0, 0.0, 5.0).normalize().magnitude());
 
-    assert_eq!(1.0, vector(-4.0, 0.0, 0.0).norm().magni());
-    assert_eq!(1.0, vector(0.0, -2.0, 0.0).norm().magni());
-    assert_eq!(1.0, vector(0.0, 0.0, -5.0).norm().magni());
+    assert_eq!(1.0, vector(-4.0, 0.0, 0.0).normalize().magnitude());
+    assert_eq!(1.0, vector(0.0, -2.0, 0.0).normalize().magnitude());
+    assert_eq!(1.0, vector(0.0, 0.0, -5.0).normalize().magnitude());
+}
+
+#[test]
+fn dot_product() {
 }
