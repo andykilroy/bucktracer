@@ -136,3 +136,22 @@ fn create_a_canvas() {
         }
     }
 }
+
+#[test]
+fn colour_the_canvas() {
+    let mut c = canvas(10, 20);
+    let red = colour(1.0, 0.0, 0.0);
+    let green = colour(0.0, 1.0, 0.0);
+    let blue = colour(0.0, 0.0, 1.0);
+    let white = colour(1.0, 1.0, 1.0);
+
+    c.set_colour_at(0, 0, red);
+    c.set_colour_at(9, 0, green);
+    c.set_colour_at(0, 19, blue);
+    c.set_colour_at(9, 19, white);
+
+    assert_eq!(c.colour_at(0, 0), red);
+    assert_eq!(c.colour_at(9, 0), green);
+    assert_eq!(c.colour_at(0, 19), blue);
+    assert_eq!(c.colour_at(9, 19), white);
+}

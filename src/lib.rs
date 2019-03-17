@@ -175,4 +175,7 @@ impl Canvas {
     pub fn colour_at(&self, x: usize, y: usize) -> Tuple4 {
         self.pixels[y * self.width + x]
     }
+    pub fn set_colour_at(&mut self, x: usize, y: usize, c: Tuple4) {
+        self.pixels[y * self.width + x] = c;
+    }
 }
