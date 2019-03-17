@@ -1,5 +1,7 @@
 use std::ops::*;
 use std::vec::*;
+use std::io::Result as IOResult;
+use std::io::Write;
 
 const EPSILON: f64 = 1e-5;
 
@@ -177,5 +179,45 @@ impl Canvas {
     }
     pub fn set_colour_at(&mut self, x: usize, y: usize, c: Tuple4) {
         self.pixels[y * self.width + x] = c;
+    }
+}
+
+pub fn encode_ppm(c: &Canvas, w: &mut Write) -> IOResult<()> {
+    writeln!(w, "P3")?;
+    writeln!(w, "{} {}", c.width, c.height)?;
+    writeln!(w, "255")?;
+    encode_ppm_pixels(c, w, 70)?;
+    Ok(())
+}
+
+fn encode_ppm_pixels(c: &Canvas, w: &mut Write, line_width: usize) -> IOResult<()> {
+    for row in 0..(c.height) {
+        let mut char_width = 0;
+        for col in 0..(c.width) {
+            let p = c.colour_at(col, row);
+            let s = format!("{:.0} {:.0} {:.0} ", 
+                            clamp(red(p), 255),
+                            clamp(green(p), 255),
+                            clamp(blue(p), 255));
+
+            if char_width + s.len() > line_width {
+                writeln!(w)?;
+                char_width = 0;
+            }
+            write!(w, "{}", s)?;
+            char_width += s.len();
+        }
+        writeln!(w, "")?
+    }
+    Ok(())
+}
+
+fn clamp(p: f64, max: u32) -> f64 {
+    if p < 0.0 {
+        return 0.0;
+    } else if p >= 1.0 {
+        return f64::from(max);
+    } else {
+        return p * f64::from(max);
     }
 }
