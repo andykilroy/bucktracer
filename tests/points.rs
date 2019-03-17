@@ -122,3 +122,17 @@ fn multiply_colours() {
     assert_eq!(colour(0.9, 0.2, 0.04), 
                colour(1.0, 0.2, 0.4).mult_pairwise(colour(0.9, 1.0, 0.1)));
 }
+
+#[test]
+fn create_a_canvas() {
+    let c = canvas(10, 20);
+    assert_eq!(c.width, 10);
+    assert_eq!(c.height, 20);
+
+    let black = colour(0.0, 0.0, 0.0);
+    for i in 0..10 {
+        for j in 0..20 {
+            assert_eq!(c.colour_at(i, j), black);
+        }
+    }
+}

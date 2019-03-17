@@ -1,4 +1,5 @@
 use std::ops::*;
+use std::vec::*;
 
 const EPSILON: f64 = 1e-5;
 
@@ -156,4 +157,22 @@ pub fn green(Tuple4(r, g, b, w): Tuple4) -> f64 {
 }
 pub fn blue(Tuple4(r, g, b, w): Tuple4) -> f64 {
     b
+}
+
+pub struct Canvas { 
+    pub width: usize, 
+    pub height: usize,
+    pixels: Vec<Tuple4>
+}
+
+pub fn canvas(w: usize, h: usize) -> Canvas {
+    let length = w * h;
+    let arr = vec![colour(0.0, 0.0, 0.0); length];
+    Canvas {width: w, height: h, pixels: arr}
+}
+
+impl Canvas {
+    pub fn colour_at(&self, x: usize, y: usize) -> Tuple4 {
+        self.pixels[y * self.width + x]
+    }
 }
