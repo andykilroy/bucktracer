@@ -90,6 +90,24 @@ impl Neg for Tuple4 {
 }
 
 impl Tuple4 {
+    pub fn x(&self) -> f64 {
+        match *self {
+            Tuple4(x, y, z, w) => x
+        }
+    }
+
+    pub fn y(&self) -> f64 {
+        match *self {
+            Tuple4(x, y, z, w) => y
+        }
+    }
+
+    pub fn z(&self) -> f64 {
+        match *self {
+            Tuple4(x, y, z, w) => z
+        }
+    }
+
     pub fn scale(self, c: f64) -> Tuple4 {
         match self {
             Tuple4(x, y, z, w) =>
