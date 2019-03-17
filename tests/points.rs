@@ -108,3 +108,11 @@ fn cross_product() {
     assert_eq!(vector(-1.0, 2.0, -1.0), a.cross(b));
     assert_eq!(vector(1.0, -2.0,  1.0), b.cross(a));
 }
+
+#[test]
+fn create_a_colour() {
+    let c = colour(-0.5, 0.4, 1.7);
+    assert_eq!(-0.5, red(c));
+    assert_eq!( 0.4, green(c));
+    assert_eq!( 1.7, blue(c));
+}

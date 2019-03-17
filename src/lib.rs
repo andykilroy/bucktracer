@@ -131,3 +131,17 @@ impl Tuple4 {
         }
     }
 }
+
+pub fn colour(r: f64, g: f64, b: f64) -> Tuple4 {
+    Tuple4(r, g, b, 0.0)
+}
+
+pub fn red(Tuple4(r, g, b, w): Tuple4) -> f64 {
+    r
+}
+pub fn green(Tuple4(r, g, b, w): Tuple4) -> f64 {
+    g
+}
+pub fn blue(Tuple4(r, g, b, w): Tuple4) -> f64 {
+    b
+}
