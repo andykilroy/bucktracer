@@ -1,21 +1,23 @@
 use bucktracer::*;
+use std::io::Result;
 
-fn main() {
+fn main() -> Result<()> {
     let stone = Projectile {
         position: point(0.0, 1.0, 0.0),
-        velocity: vector(1.0, 1.0, 0.0)
+        velocity: vector(1.0, 1.1, 0.0)
     };
 
     let env = Environment {
         gravity: vector(0.0, -0.1, 0.0),
         wind: vector(0.0, 0.0, 0.0)
     };
-    
-    let path = trace_path(&env, &stone);
 
-    for p in path.iter() {
-        println!("{:?}", p);
-    }
+    let path = trace_path(&env, &stone);
+    let c = plot(canvas(480, 270), 25.0, 14.0625, path);
+
+    let mut stdout = std::io::stdout();
+
+    encode_ppm(&c, &mut stdout)
 }
 
 #[derive(Debug, Clone)]
@@ -32,11 +34,10 @@ struct Environment {
 fn trace_path(env: &Environment, start: &Projectile) -> Vec<Projectile> {
     let mut v: Vec<Projectile> = vec![];
     
-    v.push(start.clone());
     let mut current: Projectile = start.clone();
     while current.position.y() > 0.0 {
-        current = tick(env, &current);
         v.push(current.clone());
+        current = tick(env, &current);
     }
 
     v
@@ -50,4 +51,28 @@ fn tick(env: &Environment, current: &Projectile) -> Projectile {
     }
 }
 
+fn plot(mut cvs: Canvas, width: f64, height: f64, path: Vec<Projectile>) -> Canvas {
+    let red = colour(1.0, 0.0, 0.0);
+    for p in path.iter() {
+        let xf = p.position.x() / width;
+        let yf = p.position.y() / height;
+        let xi = asusize(xf * asf64(cvs.width - 1));
+        let yi = asusize(yf * asf64(cvs.height - 1));
+        let compensatedy = cvs.height - 1 - yi;
+        cvs.set_colour_at(xi, compensatedy, red);
+    }
+    cvs
+}
 
+fn asf64(x: usize) -> f64 {
+    let s = format!("{}", x);
+    let v = s.parse::<f64>().expect("should be parseable to f64");
+    v
+}
+
+fn asusize(x: f64) -> usize {
+    let s = format!("{:.0}", x);
+    if x < 0.0 {panic!("uh-oh, can't convert negative number to usize");}
+    let v = usize::from_str_radix(&s, 10).expect("should be parseable to usize");
+    v
+}
