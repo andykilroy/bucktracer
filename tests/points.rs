@@ -116,3 +116,9 @@ fn create_a_colour() {
     assert_eq!( 0.4, green(c));
     assert_eq!( 1.7, blue(c));
 }
+
+#[test]
+fn multiply_colours() {
+    assert_eq!(colour(0.9, 0.2, 0.04), 
+               colour(1.0, 0.2, 0.4).mult_pairwise(colour(0.9, 1.0, 0.1)));
+}
