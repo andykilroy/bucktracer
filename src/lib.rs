@@ -131,6 +131,7 @@ impl Tuple4 {
         }
     }
 
+    // hadamard product
     pub fn mult_pairwise(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
         match self {
             Tuple4(a1, a2, a3, a4) => {
