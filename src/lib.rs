@@ -301,3 +301,12 @@ impl Index<usize> for Matrix {
         }
     }
 }
+
+impl PartialEq for Matrix {
+    fn eq(&self, y: &Matrix) -> bool {
+        self.r1 == y.r1 &&
+        self.r2 == y.r2 &&
+        self.r3 == y.r3 &&
+        self.r4 == y.r4
+    }
+}
