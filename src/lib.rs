@@ -49,7 +49,6 @@ impl PartialEq for Tuple4 {
         }
         return false;
     }
-
 }
 
 fn almost_eq(x1: f64, x2: f64) -> bool {
@@ -309,4 +308,40 @@ impl PartialEq for Matrix {
         self.r3 == y.r3 &&
         self.r4 == y.r4
     }
+}
+
+impl Mul for Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: Matrix) -> Matrix {
+        mult(&self, &rhs)
+    }
+}
+
+fn mult(a: &Matrix, b: &Matrix) -> Matrix {
+    let a1b1 = a.r1.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
+    let a1b2 = a.r1.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
+    let a1b3 = a.r1.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
+    let a1b4 = a.r1.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+
+    let a2b1 = a.r2.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
+    let a2b2 = a.r2.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
+    let a2b3 = a.r2.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
+    let a2b4 = a.r2.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+
+    let a3b1 = a.r3.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
+    let a3b2 = a.r3.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
+    let a3b3 = a.r3.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
+    let a3b4 = a.r3.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+
+    let a4b1 = a.r4.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
+    let a4b2 = a.r4.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
+    let a4b3 = a.r4.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
+    let a4b4 = a.r4.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+
+    matrix(
+        (a1b1, a1b2, a1b3, a1b4),
+        (a2b1, a2b2, a2b3, a2b4),
+        (a3b1, a3b2, a3b3, a3b4),
+        (a4b1, a4b2, a4b3, a4b4))
 }
