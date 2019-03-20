@@ -108,6 +108,12 @@ impl Tuple4 {
         }
     }
 
+    pub fn w(&self) -> f64 {
+        match *self {
+            Tuple4(x, y, z, w) => w
+        }
+    }
+
     pub fn scale(self, c: f64) -> Tuple4 {
         match self {
             Tuple4(x, y, z, w) =>
@@ -163,6 +169,25 @@ impl Tuple4 {
             }
         }
     }
+}
+
+impl Index<usize> for Tuple4 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &f64 {
+        match self {
+            Tuple4(x, y, z, w) => {
+                match index {
+                    0 => &x,
+                    1 => &y,
+                    2 => &z,
+                    3 => &w,
+                    _ => panic!("unexpected index")
+                }
+            }
+        }
+    }
+
 }
 
 pub fn colour(r: f64, g: f64, b: f64) -> Tuple4 {
@@ -237,5 +262,42 @@ fn clamp(p: f64, max: u32) -> f64 {
         return f64::from(max);
     } else {
         return p * f64::from(max);
+    }
+}
+
+#[derive(Debug)]
+pub struct Matrix {
+    r1: Tuple4,
+    r2: Tuple4,
+    r3: Tuple4,
+    r4: Tuple4
+}
+
+pub fn matrix(
+    (x1, y1, z1, w1) : (f64, f64, f64, f64),
+    (x2, y2, z2, w2) : (f64, f64, f64, f64),
+    (x3, y3, z3, w3) : (f64, f64, f64, f64),
+    (x4, y4, z4, w4) : (f64, f64, f64, f64)
+    ) -> Matrix {
+
+    Matrix {
+        r1: Tuple4(x1, y1, z1, w1),
+        r2: Tuple4(x2, y2, z2, w2),
+        r3: Tuple4(x3, y3, z3, w3),
+        r4: Tuple4(x4, y4, z4, w4),
+    }
+}
+
+impl Index<usize> for Matrix {
+    type Output = Tuple4;
+    
+    fn index(&self, index: usize) -> &Tuple4 {
+        match index {
+            0 => &self.r1,
+            1 => &self.r2,
+            2 => &self.r3,
+            3 => &self.r4,
+            _ => panic!("unexpected index for matrix")
+        }
     }
 }
