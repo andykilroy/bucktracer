@@ -48,6 +48,16 @@ fn not_equal() {
         );
 }
 
+#[test]
+fn matrix_tuple_multiplication() {
+    let a = matrix((1.0, 2.0, 3.0, 4.0),
+                   (2.0, 4.0, 4.0, 2.0), 
+                   (8.0, 6.0, 4.0, 1.0), 
+                   (0.0, 0.0, 0.0, 1.0)); 
+    let b = tuple(1.0, 2.0, 3.0, 1.0);
+
+    assert_eq!(a.mult(b), tuple(18.0, 24.0, 33.0, 1.0));
+}
 
 #[test]
 fn matrix_mult() {

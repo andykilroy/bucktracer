@@ -24,6 +24,10 @@ pub fn vector(x: f64, y: f64, z: f64) -> Tuple4 {
     Tuple4(x, y, z, 0.0)
 }
 
+pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
+    Tuple4(x, y, z, w)
+}
+
 impl PartialEq for Tuple4 {
 
     fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
@@ -314,34 +318,56 @@ impl Mul for Matrix {
     type Output = Matrix;
 
     fn mul(self, rhs: Matrix) -> Matrix {
-        mult(&self, &rhs)
+        mult_mat(&self, &rhs)
     }
 }
 
-fn mult(a: &Matrix, b: &Matrix) -> Matrix {
-    let a1b1 = a.r1.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
-    let a1b2 = a.r1.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
-    let a1b3 = a.r1.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
-    let a1b4 = a.r1.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+fn mult_mat(a: &Matrix, b: &Matrix) -> Matrix {
+    let c1 = b.col(0);
+    let c2 = b.col(1);
+    let c3 = b.col(2);
+    let c4 = b.col(3);
 
-    let a2b1 = a.r2.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
-    let a2b2 = a.r2.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
-    let a2b3 = a.r2.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
-    let a2b4 = a.r2.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+    let a1b1 = a.r1.dot(c1);
+    let a1b2 = a.r1.dot(c2);
+    let a1b3 = a.r1.dot(c3);
+    let a1b4 = a.r1.dot(c4);
 
-    let a3b1 = a.r3.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
-    let a3b2 = a.r3.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
-    let a3b3 = a.r3.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
-    let a3b4 = a.r3.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+    let a2b1 = a.r2.dot(c1);
+    let a2b2 = a.r2.dot(c2);
+    let a2b3 = a.r2.dot(c3);
+    let a2b4 = a.r2.dot(c4);
 
-    let a4b1 = a.r4.dot(Tuple4(b[0][0], b[1][0], b[2][0], b[3][0]));
-    let a4b2 = a.r4.dot(Tuple4(b[0][1], b[1][1], b[2][1], b[3][1]));
-    let a4b3 = a.r4.dot(Tuple4(b[0][2], b[1][2], b[2][2], b[3][2]));
-    let a4b4 = a.r4.dot(Tuple4(b[0][3], b[1][3], b[2][3], b[3][3]));
+    let a3b1 = a.r3.dot(c1);
+    let a3b2 = a.r3.dot(c2);
+    let a3b3 = a.r3.dot(c3);
+    let a3b4 = a.r3.dot(c4);
+
+    let a4b1 = a.r4.dot(c1);
+    let a4b2 = a.r4.dot(c2);
+    let a4b3 = a.r4.dot(c3);
+    let a4b4 = a.r4.dot(c4);
 
     matrix(
         (a1b1, a1b2, a1b3, a1b4),
         (a2b1, a2b2, a2b3, a2b4),
         (a3b1, a3b2, a3b3, a3b4),
         (a4b1, a4b2, a4b3, a4b4))
+}
+
+impl Matrix {
+    pub fn mult(&self, rhs: Tuple4) -> Tuple4 {
+        let a = self.r1.dot(rhs);
+        let b = self.r2.dot(rhs);
+        let c = self.r3.dot(rhs);
+        let d = self.r4.dot(rhs);
+        Tuple4(a, b, c, d)
+    }
+
+    pub fn col(&self, i: usize) -> Tuple4 {
+        Tuple4(self[0][i], 
+               self[1][i], 
+               self[2][i], 
+               self[3][i])
+    }
 }
