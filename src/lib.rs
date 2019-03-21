@@ -33,10 +33,6 @@ impl PartialEq for Tuple4 {
     fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
         match self {
             Tuple4(a1, a2, a3, a4) => {
-                if *a4 != *b4 {
-                    return false;
-                }
-
                 if !almost_eq(*a1, *b1) {
                     return false;
                 }
@@ -48,6 +44,11 @@ impl PartialEq for Tuple4 {
                 if !almost_eq(*a3, *b3) {
                     return false;
                 }
+
+                if !almost_eq(*a4, *b4) {
+                    return false;
+                }
+
                 return true;
             }
         }
@@ -268,7 +269,7 @@ fn clamp(p: f64, max: u32) -> f64 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Matrix {
     r1: Tuple4,
     r2: Tuple4,
@@ -289,6 +290,13 @@ pub fn matrix(
         r3: Tuple4(x3, y3, z3, w3),
         r4: Tuple4(x4, y4, z4, w4),
     }
+}
+
+pub fn identity() -> Matrix {
+    matrix((1.0, 0.0, 0.0, 0.0),
+           (0.0, 1.0, 0.0, 0.0),
+           (0.0, 0.0, 1.0, 0.0),
+           (0.0, 0.0, 0.0, 1.0))
 }
 
 impl Index<usize> for Matrix {

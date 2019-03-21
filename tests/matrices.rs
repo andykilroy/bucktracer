@@ -79,4 +79,23 @@ fn matrix_mult() {
         );
 }
 
+#[test]
+fn mult_by_identity() {
+    let a = matrix((0.0, 1.0, 2.0, 4.0),
+                   (1.0, 2.0, 4.0, 8.0),
+                   (2.0, 4.0, 8.0, 16.0),
+                   (4.0, 8.0, 16.0, 32.0));
+    let i = identity();
+
+    assert_eq!(a.clone(), a * i);
+}
+
+#[test]
+fn mult_tuple_by_identity() {
+    let a = tuple(1.0, 2.0, 3.0, 4.0);
+    let i = identity();
+
+    assert_eq!(a.clone(), i.mult(a));
+}
+
 
