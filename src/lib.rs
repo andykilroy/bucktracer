@@ -271,10 +271,18 @@ fn clamp(p: f64, max: u32) -> f64 {
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
+    dim: Dimensions,
     r1: Tuple4,
     r2: Tuple4,
     r3: Tuple4,
     r4: Tuple4
+}
+
+#[derive(Debug, Clone)]
+enum Dimensions {
+    X2,
+    X3,
+    X4
 }
 
 pub fn matrix(
@@ -285,6 +293,7 @@ pub fn matrix(
     ) -> Matrix {
 
     Matrix {
+        dim: Dimensions::X4,
         r1: Tuple4(x1, y1, z1, w1),
         r2: Tuple4(x2, y2, z2, w2),
         r3: Tuple4(x3, y3, z3, w3),
@@ -292,6 +301,35 @@ pub fn matrix(
     }
 }
 
+
+pub fn matrix2(
+    (x1, y1) : (f64, f64),
+    (x2, y2) : (f64, f64),
+    ) -> Matrix {
+
+    Matrix {
+        dim: Dimensions::X2,
+        r1: Tuple4(x1, y1, 0.0, 0.0),
+        r2: Tuple4(x2, y2, 0.0, 0.0),
+        r3: Tuple4(0.0, 0.0, 0.0, 0.0),
+        r4: Tuple4(0.0, 0.0, 0.0, 0.0),
+    }
+}
+
+pub fn matrix3(
+    (x1, y1, z1) : (f64, f64, f64),
+    (x2, y2, z2) : (f64, f64, f64),
+    (x3, y3, z3) : (f64, f64, f64),
+    ) -> Matrix {
+
+    Matrix {
+        dim: Dimensions::X3,
+        r1: Tuple4(x1, y1, z1, 0.0),
+        r2: Tuple4(x2, y2, z2, 0.0),
+        r3: Tuple4(x3, y3, z3, 0.0),
+        r4: Tuple4(0.0, 0.0, 0.0, 0.0),
+    }
+}
 pub fn identity() -> Matrix {
     matrix((1.0, 0.0, 0.0, 0.0),
            (0.0, 1.0, 0.0, 0.0),
