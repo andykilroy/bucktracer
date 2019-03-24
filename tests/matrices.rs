@@ -113,4 +113,15 @@ fn transpose() {
         a.transpose())   
 }
 
+#[test]
+fn determinant() {
+
+    let a = 
+        matrix(( 1.0, 5.0, 0.0, 0.0),
+               (-3.0, 2.0, 0.0, 0.0),
+               (0.0, 0.0, 0.0, 0.0),
+               (0.0, 0.0, 0.0, 0.0));
+    assert_eq!(17.0, det(&a));
+
+}
 

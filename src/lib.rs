@@ -386,3 +386,11 @@ impl Matrix {
                (self[0][3], self[1][3], self[2][3], self[3][3]))
     }
 }
+
+pub fn det(x: &Matrix) -> f64 {
+    let a = x[0][0];
+    let b = x[0][1];
+    let c = x[1][0];
+    let d = x[1][1];
+    return (a * d) - (b * c)
+}
