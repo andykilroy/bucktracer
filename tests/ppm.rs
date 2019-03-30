@@ -7,7 +7,7 @@ fn print_ppm_header_for_empty_canvas() {
     let mut bytes: Vec<u8> = vec![];
     encode_ppm(&cvs, &mut bytes);
 
-    let mut s = String::from_utf8_lossy(&bytes);
+    let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
 r##"P3
 0 0
@@ -25,7 +25,7 @@ fn print_ppm_output_without_clamping() {
     let mut bytes: Vec<u8> = vec![];
     encode_ppm(&cvs, &mut bytes);
 
-    let mut s = String::from_utf8_lossy(&bytes);
+    let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
 r##"P3
 5 3
@@ -46,7 +46,7 @@ fn print_ppm_output_with_clamping() {
     let mut bytes: Vec<u8> = vec![];
     encode_ppm(&cvs, &mut bytes);
 
-    let mut s = String::from_utf8_lossy(&bytes);
+    let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
 r##"P3
 5 3
@@ -71,7 +71,7 @@ fn print_ppm_output_max_70_chars_per_line() {
     let mut bytes: Vec<u8> = vec![];
     encode_ppm(&cvs, &mut bytes);
 
-    let mut s = String::from_utf8_lossy(&bytes);
+    let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
 r##"P3
 10 2

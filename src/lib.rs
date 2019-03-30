@@ -52,7 +52,6 @@ impl PartialEq for Tuple4 {
                 return true;
             }
         }
-        return false;
     }
 }
 
@@ -96,27 +95,28 @@ impl Neg for Tuple4 {
 impl Tuple4 {
     pub fn x(&self) -> f64 {
         match *self {
-            Tuple4(x, y, z, w) => x
+            Tuple4(x, _, _, _) => x
         }
     }
 
     pub fn y(&self) -> f64 {
         match *self {
-            Tuple4(x, y, z, w) => y
+            Tuple4(_, y, _, _) => y
         }
     }
 
     pub fn z(&self) -> f64 {
         match *self {
-            Tuple4(x, y, z, w) => z
+            Tuple4(_, _, z, _) => z
         }
     }
 
     pub fn w(&self) -> f64 {
         match *self {
-            Tuple4(x, y, z, w) => w
+            Tuple4(_, _, _, w) => w
         }
     }
+
 
     pub fn scale(self, c: f64) -> Tuple4 {
         match self {
@@ -152,9 +152,9 @@ impl Tuple4 {
         }
     }
 
-    pub fn cross(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
+    pub fn cross(self, Tuple4(b1, b2, b3, _b4): Tuple4) -> Tuple4 {
         match self {
-            Tuple4(a1, a2, a3, a4) => {
+            Tuple4(a1, a2, a3, _a4) => {
                 vector(a2 * b3 - a3 * b2,
                        a3 * b1 - a1 * b3,
                        a1 * b2 - a2 * b1)
@@ -198,13 +198,13 @@ pub fn colour(r: f64, g: f64, b: f64) -> Tuple4 {
     Tuple4(r, g, b, 0.0)
 }
 
-pub fn red(Tuple4(r, g, b, w): Tuple4) -> f64 {
+pub fn red(Tuple4(r, _g, _b, _w): Tuple4) -> f64 {
     r
 }
-pub fn green(Tuple4(r, g, b, w): Tuple4) -> f64 {
+pub fn green(Tuple4(_r, g, _b, _w): Tuple4) -> f64 {
     g
 }
-pub fn blue(Tuple4(r, g, b, w): Tuple4) -> f64 {
+pub fn blue(Tuple4(_r, _g, b, _w): Tuple4) -> f64 {
     b
 }
 
@@ -423,9 +423,18 @@ impl Matrix {
                (self[0][2], self[1][2], self[2][2], self[3][2]),
                (self[0][3], self[1][3], self[2][3], self[3][3]))
     }
+
+    pub fn det(&self) -> f64 {
+        match self.dim {
+            Dimensions::X2 => det_x2(self),
+            Dimensions::X3 => det_x2(self), // TODO
+            Dimensions::X4 => det_x2(self) // TODO
+        }
+    }
 }
 
-pub fn det(x: &Matrix) -> f64 {
+
+fn det_x2(x: &Matrix) -> f64 {
     let a = x[0][0];
     let b = x[0][1];
     let c = x[1][0];

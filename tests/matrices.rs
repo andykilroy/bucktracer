@@ -119,7 +119,7 @@ fn determinant() {
     let a = 
         matrix2(( 1.0, 5.0),
                  (-3.0, 2.0));
-    assert_eq!(17.0, det(&a));
+    assert_eq!(17.0, a.det());
 
 }
 
