@@ -431,6 +431,14 @@ impl Matrix {
             Dimensions::X4 => det_x2(self) // TODO
         }
     }
+
+    pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
+        match self.dim {
+            Dimensions::X3 => submatr_x3(self, row, col),
+            Dimensions::X4 => submatr_x4(self, row, col),
+            _ => panic!("no expected submatrix of a 2x2 matrix")
+        }
+    }
 }
 
 
@@ -440,4 +448,48 @@ fn det_x2(x: &Matrix) -> f64 {
     let c = x[1][0];
     let d = x[1][1];
     return (a * d) - (b * c)
+}
+
+fn submatr_x3(x: &Matrix, row: usize, col: usize) -> Matrix {
+    if row >= 3 {
+        panic!("row for a 3x3 matrix expected to be 0, 1, or 2")
+    }
+    if col >= 3 {
+        panic!("col for a 3x3 matrix expected to be 0, 1, or 2")
+    }
+
+    let mut collected = vec![];
+    for r in 0..3 {
+        for c in 0..3 {
+            if r != row && c != col {
+                collected.push(x[r][c]);
+            }
+        }
+    }
+
+    matrix2((collected[0], collected[1]), (collected[2], collected[3]))
+}
+
+fn submatr_x4(x: &Matrix, row: usize, col: usize) -> Matrix {
+    if row >= 4 {
+        panic!("row for a 4x4 matrix expected to be 0, 1, 2 or 3")
+    }
+    if col >= 4 {
+        panic!("col for a 4x4 matrix expected to be 0, 1, 2 or 3")
+    }
+
+    let mut collected = vec![];
+    for r in 0..4 {
+        for c in 0..4 {
+            if r != row && c != col {
+                collected.push(x[r][c]);
+            }
+        }
+    }
+
+    matrix3(
+        (collected[0], collected[1], collected[2]), 
+        (collected[3], collected[4], collected[5]), 
+        (collected[6], collected[7], collected[8]) 
+        )
 }
