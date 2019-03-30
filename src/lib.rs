@@ -439,6 +439,10 @@ impl Matrix {
             _ => panic!("no expected submatrix of a 2x2 matrix")
         }
     }
+
+    pub fn minor(&self, row: usize, col: usize) -> f64 {
+        self.submatrix(row, col).det()
+    }
 }
 
 
