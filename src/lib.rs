@@ -443,6 +443,14 @@ impl Matrix {
     pub fn minor(&self, row: usize, col: usize) -> f64 {
         self.submatrix(row, col).det()
     }
+
+    pub fn cofactor(&self, row: usize, col: usize) -> f64 {
+        if (row + col) % 2 ==  0 {
+            self.minor(row, col)
+        } else {
+            - self.minor(row, col)
+        }
+    }
 }
 
 

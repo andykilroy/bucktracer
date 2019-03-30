@@ -148,7 +148,7 @@ fn submatrix_of_4x4() {
 }
 
 #[test]
-fn minor() {
+fn minor_of_3x3() {
     let a = matrix3((3.0, 5.0, 0.0), 
                     (2.0, -1.0, -7.0),
                     (6.0, -1.0, 5.0));
@@ -156,4 +156,15 @@ fn minor() {
 
     assert_eq!(25.0, b.det());
     assert_eq!(25.0, a.minor(1, 0));
+}
+
+#[test]
+fn cofactors_of_3x3() {
+    let a = matrix3((3.0, 5.0, 0.0), 
+                    (2.0, -1.0, -7.0),
+                    (6.0, -1.0, 5.0));
+    assert_eq!(a.minor(0, 0), -12.0);
+    assert_eq!(a.cofactor(0, 0), -12.0);
+    assert_eq!(a.minor(1, 0), 25.0);
+    assert_eq!(a.cofactor(1, 0), -25.0);
 }
