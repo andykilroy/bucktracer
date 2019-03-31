@@ -427,8 +427,8 @@ impl Matrix {
     pub fn det(&self) -> f64 {
         match self.dim {
             Dimensions::X2 => det_x2(self),
-            Dimensions::X3 => det_x2(self), // TODO
-            Dimensions::X4 => det_x2(self) // TODO
+            Dimensions::X3 => det_x3(self),
+            Dimensions::X4 => det_x4(self)
         }
     }
 
@@ -460,6 +460,19 @@ fn det_x2(x: &Matrix) -> f64 {
     let c = x[1][0];
     let d = x[1][1];
     return (a * d) - (b * c)
+}
+
+fn det_x3(x: &Matrix) -> f64 {
+    x[0][0] * x.cofactor(0, 0) +
+    x[0][1] * x.cofactor(0, 1) +
+    x[0][2] * x.cofactor(0, 2)
+}
+
+fn det_x4(x: &Matrix) -> f64 {
+    x[0][0] * x.cofactor(0, 0) +
+    x[0][1] * x.cofactor(0, 1) +
+    x[0][2] * x.cofactor(0, 2) +
+    x[0][3] * x.cofactor(0, 3)
 }
 
 fn submatr_x3(x: &Matrix, row: usize, col: usize) -> Matrix {

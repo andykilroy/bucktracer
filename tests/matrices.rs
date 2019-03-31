@@ -168,3 +168,27 @@ fn cofactors_of_3x3() {
     assert_eq!(a.minor(1, 0), 25.0);
     assert_eq!(a.cofactor(1, 0), -25.0);
 }
+
+#[test]
+fn determinant_of_3x3() {
+    let a = matrix3((1.0, 2.0, 6.0), 
+                    (-5.0, 8.0, -4.0), 
+                    (2.0, 6.0, 4.0));
+    assert_eq!(a.cofactor(0, 0), 56.0);
+    assert_eq!(a.cofactor(0, 1), 12.0);
+    assert_eq!(a.cofactor(0, 2), -46.0);
+    assert_eq!(a.det(), -196.0);
+}
+
+#[test]
+fn determinant_of_4x4() {
+    let a = matrix((-2.0, -8.0,  3.0, 5.0), 
+                   (-3.0,  1.0,  7.0, 3.0), 
+                   ( 1.0,  2.0, -9.0, 6.0), 
+                   (-6.0,  7.0,  7.0, -9.0)); 
+    assert_eq!(a.cofactor(0, 0), 690.0);
+    assert_eq!(a.cofactor(0, 1), 447.0);
+    assert_eq!(a.cofactor(0, 2), 210.0);
+    assert_eq!(a.cofactor(0, 3),  51.0);
+    assert_eq!(a.det(), -4071.0);
+}
