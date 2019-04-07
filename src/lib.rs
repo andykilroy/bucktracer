@@ -451,6 +451,27 @@ impl Matrix {
             - self.minor(row, col)
         }
     }
+
+    pub fn cofactors(&self) -> Matrix {
+        matrix((self.cofactor(0, 0), self.cofactor(0, 1), self.cofactor(0, 2), self.cofactor(0, 3)),
+               (self.cofactor(1, 0), self.cofactor(1, 1), self.cofactor(1, 2), self.cofactor(1, 3)),
+               (self.cofactor(2, 0), self.cofactor(2, 1), self.cofactor(2, 2), self.cofactor(2, 3)),
+               (self.cofactor(3, 0), self.cofactor(3, 1), self.cofactor(3, 2), self.cofactor(3, 3)))
+    }
+
+    pub fn scale(&self, y: f64) -> Matrix {
+        Matrix {
+            dim: self.dim.clone(),
+            r1: self.r1.scale(y),
+            r2: self.r2.scale(y),
+            r3: self.r3.scale(y),
+            r4: self.r4.scale(y),
+        }
+    }
+
+    pub fn inverse(&self) -> Matrix {
+        self.cofactors().transpose().scale(1.0/self.det())
+    }
 }
 
 
