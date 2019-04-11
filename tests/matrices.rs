@@ -285,3 +285,4 @@ fn inverse_5() {
 
     assert_eq!( identity(), a.clone() * a.clone().inverse());
 }
+
