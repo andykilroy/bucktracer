@@ -34,23 +34,10 @@ impl PartialEq for Tuple4 {
     fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
         match self {
             Tuple4(a1, a2, a3, a4) => {
-                if !almost_eq(*a1, *b1) {
-                    return false;
-                }
-
-                if !almost_eq(*a2, *b2) {
-                    return false;
-                }
-
-                if !almost_eq(*a3, *b3) {
-                    return false;
-                }
-
-                if !almost_eq(*a4, *b4) {
-                    return false;
-                }
-
-                return true;
+                almost_eq(*a1, *b1) &&
+                almost_eq(*a2, *b2) &&
+                almost_eq(*a3, *b3) &&
+                almost_eq(*a4, *b4)
             }
         }
     }
