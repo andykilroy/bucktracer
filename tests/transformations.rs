@@ -90,5 +90,14 @@ fn rotate_around_z_axis() {
     assert_eq!(quarter_turn.mult(p), point(0.0, 1.0, 0.0));
 }
 
-
+#[test]
+fn compose_transforms() {
+    let pi_by_2 = FRAC_PI_2;
+    let p = point(1.0, 0.0, 1.0);
+    let t = identity()
+        .rotate_x(pi_by_2)
+        .scale(5.0, 5.0, 5.0)
+        .translate(10.0, 5.0, 7.0);
+    assert_eq!(t.mult(p), point(15.0, 0.0, 7.0));
+}
 

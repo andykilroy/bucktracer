@@ -473,6 +473,27 @@ impl Matrix {
     pub fn inverse(&self) -> Matrix {
         self.cofactors().transpose().scale_elems(1.0/self.det())
     }
+
+    pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix {
+        translation(x, y, z) * self
+    }
+
+    pub fn scale(self, x: f64, y: f64, z: f64) -> Matrix {
+        scaling(x, y, z) * self
+    }
+
+    pub fn rotate_x(self, r: f64) -> Matrix {
+        rotation_x(r) * self
+    }
+
+    pub fn rotate_y(self, r: f64) -> Matrix {
+        rotation_y(r) * self
+    }
+
+    pub fn rotate_z(self, r: f64) -> Matrix {
+        rotation_z(r) * self
+    }
+
 }
 
 
