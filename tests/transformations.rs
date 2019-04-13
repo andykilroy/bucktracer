@@ -1,4 +1,5 @@
 use bucktracer::*;
+use std::f64::consts::*;
 
 #[test]
 fn translate() {
@@ -58,3 +59,12 @@ fn reflection_is_scaling_by_a_negative_value() {
     assert_eq!(t.mult(p), point(-2.0, 3.0, 4.0));
 }
 
+#[test]
+fn rotate_around_x_axis() {
+    let p = point(0.0, 1.0, 0.0);
+    let eighth_turn = rotation_x(FRAC_PI_4);  // pi / 4
+    let quarter_turn = rotation_x(FRAC_PI_2);  // pi / 2
+
+    assert_eq!(eighth_turn.mult(p) , point(0.0, FRAC_1_SQRT_2, FRAC_1_SQRT_2));
+    assert_eq!(quarter_turn.mult(p), point(0.0, 0.0, 1.0));
+}

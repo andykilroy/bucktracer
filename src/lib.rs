@@ -2,6 +2,7 @@ use std::ops::*;
 use std::vec::*;
 use std::io::Result as IOResult;
 use std::io::Write;
+use std::f64::*;
 
 const EPSILON: f64 = 1e-5;
 
@@ -459,7 +460,7 @@ impl Matrix {
                (self.cofactor(3, 0), self.cofactor(3, 1), self.cofactor(3, 2), self.cofactor(3, 3)))
     }
 
-    pub fn scale(&self, y: f64) -> Matrix {
+    fn scale_elems(&self, y: f64) -> Matrix {
         Matrix {
             dim: self.dim.clone(),
             r1: self.r1.scale(y),
@@ -470,7 +471,7 @@ impl Matrix {
     }
 
     pub fn inverse(&self) -> Matrix {
-        self.cofactors().transpose().scale(1.0/self.det())
+        self.cofactors().transpose().scale_elems(1.0/self.det())
     }
 }
 
@@ -553,4 +554,21 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
            (0.0, y  , 0.0, 0.0),
            (0.0, 0.0, z  , 0.0),
            (0.0, 0.0, 0.0, 1.0))
+}
+
+pub fn rotation_x(r: f64) -> Matrix {
+    matrix((1.0,    0.0,     0.0,     0.0),
+           (0.0, cos(r), -sin(r),     0.0),
+           (0.0, sin(r),  cos(r),     0.0),
+           (0.0,    0.0,     0.0,     1.0))
+}
+
+// I don't like the call style of the trig functions in f64
+
+fn sin(r: f64) -> f64 {
+    r.sin()
+}
+
+fn cos(r: f64) -> f64 {
+    r.cos()
 }
