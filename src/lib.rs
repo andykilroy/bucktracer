@@ -32,14 +32,11 @@ pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
 impl PartialEq for Tuple4 {
 
     fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
-        match self {
-            Tuple4(a1, a2, a3, a4) => {
-                almost_eq(*a1, *b1) &&
-                almost_eq(*a2, *b2) &&
-                almost_eq(*a3, *b3) &&
-                almost_eq(*a4, *b4)
-            }
-        }
+        let Tuple4(a1, a2, a3, a4) = self;
+        almost_eq(*a1, *b1) &&
+        almost_eq(*a2, *b2) &&
+        almost_eq(*a3, *b3) &&
+        almost_eq(*a4, *b4)
     }
 }
 
@@ -51,10 +48,8 @@ impl Add for Tuple4 {
     type Output = Tuple4;
 
     fn add(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
-        match self {
-            Tuple4(a1, a2, a3, a4) =>
-                Tuple4(a1 + b1, a2 + b2, a3 + b3, a4 + b4)
-        }
+        let Tuple4(a1, a2, a3, a4) = self;
+        Tuple4(a1 + b1, a2 + b2, a3 + b3, a4 + b4)
     }
 }
 
@@ -62,10 +57,8 @@ impl Sub for Tuple4 {
     type Output = Tuple4;
 
     fn sub(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
-        match self {
-            Tuple4(a1, a2, a3, a4) =>
-                Tuple4(a1 - b1, a2 - b2, a3 - b3, a4 - b4)
-        }
+        let Tuple4(a1, a2, a3, a4) = self;
+        Tuple4(a1 - b1, a2 - b2, a3 - b3, a4 - b4)
     }
 }
 
@@ -73,10 +66,8 @@ impl Neg for Tuple4 {
     type Output = Tuple4;
 
     fn neg(self) -> Tuple4 {
-        match self {
-            Tuple4(x, y, z, w) =>
-                Tuple4(-x, -y, -z, -w)
-        }
+        let Tuple4(x, y, z, w) = self;
+        Tuple4(-x, -y, -z, -w)
     }
 }
 
