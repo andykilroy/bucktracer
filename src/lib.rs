@@ -563,6 +563,20 @@ pub fn rotation_x(r: f64) -> Matrix {
            (0.0,    0.0,     0.0,     1.0))
 }
 
+pub fn rotation_y(r: f64) -> Matrix {
+    matrix(( cos(r),    0.0,  sin(r),     0.0),
+           (    0.0,    1.0,     0.0,     0.0),
+           (-sin(r),    0.0,  cos(r),     0.0),
+           (    0.0,    0.0,     0.0,     1.0))
+}
+
+pub fn rotation_z(r: f64) -> Matrix {
+    matrix((cos(r), -sin(r),     0.0,     0.0),
+           (sin(r),  cos(r),     0.0,     0.0),
+           (   0.0,    0.0,     1.0,     0.0),
+           (   0.0,    0.0,     0.0,     1.0))
+}
+
 // I don't like the call style of the trig functions in f64
 
 fn sin(r: f64) -> f64 {

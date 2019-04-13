@@ -68,3 +68,27 @@ fn rotate_around_x_axis() {
     assert_eq!(eighth_turn.mult(p) , point(0.0, FRAC_1_SQRT_2, FRAC_1_SQRT_2));
     assert_eq!(quarter_turn.mult(p), point(0.0, 0.0, 1.0));
 }
+
+
+#[test]
+fn rotate_around_y_axis() {
+    let p = point(0.0, 0.0, 1.0);
+    let eighth_turn = rotation_y(FRAC_PI_4);  // pi / 4
+    let quarter_turn = rotation_y(FRAC_PI_2);  // pi / 2
+
+    assert_eq!(eighth_turn.mult(p) , point(FRAC_1_SQRT_2, 0.0, FRAC_1_SQRT_2));
+    assert_eq!(quarter_turn.mult(p), point(1.0, 0.0, 0.0));
+}
+
+#[test]
+fn rotate_around_z_axis() {
+    let p = point(1.0, 0.0, 0.0);
+    let eighth_turn = rotation_z(FRAC_PI_4);  // pi / 4
+    let quarter_turn = rotation_z(FRAC_PI_2);  // pi / 2
+
+    assert_eq!(eighth_turn.mult(p) , point(FRAC_1_SQRT_2, FRAC_1_SQRT_2, 0.0));
+    assert_eq!(quarter_turn.mult(p), point(0.0, 1.0, 0.0));
+}
+
+
+
