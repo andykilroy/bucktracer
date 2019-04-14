@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     //for p in hours.iter() {
      //   println!("{:?}", p);
     //}
-    let c = plot(canvas(200, 200), (-1.5, -1.5), (1.5, 1.5), hours);
+    let c = plot(canvas(200, 300), (-2.0, -2.0), (2.0, 4.0), hours);
 
     encode_ppm(&c, &mut stdout)
 }
@@ -34,20 +34,23 @@ fn plot(mut cvs: Canvas,
     let transform = identity()
         .translate(-world_centroid.x(), 
                    -world_centroid.y(), 
-                   -world_centroid.z())  // take world coords, and centre them around (0,0)
-        .scale(1.0 / width, 1.0 / height, 1.0)  // squash the coordinates so they fit in 
-                                                // bounds of box (-1/2, -1/2), (1/2, 1/2)
-        .translate(0.5, 0.5, 0.0);       // move so coords are within box (0,0), (1,1)
+                   -world_centroid.z())  // Take world coords, and centre them around (0,0)
 
-    
+        .scale(1.0 / width, 1.0 / height, 1.0)  // Squash the coordinates so they fit in 
+                                                // bounds of box (-1/2, -1/2), (1/2, 1/2)
+                                                
+        .scale(1.0, -1.0, 1.0)           // Positive y points up in world coords, but the canvas
+                                         // y coords point down.  Reflect in y, otherwise the
+                                         // image will appear flipped from top to bottom.
+                                         
+        .translate(0.5, 0.5, 0.0);       // translate so coords are within box (0,0), (1,1)
 
     let red = colour(1.0, 0.0, 0.0);
     for p in points.iter() {
         let q = transform.mult(*p);
         let xi = asusize(q.x() * asf64(cvs.width - 1));
         let yi = asusize(q.y() * asf64(cvs.height - 1));
-        let compensatedy = cvs.height - 1 - yi;
-        cvs.set_colour_at(xi, compensatedy, red);
+        cvs.set_colour_at(xi, yi, red);
     }
     cvs
 }
