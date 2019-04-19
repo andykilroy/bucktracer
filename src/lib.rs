@@ -612,7 +612,20 @@ pub fn unit_sphere() -> Sphere {
     }
 }
 
-pub fn intersect(r: &Ray, s: &Sphere) -> Vec<f64> {
+#[derive(Debug, Clone)]
+pub struct Intersection {
+    pub t_value: f64,
+    pub intersected: Sphere
+}
+
+fn intersection(s: &Sphere, t: f64) -> Intersection {
+    Intersection {
+        t_value: t,
+        intersected: s.clone()
+    }
+}
+
+pub fn intersect(r: &Ray, s: &Sphere) -> Vec<Intersection> {
     // presume sphere centred at (0, 0, 0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
@@ -625,6 +638,9 @@ pub fn intersect(r: &Ray, s: &Sphere) -> Vec<f64> {
     } else {
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        vec![t1, t2]
+        vec![
+            intersection(s, t1),
+            intersection(s, t2)
+        ]
     }
 }

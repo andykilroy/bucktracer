@@ -24,8 +24,8 @@ fn ray_intersects_sphere() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
     let xs = intersect(&r, &s);
-    assert_eq!(xs[0], 4.0);
-    assert_eq!(xs[1], 6.0);
+    assert_eq!(xs[0].t_value, 4.0);
+    assert_eq!(xs[1].t_value, 6.0);
 }
 
 #[test]
@@ -33,8 +33,8 @@ fn ray_intersects_sphere_at_tangent() {
     let r = ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
     let xs = intersect(&r, &s);
-    assert_eq!(xs[0], 5.0);
-    assert_eq!(xs[1], 5.0);
+    assert_eq!(xs[0].t_value, 5.0);
+    assert_eq!(xs[1].t_value, 5.0);
 }
 
 #[test]
@@ -50,8 +50,8 @@ fn ray_originates_inside_sphere() {
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
     let xs = intersect(&r, &s);
-    assert_eq!(xs[0], -1.0);
-    assert_eq!(xs[1],  1.0);
+    assert_eq!(xs[0].t_value, -1.0);
+    assert_eq!(xs[1].t_value,  1.0);
 }
 
 #[test]
@@ -59,8 +59,7 @@ fn ray_originates_in_front_of_sphere() {
     let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
     let xs = intersect(&r, &s);
-    assert_eq!(xs[0], -6.0);
-    assert_eq!(xs[1], -4.0);
+    assert_eq!(xs[0].t_value, -6.0);
+    assert_eq!(xs[1].t_value, -4.0);
 }
-
 
