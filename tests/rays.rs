@@ -66,7 +66,45 @@ fn ray_originates_in_front_of_sphere() {
 #[test]
 fn create_intersection() {
     let s = unit_sphere();
-    let i = intersection(&s, 3.5);
+    let i = intersection(3.5, &s);
     assert_eq!(s, i.intersected);
     assert_eq!(3.5, i.t_value);
+}
+
+#[test]
+fn finding_hits_when_t_values_are_positive() {
+    let s = unit_sphere();
+    let i1 = intersection(1.0, &s);
+    let i2 = intersection(2.0, &s);
+    let xs = vec![i1, i2];
+    assert_eq!(Some(i1), hit(xs));
+}
+
+#[test]
+fn finding_hits_when_some_intersections_have_negative_t() {
+    let s = unit_sphere();
+    let i1 = intersection(-1.0, &s);
+    let i2 = intersection( 1.0, &s);
+    let xs = vec![i1, i2];
+    assert_eq!(Some(i2), hit(xs));
+}
+
+#[test]
+fn finding_hits_when_all_intersections_have_negative_t() {
+    let s = unit_sphere();
+    let i1 = intersection(-2.0, &s);
+    let i2 = intersection(-1.0, &s);
+    let xs = vec![i1, i2];
+    assert_eq!(None, hit(xs));
+}
+
+#[test]
+fn finding_hits_always_the_lowest_non_negative_t() {
+    let s = unit_sphere();
+    let i1 = intersection(5.0, &s);
+    let i2 = intersection(7.0, &s);
+    let i3 = intersection(-3.0, &s);
+    let i4 = intersection(2.0, &s);
+    let xs = vec![i1, i2, i3, i4];
+    assert_eq!(Some(i4), hit(xs));
 }

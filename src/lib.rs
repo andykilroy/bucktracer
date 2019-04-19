@@ -599,7 +599,7 @@ pub fn position(ray: Ray, t: f64) -> Tuple4 {
     ray.origin + (ray.direction.scale(t))
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Sphere {
     pos: Tuple4,
     radius: f64
@@ -612,13 +612,13 @@ pub fn unit_sphere() -> Sphere {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
     pub intersected: Sphere
 }
 
-pub fn intersection(s: &Sphere, t: f64) -> Intersection {
+pub fn intersection(t: f64, s: &Sphere) -> Intersection {
     Intersection {
         t_value: t,
         intersected: s.clone()
@@ -639,8 +639,27 @@ pub fn intersect(r: &Ray, s: &Sphere) -> Vec<Intersection> {
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
         vec![
-            intersection(s, t1),
-            intersection(s, t2)
+            intersection(t1, s),
+            intersection(t2, s)
         ]
     }
+}
+
+pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
+
+    intersects
+        .iter()
+        .filter(|i| i.t_value >= 0.0)
+        .fold(None, |least, x| {
+            match least {
+                None => Some(x),
+                Some(c) =>
+                    if x.t_value < c.t_value {
+                        Some(x)
+                    } else {
+                        least
+                    }
+            }
+        })
+        .cloned()
 }
