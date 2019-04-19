@@ -585,6 +585,7 @@ fn cos(r: f64) -> f64 {
     r.cos()
 }
 
+#[derive(Debug, Clone)]
 pub struct Ray {
     pub origin: Tuple4,
     pub direction: Tuple4
@@ -592,4 +593,8 @@ pub struct Ray {
 
 pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
     Ray { origin: o, direction: d }
+}
+
+pub fn position(ray: Ray, t: f64) -> Tuple4 {
+    ray.origin + (ray.direction.scale(t))
 }
