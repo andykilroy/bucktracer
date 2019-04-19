@@ -646,20 +646,23 @@ pub fn intersect(r: &Ray, s: &Sphere) -> Vec<Intersection> {
 }
 
 pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
-
     intersects
         .iter()
         .filter(|i| i.t_value >= 0.0)
         .fold(None, |least, x| {
-            match least {
-                None => Some(x),
-                Some(c) =>
-                    if x.t_value < c.t_value {
-                        Some(x)
-                    } else {
-                        least
-                    }
-            }
+            nearer_intersect(least, x)
         })
         .cloned()
+}
+
+fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) -> Option<&'a Intersection> {
+    match nearest {
+        None => Some(x),
+        Some(c) =>
+            if x.t_value < c.t_value {
+                Some(x)
+            } else {
+                nearest
+            }
+    }
 }
