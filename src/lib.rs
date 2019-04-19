@@ -598,3 +598,33 @@ pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
 pub fn position(ray: Ray, t: f64) -> Tuple4 {
     ray.origin + (ray.direction.scale(t))
 }
+
+#[derive(Debug, Clone)]
+pub struct Sphere {
+    pos: Tuple4,
+    radius: f64
+}
+
+pub fn unit_sphere() -> Sphere {
+    Sphere {
+        pos: point(0.0, 0.0, 0.0),
+        radius: 1.0
+    }
+}
+
+pub fn intersect(r: &Ray, s: &Sphere) -> Vec<f64> {
+    // presume sphere centred at (0, 0, 0)
+    let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
+    let a = r.direction.dot(r.direction);
+    let b = 2.0 * r.direction.dot(s_to_ray);
+    let c = s_to_ray.dot(s_to_ray) - 1.0;
+    let discriminant = b.powf(2.0) - (4.0 * a * c);
+
+    if discriminant < 0.0 {
+        vec![]
+    } else {
+        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
+        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+        vec![t1, t2]
+    }
+}
