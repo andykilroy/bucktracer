@@ -1,11 +1,12 @@
 use bucktracer::*;
 use std::string::*;
+use std::io::Result as IOResult;
 
 #[test]
-fn print_ppm_header_for_empty_canvas() {
+fn print_ppm_header_for_empty_canvas() -> IOResult<()> {
     let cvs = canvas(0, 0);
     let mut bytes: Vec<u8> = vec![];
-    encode_ppm(&cvs, &mut bytes);
+    encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
@@ -14,16 +15,18 @@ r##"P3
 255
 "##
         );
+
+    Ok(())
 }
 
 #[test]
-fn print_ppm_output_without_clamping() {
+fn print_ppm_output_without_clamping() -> IOResult<()> {
     let mut cvs = canvas(5, 3);
     cvs.set_colour_at(0, 0, colour(1.0, 0.0, 0.0));
     cvs.set_colour_at(2, 1, colour(0.0, 0.5, 0.0));
     cvs.set_colour_at(4, 2, colour(0.0, 0.0, 1.0));
     let mut bytes: Vec<u8> = vec![];
-    encode_ppm(&cvs, &mut bytes);
+    encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
@@ -35,16 +38,18 @@ r##"P3
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 
 "##
         );
+
+    Ok(())
 }
 
 #[test]
-fn print_ppm_output_with_clamping() {
+fn print_ppm_output_with_clamping() -> IOResult<()> {
     let mut cvs = canvas(5, 3);
     cvs.set_colour_at(0, 0, colour(1.5, 0.0, 0.0));
     cvs.set_colour_at(2, 1, colour(0.0, 0.5, 0.0));
     cvs.set_colour_at(4, 2, colour(-0.5, 0.0, 1.0));
     let mut bytes: Vec<u8> = vec![];
-    encode_ppm(&cvs, &mut bytes);
+    encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
@@ -56,10 +61,12 @@ r##"P3
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 
 "##
         );
+
+    Ok(())
 }
 
 #[test]
-fn print_ppm_output_max_70_chars_per_line() {
+fn print_ppm_output_max_70_chars_per_line() -> IOResult<()> {
 
     let mut cvs = canvas(10, 2);
 
@@ -69,7 +76,7 @@ fn print_ppm_output_max_70_chars_per_line() {
         }
     }
     let mut bytes: Vec<u8> = vec![];
-    encode_ppm(&cvs, &mut bytes);
+    encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
     assert_eq!(s,
@@ -82,4 +89,6 @@ r##"P3
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 
 "##
         );
+
+    Ok(())
 }

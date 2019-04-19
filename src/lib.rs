@@ -2,7 +2,6 @@ use std::ops::*;
 use std::vec::*;
 use std::io::Result as IOResult;
 use std::io::Write;
-use std::f64::*;
 
 const EPSILON: f64 = 1e-5;
 
@@ -584,4 +583,13 @@ fn sin(r: f64) -> f64 {
 
 fn cos(r: f64) -> f64 {
     r.cos()
+}
+
+pub struct Ray {
+    pub origin: Tuple4,
+    pub direction: Tuple4
+}
+
+pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
+    Ray { origin: o, direction: d }
 }
