@@ -63,3 +63,10 @@ fn ray_originates_in_front_of_sphere() {
     assert_eq!(xs[1].t_value, -4.0);
 }
 
+#[test]
+fn create_intersection() {
+    let s = unit_sphere();
+    let i = intersection(&s, 3.5);
+    assert_eq!(s, i.intersected);
+    assert_eq!(3.5, i.t_value);
+}

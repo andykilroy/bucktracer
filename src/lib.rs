@@ -599,7 +599,7 @@ pub fn position(ray: Ray, t: f64) -> Tuple4 {
     ray.origin + (ray.direction.scale(t))
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Sphere {
     pos: Tuple4,
     radius: f64
@@ -618,7 +618,7 @@ pub struct Intersection {
     pub intersected: Sphere
 }
 
-fn intersection(s: &Sphere, t: f64) -> Intersection {
+pub fn intersection(s: &Sphere, t: f64) -> Intersection {
     Intersection {
         t_value: t,
         intersected: s.clone()
