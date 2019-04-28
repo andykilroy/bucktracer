@@ -108,3 +108,23 @@ fn finding_hits_always_the_lowest_non_negative_t() {
     let xs = vec![i1, i2, i3, i4];
     assert_eq!(Some(i4), hit(xs));
 }
+
+#[test]
+fn translating_a_ray() {
+    let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+    let m = translation(3.0, 4.0, 5.0);
+    let r2 = transform(r, &m);
+
+    assert_eq!(r2.origin, point(4.0, 6.0, 8.0));
+    assert_eq!(r2.direction, vector(0.0, 1.0, 0.0));
+}
+
+#[test]
+fn scaling_a_ray() {
+    let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+    let m = scaling(2.0, 3.0, 4.0);
+    let r2 = transform(r, &m);
+
+    assert_eq!(r2.origin, point(2.0, 6.0, 12.0));
+    assert_eq!(r2.direction, vector(0.0, 3.0, 0.0));
+}

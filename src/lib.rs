@@ -599,6 +599,11 @@ pub fn position(ray: Ray, t: f64) -> Tuple4 {
     ray.origin + (ray.direction.scale(t))
 }
 
+pub fn transform(r: Ray, m: &Matrix) -> Ray {
+    ray(m.mult(r.origin), m.mult(r.direction))
+}
+
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Sphere {
     pos: Tuple4,
@@ -658,11 +663,13 @@ pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
 fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) -> Option<&'a Intersection> {
     match nearest {
         None => Some(x),
-        Some(c) =>
+        Some(c) => {
             if x.t_value < c.t_value {
                 Some(x)
             } else {
                 nearest
             }
+        }
     }
 }
+
