@@ -247,7 +247,7 @@ fn clamp(p: f64, max: u32) -> f64 {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Matrix {
     dim: Dimensions,
     r1: Tuple4,
@@ -256,7 +256,7 @@ pub struct Matrix {
     r4: Tuple4
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 enum Dimensions {
     X2,
     X3,
@@ -607,13 +607,25 @@ pub fn transform(r: Ray, m: &Matrix) -> Ray {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Sphere {
     pos: Tuple4,
-    radius: f64
+    radius: f64,
+    transform: Matrix
 }
 
 pub fn unit_sphere() -> Sphere {
     Sphere {
         pos: point(0.0, 0.0, 0.0),
-        radius: 1.0
+        radius: 1.0,
+        transform: identity()
+    }
+}
+
+impl Sphere {
+    pub fn transform(&self) -> Matrix {
+        self.transform.clone()
+    }
+
+    pub fn set_transform(&mut self, m: &Matrix) {
+        self.transform = m.clone();
     }
 }
 
