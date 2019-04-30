@@ -113,7 +113,7 @@ fn finding_hits_always_the_lowest_non_negative_t() {
 fn translating_a_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
     let m = translation(3.0, 4.0, 5.0);
-    let r2 = transform(r, &m);
+    let r2 = transform(&r, &m);
 
     assert_eq!(r2.origin, point(4.0, 6.0, 8.0));
     assert_eq!(r2.direction, vector(0.0, 1.0, 0.0));
@@ -123,8 +123,28 @@ fn translating_a_ray() {
 fn scaling_a_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
     let m = scaling(2.0, 3.0, 4.0);
-    let r2 = transform(r, &m);
+    let r2 = transform(&r, &m);
 
     assert_eq!(r2.origin, point(2.0, 6.0, 12.0));
     assert_eq!(r2.direction, vector(0.0, 3.0, 0.0));
+}
+
+#[test]
+fn intersect_scaled_sphere_with_a_ray() {
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let mut s = unit_sphere();
+    s.set_transform(&scaling(2.0, 2.0, 2.0));
+    let xs = intersect(&r, &s);
+    assert_eq!(xs.len(), 2);
+    assert_eq!(xs[0].t_value, 3.0);
+    assert_eq!(xs[1].t_value, 7.0);
+}
+
+#[test]
+fn intersect_translated_sphere_with_a_ray() {
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let mut s = unit_sphere();
+    s.set_transform(&translation(5.0, 0.0, 0.0));
+    let xs = intersect(&r, &s);
+    assert_eq!(xs.len(), 0);
 }

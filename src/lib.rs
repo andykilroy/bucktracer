@@ -599,7 +599,7 @@ pub fn position(ray: Ray, t: f64) -> Tuple4 {
     ray.origin + (ray.direction.scale(t))
 }
 
-pub fn transform(r: Ray, m: &Matrix) -> Ray {
+pub fn transform(r: &Ray, m: &Matrix) -> Ray {
     ray(m.mult(r.origin), m.mult(r.direction))
 }
 
@@ -642,8 +642,14 @@ pub fn intersection(t: f64, s: &Sphere) -> Intersection {
     }
 }
 
-pub fn intersect(r: &Ray, s: &Sphere) -> Vec<Intersection> {
-    // presume sphere centred at (0, 0, 0)
+pub fn intersect(orig: &Ray, s: &Sphere) -> Vec<Intersection> {
+    let inverted = s.transform().inverse();
+    let r = transform(orig, &inverted);
+    intersect_(&r, s)
+}
+
+fn intersect_(r: &Ray, s: &Sphere) -> Vec<Intersection> {
+    // presume the sphere is centred at (0,0,0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
     let b = 2.0 * r.direction.dot(s_to_ray);
