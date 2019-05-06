@@ -9,7 +9,7 @@ fn main() -> Result<()> {
 
     for i in 0..12 {
         let ith_point = identity()
-            .rotate_z(-(i as f64) * (PI / 6.0))
+            .rotate_z(-(f64::from(i)) * (PI / 6.0))
             .mult(zero);
         hours.push(ith_point);
     }
@@ -61,13 +61,11 @@ fn centroid((bx, by): (f64, f64), (tx, ty): (f64, f64)) -> Tuple4 {
 
 fn asf64(x: usize) -> f64 {
     let s = format!("{}", x);
-    let v = s.parse::<f64>().expect("should be parseable to f64");
-    v
+    s.parse::<f64>().expect("should be parseable to f64")
 }
 
 fn asusize(x: f64) -> usize {
     let s = format!("{:.0}", x);
     if x < 0.0 {panic!("uh-oh, can't convert negative number to usize");}
-    let v = usize::from_str_radix(&s, 10).expect("should be parseable to usize");
-    v
+    usize::from_str_radix(&s, 10).expect("should be parseable to usize")
 }

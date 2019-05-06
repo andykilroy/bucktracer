@@ -66,13 +66,11 @@ fn plot(mut cvs: Canvas, width: f64, height: f64, path: Vec<Projectile>) -> Canv
 
 fn asf64(x: usize) -> f64 {
     let s = format!("{}", x);
-    let v = s.parse::<f64>().expect("should be parseable to f64");
-    v
+    s.parse::<f64>().expect("should be parseable to f64")
 }
 
 fn asusize(x: f64) -> usize {
     let s = format!("{:.0}", x);
     if x < 0.0 {panic!("uh-oh, can't convert negative number to usize");}
-    let v = usize::from_str_radix(&s, 10).expect("should be parseable to usize");
-    v
+    usize::from_str_radix(&s, 10).expect("should be parseable to usize")
 }

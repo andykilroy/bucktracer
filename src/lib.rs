@@ -624,11 +624,11 @@ pub fn unit_sphere() -> Sphere {
 
 impl Sphere {
     pub fn transform(&self) -> Matrix {
-        self.transform.clone()
+        self.transform
     }
 
     pub fn set_transform(&mut self, m: &Matrix) {
-        self.transform = m.clone();
+        self.transform = *m;
     }
 }
 
@@ -641,7 +641,7 @@ pub struct Intersection {
 pub fn intersection(t: f64, s: &Sphere) -> Intersection {
     Intersection {
         t_value: t,
-        intersected: s.clone()
+        intersected: *s
     }
 }
 
