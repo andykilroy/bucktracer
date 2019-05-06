@@ -8,9 +8,12 @@ const EPSILON: f64 = 1e-5;
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple4(f64, f64, f64, f64);
 
+
+#[allow(clippy::float_cmp)]
 pub fn is_point(Tuple4(_, _, _, w): Tuple4) -> bool {
     w == 1.0
 }
+
 
 pub fn is_vector(v: Tuple4) -> bool {
     !is_point(v)
@@ -232,18 +235,18 @@ fn encode_ppm_pixels(c: &Canvas, w: &mut Write, line_width: usize) -> IOResult<(
             write!(w, "{}", s)?;
             char_width += s.len();
         }
-        writeln!(w, "")?
+        writeln!(w)?
     }
     Ok(())
 }
 
 fn clamp(p: f64, max: u32) -> f64 {
     if p < 0.0 {
-        return 0.0;
+        0.0
     } else if p >= 1.0 {
-        return f64::from(max);
+        f64::from(max)
     } else {
-        return p * f64::from(max);
+        p * f64::from(max)
     }
 }
 
@@ -439,7 +442,7 @@ impl Matrix {
 
     fn scale_elems(&self, y: f64) -> Matrix {
         Matrix {
-            dim: self.dim.clone(),
+            dim: self.dim,
             r1: self.r1.scale(y),
             r2: self.r2.scale(y),
             r3: self.r3.scale(y),
@@ -479,7 +482,7 @@ fn det_x2(x: &Matrix) -> f64 {
     let b = x[0][1];
     let c = x[1][0];
     let d = x[1][1];
-    return (a * d) - (b * c)
+    (a * d) - (b * c)
 }
 
 fn det_x3(x: &Matrix) -> f64 {
