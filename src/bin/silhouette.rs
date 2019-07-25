@@ -5,11 +5,11 @@ use std::f64::consts::*;
 fn main() -> Result<()> {
 
     let mut cam = camera(canvas(300, 300),
-                     (0.0, 0.0, -10.0), (300.0, 300.0, -10.0),
+                     (0.0, 0.0, 0.0), (60.0, 60.0, 0.0),
                      (0.0, 0.0, 1.0));
-    let light = point_light_source(point(150.0, 150.0, 300.0));
+    let light = point_light_source(point(30.0, 30.0, 40.0));
     let mut s = unit_sphere();
-    s.set_transform(&(scaling(10.0, 10.0, 10.0) * translation(150.0, 150.0, 50.0)));
+    s.set_transform(&(scaling(7.5, 7.5, 7.5) * translation(30.0, 30.0, 20.0)));
 
     raytrace(&mut cam, &light, &s);
     let mut stdout = stdout();
@@ -19,7 +19,12 @@ fn main() -> Result<()> {
 fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
     // 1. Calculate the set of rays that point from each pixel to the
     // light source
-    // 2. Calculate which rays intersection with the sphere
+
+    // 2. Calculate which rays intersect with the sphere
+    for (i, r) in rays_between(cam, light).iter() {
+        
+    }
+
     // 3. For each ray decide whether to paint the pixel
 }
 
