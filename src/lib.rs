@@ -2,6 +2,8 @@ use std::ops::*;
 use std::vec::*;
 use std::io::Result as IOResult;
 use std::io::Write;
+use std::str::FromStr;
+
 
 const EPSILON: f64 = 1e-5;
 
@@ -691,6 +693,55 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
                 nearest
             }
         }
+    }
+}
+
+pub type Coord = (usize, usize);
+
+pub struct PointLightSource {
+    position: Tuple4,
+}
+
+pub fn point_light_source(p: Tuple4) -> PointLightSource {
+    PointLightSource {
+        position: p,
+    }
+}
+
+// should change to take z of where the pixel is too
+pub fn emitted_ray(x: usize, y: usize, light: &PointLightSource) -> Ray {
+    let o = point(to_f64(x), to_f64(y), 0.0);
+    ray(o, light.position.sub(o))
+}
+
+fn to_f64(v: usize) -> f64 {
+    let s = format!("{}", v);
+    return f64::from_str(&s).unwrap();
+}
+
+mod test {
+    use crate::*;
+
+    #[test]
+    fn rays_to_lightsrc() {
+        let light1 = point_light_source(point(0.0, 0.0, 1.0));
+        let light2 = point_light_source(point(5.0, 6.0, 7.0));
+
+        assert_eq!(emitted_ray(0, 0, &light1).origin.x(), 0.0);
+        assert_eq!(emitted_ray(0, 0, &light1).origin.y(), 0.0);
+        assert_eq!(emitted_ray(0, 0, &light1).origin.z(), 0.0);
+
+        assert_eq!(emitted_ray(0, 0, &light1).direction.x(), 0.0);
+        assert_eq!(emitted_ray(0, 0, &light1).direction.y(), 0.0);
+        assert_eq!(emitted_ray(0, 0, &light1).direction.z(), 1.0);
+
+        assert_eq!(emitted_ray(3, 3, &light2).origin.x(), 3.0);
+        assert_eq!(emitted_ray(3, 3, &light2).origin.y(), 3.0);
+        assert_eq!(emitted_ray(3, 3, &light2).origin.z(), 0.0);
+
+        assert_eq!(emitted_ray(3, 3, &light2).direction.x(), 2.0);
+        assert_eq!(emitted_ray(3, 3, &light2).direction.y(), 3.0);
+        assert_eq!(emitted_ray(3, 3, &light2).direction.z(), 7.0);
     }
 }
 

@@ -21,11 +21,23 @@ fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
     // light source
 
     // 2. Calculate which rays intersect with the sphere
-    for (i, r) in rays_between(cam, light).iter() {
-        
+    for (p, r) in rays_between(cam, light).iter() {
+
     }
 
     // 3. For each ray decide whether to paint the pixel
+}
+
+fn rays_between(cam: &mut Camera, light: &PointLightSource) -> Vec<(Coord, Ray)> {
+    let mut v : Vec<(Coord, Ray)> = vec![];
+
+    for col in 0..cam.canvas.width {
+        for row in 0..cam.canvas.height {
+            v.push(((col, row), emitted_ray(col, row, light)))
+        }
+    }
+
+    return v;
 }
 
 type Triple = (f64, f64, f64);
@@ -56,15 +68,5 @@ struct BoundedPlane {
     lower_left: Tuple4,
     upper_right: Tuple4,
     surface_normal: Tuple4
-}
-
-struct PointLightSource {
-    position: Tuple4,
-}
-
-fn point_light_source(p: Tuple4) -> PointLightSource {
-    PointLightSource {
-        position: p,
-    }
 }
 
