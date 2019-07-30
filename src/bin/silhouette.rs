@@ -13,19 +13,18 @@ fn main() -> Result<()> {
 
     raytrace(&mut cam, &light, &s);
     let mut stdout = stdout();
-    encode_ppm(&cam.canvas, &mut stdout)
+    encode_ppm(cam.canvas(), &mut stdout)
 }
 
 fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
-    // 1. Calculate the set of rays that point from each pixel to the
-    // light source
+    let origins_rays = rays_between(cam, light);
 
-    // 2. Calculate which rays intersect with the sphere
-    for (p, r) in rays_between(cam, light).iter() {
-
+    for (p, r) in origins_rays.iter() {
+        let intersects = intersect(r, spher);
+        if intersects.len() > 0 {
+            cam.canvas.set_colour_at(p.0, p.1, colour(255.0, 0.0, 0.0));
+        }
     }
-
-    // 3. For each ray decide whether to paint the pixel
 }
 
 fn rays_between(cam: &mut Camera, light: &PointLightSource) -> Vec<(Coord, Ray)> {
@@ -33,40 +32,12 @@ fn rays_between(cam: &mut Camera, light: &PointLightSource) -> Vec<(Coord, Ray)>
 
     for col in 0..cam.canvas.width {
         for row in 0..cam.canvas.height {
-            v.push(((col, row), emitted_ray(col, row, light)))
+//            v.push(((col, row), emitted_ray(col, row, light)))
         }
     }
 
     return v;
 }
 
-type Triple = (f64, f64, f64);
 
-fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> Camera {
-    Camera::new(c, BoundedPlane {
-        lower_left: point(l_left.0, l_left.1, l_left.2),
-        upper_right: point(u_right.0, u_right.1, u_right.2),
-        surface_normal: vector(normal.0, normal.1, normal.2),
-    })
-}
-
-struct Camera {
-    canvas: Canvas,
-    plane: BoundedPlane
-}
-
-impl Camera {
-    fn new(canv: Canvas, pln: BoundedPlane) -> Camera {
-        Camera {
-            canvas : canv,
-            plane: pln
-        }
-    }
-}
-
-struct BoundedPlane {
-    lower_left: Tuple4,
-    upper_right: Tuple4,
-    surface_normal: Tuple4
-}
 

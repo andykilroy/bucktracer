@@ -191,6 +191,7 @@ pub fn blue(Tuple4(_r, _g, b, _w): Tuple4) -> f64 {
     b
 }
 
+#[derive(Debug)]
 pub struct Canvas { 
     pub width: usize, 
     pub height: usize,
@@ -695,7 +696,6 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
         }
     }
 }
-
 pub type Coord = (usize, usize);
 
 pub struct PointLightSource {
@@ -703,15 +703,12 @@ pub struct PointLightSource {
 }
 
 pub fn point_light_source(p: Tuple4) -> PointLightSource {
-    PointLightSource {
-        position: p,
-    }
+    PointLightSource { position: p }
 }
 
 // should change to take z of where the pixel is too
-pub fn emitted_ray(x: usize, y: usize, light: &PointLightSource) -> Ray {
-    let o = point(to_f64(x), to_f64(y), 0.0);
-    ray(o, light.position.sub(o))
+pub fn emitted_ray(origin: Tuple4, light: &PointLightSource) -> Ray {
+    ray(origin, light.position.sub(origin))
 }
 
 fn to_f64(v: usize) -> f64 {
@@ -719,29 +716,84 @@ fn to_f64(v: usize) -> f64 {
     return f64::from_str(&s).unwrap();
 }
 
+#[derive(Debug)]
+pub struct Camera {
+    canvas: Canvas,
+    plane: BoundedPlane,
+}
+
+impl Camera {
+    pub fn new(canv: Canvas, pln: BoundedPlane) -> Camera {
+        Camera {
+            canvas: canv,
+            plane: pln,
+        }
+    }
+
+    pub fn canvas(self) -> &Canvas {
+        &self.canvas
+    }
+
+    pub fn pixel_to_point(x: usize, y: usize) -> Tuple4 {
+        point(0.0, 0.0, 0.0)
+    }
+}
+
+pub struct BoundedPlane {
+    lower_left: Tuple4,
+    upper_right: Tuple4,
+    surface_normal: Tuple4,
+}
+
+type Triple = (f64, f64, f64);
+
+pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> Camera {
+    Camera::new(
+        c,
+        BoundedPlane {
+            lower_left: point(l_left.0, l_left.1, l_left.2),
+            upper_right: point(u_right.0, u_right.1, u_right.2),
+            surface_normal: vector(normal.0, normal.1, normal.2),
+        },
+    )
+}
+
 mod test {
     use crate::*;
 
     #[test]
     fn rays_to_lightsrc() {
+        let p1 = point(0.0, 0.0, 0.0);
+        let p2 = point(3.0, 3.0, 0.0);
         let light1 = point_light_source(point(0.0, 0.0, 1.0));
         let light2 = point_light_source(point(5.0, 6.0, 7.0));
 
-        assert_eq!(emitted_ray(0, 0, &light1).origin.x(), 0.0);
-        assert_eq!(emitted_ray(0, 0, &light1).origin.y(), 0.0);
-        assert_eq!(emitted_ray(0, 0, &light1).origin.z(), 0.0);
+        assert_eq!(emitted_ray(p1, &light1).origin.x(), 0.0);
+        assert_eq!(emitted_ray(p1, &light1).origin.y(), 0.0);
+        assert_eq!(emitted_ray(p1, &light1).origin.z(), 0.0);
 
-        assert_eq!(emitted_ray(0, 0, &light1).direction.x(), 0.0);
-        assert_eq!(emitted_ray(0, 0, &light1).direction.y(), 0.0);
-        assert_eq!(emitted_ray(0, 0, &light1).direction.z(), 1.0);
+        assert_eq!(emitted_ray(p1, &light1).direction.x(), 0.0);
+        assert_eq!(emitted_ray(p1, &light1).direction.y(), 0.0);
+        assert_eq!(emitted_ray(p1, &light1).direction.z(), 1.0);
 
-        assert_eq!(emitted_ray(3, 3, &light2).origin.x(), 3.0);
-        assert_eq!(emitted_ray(3, 3, &light2).origin.y(), 3.0);
-        assert_eq!(emitted_ray(3, 3, &light2).origin.z(), 0.0);
+        assert_eq!(emitted_ray(p2, &light2).origin.x(), 3.0);
+        assert_eq!(emitted_ray(p2, &light2).origin.y(), 3.0);
+        assert_eq!(emitted_ray(p2, &light2).origin.z(), 0.0);
 
-        assert_eq!(emitted_ray(3, 3, &light2).direction.x(), 2.0);
-        assert_eq!(emitted_ray(3, 3, &light2).direction.y(), 3.0);
-        assert_eq!(emitted_ray(3, 3, &light2).direction.z(), 7.0);
+        assert_eq!(emitted_ray(p2, &light2).direction.x(), 2.0);
+        assert_eq!(emitted_ray(p2, &light2).direction.y(), 3.0);
+        assert_eq!(emitted_ray(p2, &light2).direction.z(), 7.0);
+    }
+
+    #[test]
+    fn pixel_index_to_point_in_space() {
+        let mut cam = camera(
+            canvas(300, 300),
+            (0.0, 0.0, 0.0),
+            (60.0, 60.0, 0.0),
+            (0.0, 0.0, 1.0),
+        );
+
+        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
     }
 }
-
