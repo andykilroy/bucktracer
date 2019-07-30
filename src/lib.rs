@@ -738,7 +738,16 @@ impl Camera {
     }
 
     pub fn pixel_to_point(self: &Self, x: usize, y: usize) -> Tuple4 {
-        point(0.0, 0.0, 0.0)
+        assert!(x < self.canvas.width);
+        assert!(y < self.canvas.height);
+
+        let world_width = self.plane.upper_right.sub(self.plane.lower_left);
+        let x_factor : f64 = world_width.x() / to_f64(self.canvas.width);
+        let y_factor : f64 = world_width.y() / to_f64(self.canvas.height);
+        let x_float = to_f64(x);
+        let y_float = to_f64(y);
+
+        point(x_float * x_factor, y_float * y_factor, 0.0)
     }
 }
 
@@ -803,7 +812,43 @@ mod test {
         assert_eq!(cam.pixel_to_point(2, 0), point(0.4, 0.0, 0.0));
         assert_eq!(cam.pixel_to_point(3, 0), point(0.6, 0.0, 0.0));
         assert_eq!(cam.pixel_to_point(4, 0), point(0.8, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(5, 0), point(1.2, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(5, 0), point(1.0, 0.0, 0.0));
         assert_eq!(cam.pixel_to_point(299, 0), point(59.8, 0.0, 0.0));
+    }
+
+    #[test]
+    fn pixel_index_to_point_in_space_ys() {
+        let mut cam = camera(
+            canvas(300, 300),
+            (0.0, 0.0, 0.0),
+            (60.0, 60.0, 0.0),
+            (0.0, 0.0, 1.0),
+        );
+
+        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 1), point(0.0, 0.2, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 2), point(0.0, 0.4, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 3), point(0.0, 0.6, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 4), point(0.0, 0.8, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 5), point(0.0, 1.0, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 59.8, 0.0));
+    }
+
+    #[test]
+    fn pixel_index_to_point_in_space_zs() {
+        let mut cam = camera(
+            canvas(300, 300),
+            (0.0, 0.0, 0.0),
+            (60.0, 60.0, 0.0),
+            (0.0, 0.0, 1.0),
+        );
+
+        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 1), point(0.0, 0.2, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 2), point(0.0, 0.4, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 3), point(0.0, 0.6, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 4), point(0.0, 0.8, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 5), point(0.0, 1.0, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 59.8, 0.0));
     }
 }
