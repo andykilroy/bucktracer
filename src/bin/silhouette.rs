@@ -9,7 +9,7 @@ fn main() -> Result<()> {
                      (0.0, 0.0, 1.0));
     let light = point_light_source(point(30.0, 30.0, 40.0));
     let mut s = unit_sphere();
-    s.set_transform(&(scaling(7.5, 7.5, 7.5) * translation(30.0, 30.0, 20.0)));
+    s.set_transform(&(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5)));
 
     raytrace(&mut cam, &light, &s);
     let mut stdout = stdout();
@@ -22,7 +22,7 @@ fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
     for (p, r) in origins_rays.iter() {
         let intersects = intersect(r, spher);
         if intersects.len() > 0 {
-            cam.paint_colour_at(p.0, p.1, colour(255.0, 0.0, 0.0));
+            cam.paint_colour_at(p.0, p.1, colour(1.0, 0.0, 0.0));
         }
     }
 }

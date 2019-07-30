@@ -851,4 +851,13 @@ mod test {
         assert_eq!(cam.pixel_to_point(0, 5), point(0.0, 1.0, 0.0));
         assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 59.8, 0.0));
     }
+
+    #[test]
+    fn test_ray_trace() {
+        let mut s = unit_sphere();
+        s.set_transform(&(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5)));
+        let r = ray(point(30.0, 30.0, 0.0), vector(0.0, 0.0, 1.0));
+        let intersects = intersect(&r, &s);
+        assert_eq!(2, intersects.len());
+    }
 }
