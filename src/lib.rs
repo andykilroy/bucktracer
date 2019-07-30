@@ -706,7 +706,6 @@ pub fn point_light_source(p: Tuple4) -> PointLightSource {
     PointLightSource { position: p }
 }
 
-// should change to take z of where the pixel is too
 pub fn emitted_ray(origin: Tuple4, light: &PointLightSource) -> Ray {
     ray(origin, light.position.sub(origin))
 }
@@ -730,15 +729,20 @@ impl Camera {
         }
     }
 
-    pub fn canvas(self) -> &Canvas {
+    pub fn canvas(self: &Self) -> &Canvas {
         &self.canvas
     }
 
-    pub fn pixel_to_point(x: usize, y: usize) -> Tuple4 {
+    pub fn paint_colour_at(self: &mut Self, x: usize, y: usize, c: Tuple4) {
+        self.canvas.set_colour_at(x, y, c);
+    }
+
+    pub fn pixel_to_point(self: &Self, x: usize, y: usize) -> Tuple4 {
         point(0.0, 0.0, 0.0)
     }
 }
 
+#[derive(Debug)]
 pub struct BoundedPlane {
     lower_left: Tuple4,
     upper_right: Tuple4,
@@ -786,7 +790,7 @@ mod test {
     }
 
     #[test]
-    fn pixel_index_to_point_in_space() {
+    fn pixel_index_to_point_in_space_xs() {
         let mut cam = camera(
             canvas(300, 300),
             (0.0, 0.0, 0.0),
@@ -795,5 +799,11 @@ mod test {
         );
 
         assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(1, 0), point(0.2, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(2, 0), point(0.4, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(3, 0), point(0.6, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(4, 0), point(0.8, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(5, 0), point(1.2, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(299, 0), point(59.8, 0.0, 0.0));
     }
 }

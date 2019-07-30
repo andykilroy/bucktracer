@@ -22,7 +22,7 @@ fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
     for (p, r) in origins_rays.iter() {
         let intersects = intersect(r, spher);
         if intersects.len() > 0 {
-            cam.canvas.set_colour_at(p.0, p.1, colour(255.0, 0.0, 0.0));
+            cam.paint_colour_at(p.0, p.1, colour(255.0, 0.0, 0.0));
         }
     }
 }
@@ -30,9 +30,10 @@ fn raytrace(cam: &mut Camera, light: &PointLightSource, spher: &Sphere) {
 fn rays_between(cam: &mut Camera, light: &PointLightSource) -> Vec<(Coord, Ray)> {
     let mut v : Vec<(Coord, Ray)> = vec![];
 
-    for col in 0..cam.canvas.width {
-        for row in 0..cam.canvas.height {
-//            v.push(((col, row), emitted_ray(col, row, light)))
+    for col in 0..cam.canvas().width {
+        for row in 0..cam.canvas().height {
+            let point_of_canvas = cam.pixel_to_point(col, row);
+            v.push(((col, row), emitted_ray(point_of_canvas, light)))
         }
     }
 
