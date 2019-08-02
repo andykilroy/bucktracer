@@ -696,6 +696,8 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
         }
     }
 }
+
+// ---- Camera related stuff
 pub type Coord = (usize, usize);
 
 pub struct PointLightSource {
@@ -770,6 +772,18 @@ pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> Cam
         },
     )
 }
+
+// ----
+
+pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
+    let inversion_mat = s.transform.inverse();
+    let object_point = inversion_mat.mult(world_point);
+    let object_normal = object_point.sub(s.pos);
+    let tmp = inversion_mat.transpose().mult(object_normal);
+
+    tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
+}
+
 
 mod test {
     use crate::*;
