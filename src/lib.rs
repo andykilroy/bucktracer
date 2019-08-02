@@ -618,14 +618,16 @@ pub fn transform(r: &Ray, m: &Matrix) -> Ray {
 pub struct Sphere {
     pos: Tuple4,
     radius: f64,
-    transform: Matrix
+    transform: Matrix,
+    material: Material,
 }
 
 pub fn unit_sphere() -> Sphere {
     Sphere {
         pos: point(0.0, 0.0, 0.0),
         radius: 1.0,
-        transform: identity()
+        transform: identity(),
+        material: Material::default(),
     }
 }
 
@@ -635,7 +637,15 @@ impl Sphere {
     }
 
     pub fn set_transform(&mut self, m: &Matrix) {
-        self.transform = *m;
+        self.transform = m.clone();
+    }
+
+    pub fn material(&self) -> Material {
+        self.material
+    }
+
+    pub fn set_material(&mut self, m: &Material) {
+        self.material = m.clone();
     }
 }
 
@@ -648,7 +658,7 @@ pub struct Intersection {
 pub fn intersection(t: f64, s: &Sphere) -> Intersection {
     Intersection {
         t_value: t,
-        intersected: *s
+        intersected: s.clone()
     }
 }
 
@@ -704,6 +714,7 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
 // ---- Camera related stuff
 pub type Coord = (usize, usize);
 
+#[derive(Debug)]
 pub struct RadialLightSource {
     position: Tuple4,
     intensity: Tuple4, // a colour
@@ -713,6 +724,16 @@ pub fn point_light(p: Tuple4, i: Tuple4) -> RadialLightSource {
     RadialLightSource {
         position: p,
         intensity: i,
+    }
+}
+
+impl RadialLightSource {
+    pub fn position(self: &Self) -> Tuple4 {
+        self.position
+    }
+
+    pub fn intensity(self: &Self) -> Tuple4 {
+        self.intensity
     }
 }
 
@@ -794,6 +815,68 @@ pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
 
 pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
     v - norm.scale(2.0).scale(v.dot(norm))
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Material {
+    colour: Tuple4,
+    ambient: f64,
+    diffuse: f64,
+    specular: f64,
+    shininess: f64,
+}
+
+impl Material {
+    pub fn default() -> Material {
+        Material {
+            colour: white(),
+            ambient: 0.1,
+            diffuse: 0.9,
+            specular: 0.9,
+            shininess: 200.0,
+        }
+    }
+
+    pub fn colour(self: &Self) -> Tuple4 {
+        self.colour
+    }
+    pub fn set_colour(self: &mut Self, x: Tuple4) -> &mut Self {
+        self.colour = x;
+        self
+    }
+
+    pub fn ambient(self: &Self) -> f64 {
+        self.ambient
+    }
+    pub fn set_ambient(self: &mut Self, x: f64) -> &mut Self {
+        self.ambient = x;
+        self
+    }
+
+    pub fn diffuse(self: &Self) -> f64 {
+        self.diffuse
+    }
+    pub fn set_diffuse(self: &mut Self, x: f64) -> &mut Self {
+        self.diffuse = x;
+        self
+    }
+
+    pub fn specular(self: &Self) -> f64 {
+        self.specular
+    }
+    pub fn set_specular(self: &mut Self, x: f64) -> &mut Self {
+        self.specular = x;
+        self
+    }
+
+    pub fn shininess(self: &Self) -> f64 {
+        self.shininess
+    }
+    pub fn set_shininess(self: &mut Self, x: f64) -> &mut Self {
+        self.shininess = x;
+        self
+    }
+
 }
 
 mod test {
