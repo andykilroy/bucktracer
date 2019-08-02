@@ -59,3 +59,21 @@ fn normal_on_transformed_sphere() {
     let n = normal_at(&s, point(0.0, rt2by2, -rt2by2));
     assert_eq!(n, vector(0.0, 0.97014, -0.24254));
 }
+
+#[test]
+fn reflect_a_vector_approaching_at_45_deg() {
+    let v = vector(1.0, -1.0, 0.0);
+    let n = vector(0.0, 1.0, 0.0);
+    let r = reflect(v, n);
+    assert_eq!(r, vector(1.0, 1.0, 0.0));
+}
+
+#[test]
+fn reflect_vector_off_slanted_surface() {
+    let rt2by2 = 2.0f64.sqrt() / 2.0;
+
+    let v = vector(0.0, -1.0, 0.0);
+    let n = vector(rt2by2, rt2by2, 0.0);
+    let r = reflect(v, n);
+    assert_eq!(r, vector(1.0, 0.0, 0.0));
+}

@@ -784,6 +784,9 @@ pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
     tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
 }
 
+pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
+    v - norm.scale(2.0).scale(v.dot(norm))
+}
 
 mod test {
     use crate::*;
