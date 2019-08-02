@@ -191,6 +191,10 @@ pub fn blue(Tuple4(_r, _g, b, _w): Tuple4) -> f64 {
     b
 }
 
+pub fn white() -> Tuple4 {
+    colour(1.0, 1.0, 1.0)
+}
+
 #[derive(Debug)]
 pub struct Canvas { 
     pub width: usize, 
@@ -700,15 +704,19 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
 // ---- Camera related stuff
 pub type Coord = (usize, usize);
 
-pub struct PointLightSource {
+pub struct RadialLightSource {
     position: Tuple4,
+    intensity: Tuple4, // a colour
 }
 
-pub fn point_light_source(p: Tuple4) -> PointLightSource {
-    PointLightSource { position: p }
+pub fn point_light(p: Tuple4, i: Tuple4) -> RadialLightSource {
+    RadialLightSource {
+        position: p,
+        intensity: i,
+    }
 }
 
-pub fn emitted_ray(origin: Tuple4, light: &PointLightSource) -> Ray {
+pub fn ray_to_light(origin: Tuple4, light: &RadialLightSource) -> Ray {
     ray(origin, light.position.sub(origin))
 }
 
@@ -795,24 +803,24 @@ mod test {
     fn rays_to_lightsrc() {
         let p1 = point(0.0, 0.0, 0.0);
         let p2 = point(3.0, 3.0, 0.0);
-        let light1 = point_light_source(point(0.0, 0.0, 1.0));
-        let light2 = point_light_source(point(5.0, 6.0, 7.0));
+        let light1 = point_light(point(0.0, 0.0, 1.0), white());
+        let light2 = point_light(point(5.0, 6.0, 7.0), white());
 
-        assert_eq!(emitted_ray(p1, &light1).origin.x(), 0.0);
-        assert_eq!(emitted_ray(p1, &light1).origin.y(), 0.0);
-        assert_eq!(emitted_ray(p1, &light1).origin.z(), 0.0);
+        assert_eq!(ray_to_light(p1, &light1).origin.x(), 0.0);
+        assert_eq!(ray_to_light(p1, &light1).origin.y(), 0.0);
+        assert_eq!(ray_to_light(p1, &light1).origin.z(), 0.0);
 
-        assert_eq!(emitted_ray(p1, &light1).direction.x(), 0.0);
-        assert_eq!(emitted_ray(p1, &light1).direction.y(), 0.0);
-        assert_eq!(emitted_ray(p1, &light1).direction.z(), 1.0);
+        assert_eq!(ray_to_light(p1, &light1).direction.x(), 0.0);
+        assert_eq!(ray_to_light(p1, &light1).direction.y(), 0.0);
+        assert_eq!(ray_to_light(p1, &light1).direction.z(), 1.0);
 
-        assert_eq!(emitted_ray(p2, &light2).origin.x(), 3.0);
-        assert_eq!(emitted_ray(p2, &light2).origin.y(), 3.0);
-        assert_eq!(emitted_ray(p2, &light2).origin.z(), 0.0);
+        assert_eq!(ray_to_light(p2, &light2).origin.x(), 3.0);
+        assert_eq!(ray_to_light(p2, &light2).origin.y(), 3.0);
+        assert_eq!(ray_to_light(p2, &light2).origin.z(), 0.0);
 
-        assert_eq!(emitted_ray(p2, &light2).direction.x(), 2.0);
-        assert_eq!(emitted_ray(p2, &light2).direction.y(), 3.0);
-        assert_eq!(emitted_ray(p2, &light2).direction.z(), 7.0);
+        assert_eq!(ray_to_light(p2, &light2).direction.x(), 2.0);
+        assert_eq!(ray_to_light(p2, &light2).direction.y(), 3.0);
+        assert_eq!(ray_to_light(p2, &light2).direction.z(), 7.0);
     }
 
     #[test]
