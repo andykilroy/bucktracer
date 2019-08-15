@@ -737,8 +737,8 @@ impl RadialLightSource {
     }
 }
 
-pub fn ray_to_light(origin: Tuple4, light: &RadialLightSource) -> Ray {
-    ray(origin, light.position.sub(origin))
+pub fn ray_to_point(origin: Tuple4, point: Tuple4) -> Ray {
+    ray(origin, point.sub(origin))
 }
 
 fn to_f64(v: usize) -> f64 {
@@ -918,26 +918,26 @@ mod test {
 
     #[test]
     fn rays_to_lightsrc() {
-        let p1 = point(0.0, 0.0, 0.0);
-        let p2 = point(3.0, 3.0, 0.0);
-        let light1 = point_light(point(0.0, 0.0, 1.0), white());
-        let light2 = point_light(point(5.0, 6.0, 7.0), white());
+        let orig1 = point(0.0, 0.0, 0.0);
+        let orig2 = point(3.0, 3.0, 0.0);
+        let target1 = point(0.0, 0.0, 1.0);
+        let target2 = point(5.0, 6.0, 7.0);
 
-        assert_eq!(ray_to_light(p1, &light1).origin.x(), 0.0);
-        assert_eq!(ray_to_light(p1, &light1).origin.y(), 0.0);
-        assert_eq!(ray_to_light(p1, &light1).origin.z(), 0.0);
+        assert_eq!(ray_to_point(orig1, target1).origin.x(), 0.0);
+        assert_eq!(ray_to_point(orig1, target1).origin.y(), 0.0);
+        assert_eq!(ray_to_point(orig1, target1).origin.z(), 0.0);
 
-        assert_eq!(ray_to_light(p1, &light1).direction.x(), 0.0);
-        assert_eq!(ray_to_light(p1, &light1).direction.y(), 0.0);
-        assert_eq!(ray_to_light(p1, &light1).direction.z(), 1.0);
+        assert_eq!(ray_to_point(orig1, target1).direction.x(), 0.0);
+        assert_eq!(ray_to_point(orig1, target1).direction.y(), 0.0);
+        assert_eq!(ray_to_point(orig1, target1).direction.z(), 1.0);
 
-        assert_eq!(ray_to_light(p2, &light2).origin.x(), 3.0);
-        assert_eq!(ray_to_light(p2, &light2).origin.y(), 3.0);
-        assert_eq!(ray_to_light(p2, &light2).origin.z(), 0.0);
+        assert_eq!(ray_to_point(orig2, target2).origin.x(), 3.0);
+        assert_eq!(ray_to_point(orig2, target2).origin.y(), 3.0);
+        assert_eq!(ray_to_point(orig2, target2).origin.z(), 0.0);
 
-        assert_eq!(ray_to_light(p2, &light2).direction.x(), 2.0);
-        assert_eq!(ray_to_light(p2, &light2).direction.y(), 3.0);
-        assert_eq!(ray_to_light(p2, &light2).direction.z(), 7.0);
+        assert_eq!(ray_to_point(orig2, target2).direction.x(), 2.0);
+        assert_eq!(ray_to_point(orig2, target2).direction.y(), 3.0);
+        assert_eq!(ray_to_point(orig2, target2).direction.z(), 7.0);
     }
 
     #[test]

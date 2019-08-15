@@ -33,7 +33,7 @@ fn rays_between(cam: &mut Camera, light: &RadialLightSource) -> Vec<(Coord, Ray)
     for col in 0..cam.canvas().width {
         for row in 0..cam.canvas().height {
             let point_of_canvas = cam.pixel_to_point(col, row);
-            v.push(((col, row), ray_to_light(point_of_canvas, light)))
+            v.push(((col, row), ray_to_point(point_of_canvas, light.position())))
         }
     }
 
