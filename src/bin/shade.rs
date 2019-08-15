@@ -9,7 +9,7 @@ fn main() -> Result<()> {
     let mut cam = camera(canvas(300, 300),
                      (0.0, 0.0, 0.0), (60.0, 60.0, 0.0),
                      (0.0, 0.0, 1.0));
-    let light = point_light(point(0.0, 60.0, 0.0), white());
+    let light = point_light(point(0.0, 60.0, -20.0), white());
     let ray_target = point(30.0, 30.0, 40.0);
     let mut s = unit_sphere();
     s.set_material(&materl);
