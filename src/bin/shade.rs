@@ -6,6 +6,7 @@ fn main() -> Result<()> {
 
     let mut materl = Material::default();
     materl.set_colour(colour(1.0, 0.2, 1.0));
+
     let mut cam = camera(canvas(300, 300),
                      (0.0, 0.0, 0.0), (60.0, 60.0, 0.0),
                      (0.0, 0.0, 1.0));
@@ -36,7 +37,7 @@ fn raytrace(
                              point_on_surface,
                              normal_at(spher, point_on_surface),
                              &spher.material(),
-                             r.direction);
+                             -r.direction);
             cam.paint_colour_at(p.0, p.1, c);
             Some(h)
         });
