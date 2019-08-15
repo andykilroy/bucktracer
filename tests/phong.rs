@@ -49,3 +49,66 @@ fn assign_sphere_a_material() {
     assert_ne!(s.material(), Material::default());
     assert_eq!(s.material(), m);
 }
+
+#[test]
+fn lighting_with_eye_between_light_and_the_surface() {
+    let mut m = Material::default();
+    let pos = point(0.0, 0.0, 0.0);
+    let eyev = vector(0.0, 0.0, -1.0);
+    let normalv = vector(0.0, 0.0, -1.0);
+    let light = point_light(point(0.0, 0.0, -10.0), white());
+
+    let result = lighting(&light, pos, normalv, &m, eyev);
+    assert_eq!(result, colour(1.9, 1.9, 1.9));
+}
+
+
+#[test]
+fn lighting_with_eye_between_light_and_the_surface_at_45_angle() {
+    let rt2by2 = f64::sqrt(2.0) / 2.0;
+    let mut m = Material::default();
+    let pos = point(0.0, 0.0, 0.0);
+    let eyev = vector(0.0, rt2by2, -rt2by2);
+    let normalv = vector(0.0, 0.0, -1.0);
+    let light = point_light(point(0.0, 0.0, -10.0), white());
+
+    let result = lighting(&light, pos, normalv, &m, eyev);
+    assert_eq!(result, colour(1.0, 1.0, 1.0));
+}
+
+#[test]
+fn lighting_with_eye_opposite_surface_light_offset_45_angle() {
+    let mut m = Material::default();
+    let pos = point(0.0, 0.0, 0.0);
+    let eyev = vector(0.0, 0.0, -1.0);
+    let normalv = vector(0.0, 0.0, -1.0);
+    let light = point_light(point(0.0, 10.0, -10.0), white());
+
+    let result = lighting(&light, pos, normalv, &m, eyev);
+    assert_eq!(result, colour(0.7364, 0.7364, 0.7364));
+}
+
+#[test]
+fn lighting_with_eye_in_path_of_reflection_vector() {
+    let rt2by2 = f64::sqrt(2.0) / 2.0;
+    let mut m = Material::default();
+    let pos = point(0.0, 0.0, 0.0);
+    let eyev = vector(0.0, -rt2by2, -rt2by2);
+    let normalv = vector(0.0, 0.0, -1.0);
+    let light = point_light(point(0.0, 10.0, -10.0), white());
+
+    let result = lighting(&light, pos, normalv, &m, eyev);
+    assert_eq!(result, colour(1.6364, 1.6364, 1.6364));
+}
+
+#[test]
+fn lighting_with_light_behind_the_surface() {
+    let mut m = Material::default();
+    let pos = point(0.0, 0.0, 0.0);
+    let eyev = vector(0.0, 0.0, -1.0);
+    let normalv = vector(0.0, 0.0, -1.0);
+    let light = point_light(point(0.0, 0.0, 10.0), white());
+
+    let result = lighting(&light, pos, normalv, &m, eyev);
+    assert_eq!(result, colour(0.1, 0.1, 0.1));
+}

@@ -879,6 +879,40 @@ impl Material {
 
 }
 
+pub fn lighting(
+    light: &RadialLightSource,
+    pos: Tuple4,
+    normalv: Tuple4,
+    mat: &Material,
+    eyev: Tuple4,
+) -> Tuple4 {
+    let effective_colour = mat.colour().mult_pairwise(light.intensity());
+    let lightv = (light.position() - pos).normalize();
+    let ambient = effective_colour.scale(mat.ambient());
+    let light_dot_normal = lightv.dot(normalv);
+
+    let black = colour(0.0, 0.0, 0.0);
+    let (diffuse, specular) = if light_dot_normal < 0.0 {
+        // the light is behind the surface
+        (black, black)
+    } else {
+        let d = effective_colour.scale(mat.diffuse * light_dot_normal);
+        let reflectv = reflect(-lightv, normalv);
+        let reflect_dot_eye = reflectv.dot(eyev);
+
+        if reflect_dot_eye <= 0.0 {
+            (d, black)
+        } else {
+            let factor = reflect_dot_eye.powf(mat.shininess());
+            let s = light.intensity().scale(mat.specular() * factor);
+            (d, s)
+        }
+    };
+
+    ambient + diffuse + specular
+}
+
+
 mod test {
     use crate::*;
 
