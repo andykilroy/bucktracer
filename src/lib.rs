@@ -513,7 +513,7 @@ fn submatr_x3(x: &Matrix, row: usize, col: usize) -> Matrix {
         panic!("col for a 3x3 matrix expected to be 0, 1, or 2")
     }
 
-    let mut collected = vec![];
+    let mut collected = Vec::with_capacity(4);
     for r in 0..3 {
         for c in 0..3 {
             if r != row && c != col {
@@ -533,7 +533,7 @@ fn submatr_x4(x: &Matrix, row: usize, col: usize) -> Matrix {
         panic!("col for a 4x4 matrix expected to be 0, 1, 2 or 3")
     }
 
-    let mut collected = vec![];
+    let mut collected = Vec::with_capacity(9);
     for r in 0..4 {
         for c in 0..4 {
             if r != row && c != col {
