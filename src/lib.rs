@@ -949,13 +949,13 @@ mod test {
             (0.0, 0.0, 1.0),
         );
 
-        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(1, 0), point(0.2, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(2, 0), point(0.4, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(3, 0), point(0.6, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(4, 0), point(0.8, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(5, 0), point(1.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(299, 0), point(59.8, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(1, 299), point(0.2, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(2, 299), point(0.4, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(3, 299), point(0.6, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(4, 299), point(0.8, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(5, 299), point(1.0, 0.0, 0.0));
+        assert_eq!(cam.pixel_to_point(299, 299), point(59.8, 0.0, 0.0));
     }
 
     #[test]
@@ -977,24 +977,6 @@ mod test {
         assert_eq!(cam.pixel_to_point(0, 1), point(0.0, 59.6, 0.0));
         assert_eq!(cam.pixel_to_point(0, 2), point(0.0, 59.4, 0.0));
         assert_eq!(cam.pixel_to_point(0, 3), point(0.0, 59.2, 0.0));
-    }
-
-    #[test]
-    fn pixel_index_to_point_in_space_zs() {
-        let mut cam = camera(
-            canvas(300, 300),
-            (0.0, 0.0, 0.0),
-            (60.0, 60.0, 0.0),
-            (0.0, 0.0, 1.0),
-        );
-
-        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 1), point(0.0, 0.2, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 2), point(0.0, 0.4, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 3), point(0.0, 0.6, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 4), point(0.0, 0.8, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 5), point(0.0, 1.0, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 59.8, 0.0));
     }
 
     #[test]
