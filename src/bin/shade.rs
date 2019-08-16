@@ -1,6 +1,5 @@
 use bucktracer::*;
 use std::io::{Result, stdout};
-use std::f64::consts::*;
 
 fn main() -> Result<()> {
 
