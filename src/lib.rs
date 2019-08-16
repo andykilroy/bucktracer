@@ -217,7 +217,7 @@ impl Canvas {
     }
 }
 
-pub fn encode_ppm(c: &Canvas, w: &mut Write) -> IOResult<()> {
+pub fn encode_ppm(c: &Canvas, w: &mut dyn Write) -> IOResult<()> {
     writeln!(w, "P3")?;
     writeln!(w, "{} {}", c.width, c.height)?;
     writeln!(w, "255")?;
@@ -225,7 +225,7 @@ pub fn encode_ppm(c: &Canvas, w: &mut Write) -> IOResult<()> {
     Ok(())
 }
 
-fn encode_ppm_pixels(c: &Canvas, w: &mut Write, line_width: usize) -> IOResult<()> {
+fn encode_ppm_pixels(c: &Canvas, w: &mut dyn Write, line_width: usize) -> IOResult<()> {
     for row in 0..(c.height) {
         let mut char_width = 0;
         for col in 0..(c.width) {
@@ -945,7 +945,7 @@ mod test {
 
     #[test]
     fn pixel_index_to_point_in_space_xs() {
-        let mut cam = camera(
+        let cam = camera(
             canvas(300, 300),
             (0.0, 0.0, 0.0),
             (60.0, 60.0, 0.0),
