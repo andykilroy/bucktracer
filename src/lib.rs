@@ -717,7 +717,7 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
 // ---- Camera related stuff
 pub type Coord = (usize, usize);
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct RadialLightSource {
     position: Tuple4,
     intensity: Tuple4, // a colour
@@ -913,6 +913,42 @@ pub fn lighting(
     };
 
     ambient + diffuse + specular
+}
+
+#[derive(Debug)]
+pub struct World {
+    objects: Vec<Sphere>,
+    lights: Vec<RadialLightSource>,
+}
+
+impl World {
+    pub fn empty() -> World {
+        World { objects: vec![], lights: vec![] }
+    }
+
+    pub fn default() -> World {
+        let light = point_light(point(-10.0, 10.0, -10.0), white());
+        let mut outer = unit_sphere();
+        let mut inner = unit_sphere();
+
+        let mut m = Material::default();
+        m.set_colour(colour(0.8, 1.0, 0.6));
+        m.set_diffuse(0.7);
+        m.set_specular(0.2);
+        outer.set_material(&m);
+
+        inner.set_transform(&scaling(0.5, 0.5, 0.5));
+
+        World {objects: vec![outer, inner], lights: vec![light]}
+    }
+
+    pub fn light_sources(self: &Self) -> Vec<RadialLightSource> {
+        self.lights.clone()
+    }
+
+    pub fn objects(self: &Self) -> Vec<Sphere> {
+        self.objects.clone()
+    }
 }
 
 
