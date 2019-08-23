@@ -3,6 +3,7 @@ use std::vec::*;
 use std::io::Result as IOResult;
 use std::io::Write;
 use std::str::FromStr;
+use std::cmp::*;
 
 
 const EPSILON: f64 = 1e-5;
@@ -948,6 +949,27 @@ impl World {
 
     pub fn objects(self: &Self) -> Vec<Sphere> {
         self.objects.clone()
+    }
+
+    pub fn intersect(self: &Self, r: Ray) -> Vec<Intersection> {
+        let mut v: Vec<Intersection> = vec![];
+        for obj in self.objects.iter() {
+            v.extend(intersect(&r, obj).iter());
+        }
+
+        v.sort_by(|i1, i2| {
+            let t1 = i1.t_value;
+            let t2 = i2.t_value;
+            if t1 < t2 {
+                Ordering::Less
+            } else if t1 > t2 {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        });
+
+        v
     }
 }
 

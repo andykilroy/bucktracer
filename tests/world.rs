@@ -23,3 +23,16 @@ fn properties_of_default_world() {
     assert_eq!(s2.transform(), scaling(0.5, 0.5, 0.5));
 
 }
+
+#[test]
+fn intersect_a_world_with_a_ray() {
+    let world = World::default();
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let intersects = world.intersect(r);
+    assert_eq!(intersects.len(), 4);
+
+    assert_eq!(intersects[0].t_value, 4.0);
+    assert_eq!(intersects[1].t_value, 4.5);
+    assert_eq!(intersects[2].t_value, 5.5);
+    assert_eq!(intersects[3].t_value, 6.0);
+}
