@@ -36,3 +36,40 @@ fn intersect_a_world_with_a_ray() {
     assert_eq!(intersects[2].t_value, 5.5);
     assert_eq!(intersects[3].t_value, 6.0);
 }
+
+#[test]
+fn precompute_state_of_intersection() {
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let shape = unit_sphere();
+    let i = intersection(4.0, &shape);
+    let comps = precompute(&i, &r);
+    assert_eq!(comps.t_value, 4.0);
+    assert_eq!(comps.object, shape);
+    assert_eq!(comps.point, point(0.0, 0.0, -1.0));
+    assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.normalv, vector(0.0, 0.0, -1.0));
+}
+
+#[test]
+fn the_hit_when_intersection_occurs_on_outside() {
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let shape = unit_sphere();
+    let i = intersection(4.0, &shape);
+    let comps = precompute(&i, &r);
+    assert_eq!(comps.inside, false);
+}
+
+#[test]
+fn the_hit_when_an_intersection_occurs_on_inside() {
+    let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+    let shape = unit_sphere();
+    let i = intersection(1.0, &shape);
+    let comps = precompute(&i, &r);
+    assert_eq!(comps.t_value, 1.0);
+    assert_eq!(comps.object, shape);
+    assert_eq!(comps.point, point(0.0, 0.0, 1.0));
+    assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.normalv, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.inside, true);
+}
+

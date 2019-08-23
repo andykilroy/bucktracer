@@ -973,6 +973,35 @@ impl World {
     }
 }
 
+#[derive(Debug)]
+pub struct Precomputed {
+    pub t_value: f64,
+    pub object: Sphere,
+    pub point: Tuple4,
+    pub eyev: Tuple4,
+    pub normalv: Tuple4,
+    pub inside: bool,
+}
+
+pub fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
+    let pos = position(r.clone(), i.t_value);
+    let n = normal_at(&i.intersected, pos);
+    let e = -(r.direction);
+    let inside = n.dot(e) < 0.0;
+    let norm = if inside {
+        -n
+    } else {
+        n
+    };
+    Precomputed {
+        t_value: i.t_value,
+        object: i.intersected,
+        point: pos,
+        eyev: e,
+        normalv: norm,
+        inside: inside,
+    }
+}
 
 mod test {
     use crate::*;
