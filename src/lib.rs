@@ -640,16 +640,18 @@ impl Sphere {
         self.transform
     }
 
-    pub fn set_transform(&mut self, m: &Matrix) {
+    pub fn set_transform(self: &mut Self, m: &Matrix) -> &mut Self {
         self.transform = m.clone();
+        self
     }
 
     pub fn material(&self) -> Material {
         self.material
     }
 
-    pub fn set_material(&mut self, m: &Material) {
+    pub fn set_material(self: &mut Self, m: &Material) -> &mut Self {
         self.material = m.clone();
+        self
     }
 }
 
@@ -955,10 +957,15 @@ impl World {
         self.objects.clone()
     }
 
-    fn intersect(self: &Self, r: Ray) -> Vec<Intersection> {
+    pub fn set_objects(self: &mut Self, v: Vec<Sphere>) -> &mut Self {
+        self.objects = v;
+        self
+    }
+
+    fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
         let mut v: Vec<Intersection> = vec![];
         for obj in self.objects.iter() {
-            v.extend(intersect(&r, obj).iter());
+            v.extend(intersect(r, obj).iter());
         }
 
         v.sort_by(|i1, i2| {
@@ -975,16 +982,26 @@ impl World {
 
         v
     }
+
+    pub fn colour_at_intersect(self: &Self, r: &Ray) -> Tuple4 {
+        let ints = self.intersect(r);
+        let black = colour(0.0, 0.0, 0.0);
+        let poss_hit = hit(ints).and_then(|h| {
+            let precomputed = precompute(&h, r);
+            Some(shade_hit(self, &precomputed))
+        });
+        poss_hit.unwrap_or(black)
+    }
 }
 
 #[derive(Debug)]
 struct Precomputed {
-    pub t_value: f64,
-    pub object: Sphere,
-    pub point: Tuple4,
-    pub eyev: Tuple4,
-    pub normalv: Tuple4,
-    pub inside: bool,
+    t_value: f64,
+    object: Sphere,
+    point: Tuple4,
+    eyev: Tuple4,
+    normalv: Tuple4,
+    inside: bool,
 }
 
 fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
@@ -1105,7 +1122,7 @@ mod internal_shading {
     fn intersect_a_world_with_a_ray() {
         let world = World::default();
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let intersects = world.intersect(r);
+        let intersects = world.intersect(&r);
         assert_eq!(intersects.len(), 4);
 
         assert_eq!(intersects[0].t_value, 4.0);

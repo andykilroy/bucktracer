@@ -24,3 +24,37 @@ fn properties_of_default_world() {
 
 }
 
+#[test]
+fn colour_when_a_ray_misses() {
+    let w = World::default();
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    let c = w.colour_at_intersect(&r);
+    assert_eq!(c, colour(0.0, 0.0, 0.0));
+}
+
+#[test]
+fn colour_when_a_ray_hits() {
+    let w = World::default();
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let c = w.colour_at_intersect(&r);
+    assert_eq!(c, colour(0.38066, 0.47583, 0.2855));
+}
+
+#[test]
+fn colour_with_an_intersection_behind_the_ray() {
+    let mut w = World::default();
+    let mut outer = w.objects()[0];
+    let mut inner = w.objects()[1];
+
+    let mut outer_mat = outer.material();
+    outer.set_material(outer_mat.set_ambient(1.0));
+    let mut inner_mat = inner.material();
+    inner.set_material(inner_mat.set_ambient(1.0));
+
+    w.set_objects(vec![outer, inner]);
+
+    let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
+    let c = w.colour_at_intersect(&r);
+    assert_eq!(c, inner_mat.colour());
+
+}
