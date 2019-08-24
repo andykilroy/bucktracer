@@ -1,9 +1,9 @@
-use std::ops::*;
-use std::vec::*;
+use std::ops::{Add, Sub, Neg, Mul, Index};
+use std::vec;
 use std::io::Result as IOResult;
 use std::io::Write;
 use std::str::FromStr;
-use std::cmp::*;
+use std::cmp::Ordering;
 
 
 const EPSILON: f64 = 1e-5;
@@ -744,7 +744,7 @@ impl RadialLightSource {
 }
 
 pub fn ray_to_point(origin: Tuple4, point: Tuple4) -> Ray {
-    ray(origin, point.sub(origin))
+    ray(origin, point - origin)
 }
 
 fn to_f64(v: usize) -> f64 {
@@ -778,7 +778,7 @@ impl Camera {
         assert!(x < self.canvas.width);
         assert!(y < self.canvas.height);
 
-        let world_width = self.plane.upper_right.sub(self.plane.lower_left);
+        let world_width = self.plane.upper_right - self.plane.lower_left;
         let x_factor : f64 = world_width.x() / to_f64(self.canvas.width);
         let y_factor : f64 = world_width.y() / to_f64(self.canvas.height);
         let x_float = to_f64(x);
@@ -813,7 +813,7 @@ pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> Cam
 pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
     let inversion_mat = s.transform.inverse();
     let object_point = inversion_mat.mult(world_point);
-    let object_normal = object_point.sub(s.pos);
+    let object_normal = object_point - s.pos;
     let tmp = inversion_mat.transpose().mult(object_normal);
 
     tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
