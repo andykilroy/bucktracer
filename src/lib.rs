@@ -943,6 +943,10 @@ impl World {
         World {objects: vec![outer, inner], lights: vec![light]}
     }
 
+    pub fn with(objects: Vec<Sphere>, lights: Vec<RadialLightSource>) -> World {
+        World {objects, lights}
+    }
+
     pub fn light_sources(self: &Self) -> Vec<RadialLightSource> {
         self.lights.clone()
     }
@@ -1001,6 +1005,19 @@ pub fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
         normalv: norm,
         inside: inside,
     }
+}
+
+pub fn shade_hit(world: &World, comps: &Precomputed) -> Tuple4 {
+    let mut c = colour(0.0, 0.0, 0.0);
+    for light in world.lights.iter() {
+        c = c + lighting(
+            light,
+            comps.point,
+            comps.normalv,
+            &comps.object.material,
+            comps.eyev);
+    }
+    c
 }
 
 mod test {
