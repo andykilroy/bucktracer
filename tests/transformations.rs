@@ -101,3 +101,43 @@ fn compose_transforms() {
     assert_eq!(t.mult(p), point(15.0, 0.0, 7.0));
 }
 
+
+#[test]
+fn transformation_matrix_for_default_orientation() {
+    let from = point(0.0, 0.0, 0.0);
+    let to   = point(0.0, 0.0, -1.0);
+    let up   = vector(0.0, 1.0, 0.0);
+    let t = view_transform(from, to, up);
+    assert_eq!(t, identity());
+}
+
+#[test]
+fn a_view_towards_the_positive_z_direction() {
+    let from = point(0.0, 0.0, 0.0);
+    let to   = point(0.0, 0.0, 1.0);
+    let up   = vector(0.0, 1.0, 0.0);
+    let t = view_transform(from, to, up);
+    assert_eq!(t, scaling(-1.0, 1.0, -1.0));
+}
+
+#[test]
+fn view_transform_moves_the_world() {
+    let from = point(0.0, 0.0, 8.0);
+    let to   = point(0.0, 0.0, 0.0);
+    let up   = vector(0.0, 1.0, 0.0);
+    let t = view_transform(from, to, up);
+    assert_eq!(t, translation(0.0, 0.0, -8.0));
+}
+
+#[test]
+fn arbitrary_view_transform() {
+    let from = point(1.0, 3.0, 2.0);
+    let to   = point(4.0, -2.0, 8.0);
+    let up   = vector(1.0, 1.0, 0.0);
+    let t = view_transform(from, to, up);
+    assert_eq!(t, matrix((-0.50709,  0.50709,  0.67612, -2.36643),
+                         ( 0.76772,  0.60609,  0.12122, -2.82843),
+                         (-0.35857,  0.59761, -0.71714,  0.00000),
+                         ( 0.00000,  0.00000,  0.00000,  1.00000)));
+
+}

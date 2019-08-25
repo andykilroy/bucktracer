@@ -508,6 +508,17 @@ fn shade_hit(world: &World, comps: &Precomputed) -> Tuple4 {
     c
 }
 
+pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
+    let forward = (to - from).normalize();
+    let left = forward.cross(up.normalize());
+    let trueup = left.cross(forward);
+    let m = matrix((    left.x(),     left.y(),     left.z(), 0.0),
+                   (  trueup.x(),   trueup.y(),   trueup.z(), 0.0),
+                   (-forward.x(), -forward.y(), -forward.z(), 0.0),
+                   (         0.0,          0.0,          0.0, 1.0));
+    m * translation(-from.x(), -from.y(), -from.z())
+}
+
 mod internal_rays {
     use crate::*;
 
