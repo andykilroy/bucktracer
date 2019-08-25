@@ -593,6 +593,18 @@ impl Camera {
         let dir = (pixel - origin).normalize();
         ray(origin, dir)
     }
+
+    pub fn render(self: &Self, w: &World) -> Canvas {
+        let mut canv = canvas(self.hsize as usize, self.vsize as usize);
+        for y in 0..self.vsize {
+            for x in 0..self.hsize {
+                let r = self.ray_for_pixel(x, y);
+                let c = w.colour_at_intersect(&r);
+                canv.set_colour_at(x as usize, y as usize, c);
+            }
+        }
+        canv
+    }
 }
 
 mod internal_rays {
