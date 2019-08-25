@@ -224,14 +224,14 @@ fn to_f64(v: usize) -> f64 {
 }
 
 #[derive(Debug)]
-pub struct Camera {
+pub struct OldCamera {
     canvas: Canvas,
     plane: BoundedPlane,
 }
 
-impl Camera {
-    pub fn new(canv: Canvas, pln: BoundedPlane) -> Camera {
-        Camera {
+impl OldCamera {
+    pub fn new(canv: Canvas, pln: BoundedPlane) -> OldCamera {
+        OldCamera {
             canvas: canv,
             plane: pln,
         }
@@ -268,8 +268,8 @@ pub struct BoundedPlane {
 
 type Triple = (f64, f64, f64);
 
-pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> Camera {
-    Camera::new(
+pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> OldCamera {
+    OldCamera::new(
         c,
         BoundedPlane {
             lower_left: point(l_left.0, l_left.1, l_left.2),
@@ -517,6 +517,61 @@ pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
                    (-forward.x(), -forward.y(), -forward.z(), 0.0),
                    (         0.0,          0.0,          0.0, 1.0));
     m * translation(-from.x(), -from.y(), -from.z())
+}
+
+pub struct Camera {
+    hsize: u32,
+    vsize: u32,
+    fov: f64,
+    half_width: f64,
+    half_height: f64,
+    pixel_size: f64,
+    transform: Matrix,
+}
+
+impl Camera {
+    pub fn new(hsize: u32, vsize: u32, fov: f64) -> Camera {
+        let half_view = (fov / 2.0).tan();
+        let aspect = f64::from(hsize) / f64::from(vsize);
+        let half_width = if aspect >= 1.0 {
+            half_view
+        } else {
+            half_view * aspect
+        };
+        let half_height = if aspect >= 1.0 {
+            half_view / aspect
+        } else {
+            half_view
+        };
+
+        let pixel_size = (half_width * 2.0) / f64::from(hsize);
+
+        Camera {
+            hsize,
+            vsize,
+            fov,
+            half_width,
+            half_height,
+            pixel_size,
+            transform: identity(),
+        }
+    }
+    pub fn hsize(self: &Self) -> u32 {
+        self.hsize
+    }
+    pub fn vsize(self: &Self) -> u32 {
+        self.vsize
+    }
+    pub fn field_of_view(self: &Self) -> f64 {
+        self.fov
+    }
+    pub fn transform(self: &Self) -> Matrix {
+        self.transform
+    }
+    pub fn pixel_size(self: &Self) -> f64 {
+        self.pixel_size
+    }
+
 }
 
 mod internal_rays {

@@ -141,3 +141,32 @@ fn arbitrary_view_transform() {
                          ( 0.00000,  0.00000,  0.00000,  1.00000)));
 
 }
+
+#[test]
+fn construct_camera() {
+    let hsize = 160;
+    let vsize = 120;
+    let fov = PI / 2.0;
+    let c = Camera::new(hsize, vsize, fov);
+    assert_eq!(c.hsize(), 160);
+    assert_eq!(c.vsize(), 120);
+    assert_eq!(c.field_of_view(), fov);
+    assert_eq!(c.transform(), identity());
+}
+
+
+fn almost_eq(x1: f64, x2: f64) -> bool {
+    f64::abs(x1 - x2) < 0.000001
+}
+
+#[test]
+fn pixel_size_for_horizontal_canvas() {
+    let c = Camera::new(200, 125, FRAC_PI_2);
+    assert_eq!(true, almost_eq(c.pixel_size(), 0.01));
+}
+
+#[test]
+fn pixel_size_for_vertical_canvas() {
+    let c = Camera::new(125, 200, FRAC_PI_2);
+    assert_eq!(true, almost_eq(c.pixel_size(), 0.01));
+}

@@ -21,7 +21,7 @@ fn main() -> Result<()> {
 }
 
 fn raytrace(
-    cam: &mut Camera,
+    cam: &mut OldCamera,
     light: &RadialLightSource,
     spher: &Sphere,
     rays_target: Tuple4
@@ -43,7 +43,7 @@ fn raytrace(
     }
 }
 
-fn rays_to_point(cam: &mut Camera, target: Tuple4) -> Vec<(Coord, Ray)> {
+fn rays_to_point(cam: &mut OldCamera, target: Tuple4) -> Vec<(Coord, Ray)> {
     let mut v : Vec<(Coord, Ray)> = vec![];
 
     for col in 0..cam.canvas().width {

@@ -15,7 +15,7 @@ fn main() -> Result<()> {
     encode_ppm(cam.canvas(), &mut stdout)
 }
 
-fn raytrace(cam: &mut Camera, light: &RadialLightSource, spher: &Sphere) {
+fn raytrace(cam: &mut OldCamera, light: &RadialLightSource, spher: &Sphere) {
     let origins_rays = rays_between(cam, light);
 
     for (p, r) in origins_rays.iter() {
@@ -26,7 +26,7 @@ fn raytrace(cam: &mut Camera, light: &RadialLightSource, spher: &Sphere) {
     }
 }
 
-fn rays_between(cam: &mut Camera, light: &RadialLightSource) -> Vec<(Coord, Ray)> {
+fn rays_between(cam: &mut OldCamera, light: &RadialLightSource) -> Vec<(Coord, Ray)> {
     let mut v : Vec<(Coord, Ray)> = vec![];
 
     for col in 0..cam.canvas().width {
