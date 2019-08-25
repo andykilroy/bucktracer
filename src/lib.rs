@@ -519,6 +519,8 @@ pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
     m * translation(-from.x(), -from.y(), -from.z())
 }
 
+// A camera where the canvas is 1 unit in front of the camera's
+// position (as given by from)
 pub struct Camera {
     hsize: u32,
     vsize: u32,
@@ -568,10 +570,29 @@ impl Camera {
     pub fn transform(self: &Self) -> Matrix {
         self.transform
     }
+    pub fn set_transform(self: &mut Self, m: Matrix) -> &mut Self {
+        self.transform = m;
+        self
+    }
     pub fn pixel_size(self: &Self) -> f64 {
         self.pixel_size
     }
 
+    pub fn ray_for_pixel(self: &Self, px: u32, py: u32) -> Ray {
+        assert!(px < self.hsize);
+        assert!(py < self.vsize);
+
+        let xoffset = (f64::from(px) + 0.5) * self.pixel_size;
+        let yoffset = (f64::from(py) + 0.5) * self.pixel_size;
+        let worldx = self.half_width - xoffset;
+        let worldy = self.half_height - yoffset;
+        let inv_t = self.transform.inverse();
+
+        let pixel = inv_t.mult(point(worldx, worldy, -1.0));
+        let origin = inv_t.mult(point(0.0, 0.0, 0.0));
+        let dir = (pixel - origin).normalize();
+        ray(origin, dir)
+    }
 }
 
 mod internal_rays {
