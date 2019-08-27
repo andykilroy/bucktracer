@@ -433,7 +433,7 @@ impl World {
         self
     }
 
-    fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
+    pub fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
         let mut v: Vec<Intersection> = vec![];
         for obj in self.objects.iter() {
             v.extend(intersect(r, obj).iter());

@@ -1,42 +1,40 @@
 use bucktracer::*;
 use std::io::{Result, stdout};
+use std::f64::consts::FRAC_PI_2;
 
 fn main() -> Result<()> {
 
-    let mut cam = camera(canvas(300, 300),
-                     (0.0, 0.0, 0.0), (60.0, 60.0, 0.0),
-                     (0.0, 0.0, 1.0));
+    let mut cam = Camera::new(300, 300, FRAC_PI_2);
+    cam.set_transform(view_transform(
+        point(30.0, 30.0, 0.0),
+        point(30.0, 30.0, 20.0),
+        vector(0.0, 1.0, 0.0)));
     let light = point_light(point(30.0, 30.0, 40.0), white());
     let mut s = unit_sphere();
     s.set_transform(&(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5)));
-
-    raytrace(&mut cam, &light, &s);
+    let world = World::with(vec![s], vec![light]);
+    let canvas = raytrace(&cam, &world);
     let mut stdout = stdout();
-    encode_ppm(cam.canvas(), &mut stdout)
+    encode_ppm(&canvas, &mut stdout)
 }
 
-fn raytrace(cam: &mut OldCamera, light: &RadialLightSource, spher: &Sphere) {
-    let origins_rays = rays_between(cam, light);
+fn raytrace(cam: &Camera, world: &World) -> Canvas {
+    let mut canv = canvas(cam.hsize() as usize, cam.vsize() as usize);
+    let red = colour(1.0, 0.0, 0.0);
+    let black = colour(0.0, 0.0, 0.0);
 
-    for (p, r) in origins_rays.iter() {
-        let intersects = intersect(r, spher);
-        if intersects.len() > 0 {
-            cam.paint_colour_at(p.0, p.1, colour(1.0, 0.0, 0.0));
+    for y in 0..cam.vsize() {
+        for x in 0..cam.hsize() {
+            let r = cam.ray_for_pixel(x, y);
+            let intersects = world.intersect(&r);
+            let col = match hit(intersects) {
+                Some(h) => red,
+                None => black
+            };
+            canv.set_colour_at(x as usize, y as usize, col);
         }
     }
-}
-
-fn rays_between(cam: &mut OldCamera, light: &RadialLightSource) -> Vec<(Coord, Ray)> {
-    let mut v : Vec<(Coord, Ray)> = vec![];
-
-    for col in 0..cam.canvas().width {
-        for row in 0..cam.canvas().height {
-            let point_of_canvas = cam.pixel_to_point(col, row);
-            v.push(((col, row), ray_to_point(point_of_canvas, light.position())))
-        }
-    }
-
-    return v;
+    canv
 }
 
 
