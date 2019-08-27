@@ -1,7 +1,6 @@
 use std::vec;
 use std::io::Result as IOResult;
 use std::io::Write;
-use std::str::FromStr;
 use std::cmp::Ordering;
 
 mod math;
@@ -188,9 +187,6 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
     }
 }
 
-// ---- Camera related stuff
-pub type Coord = (usize, usize);
-
 #[derive(Debug, Copy, Clone)]
 pub struct RadialLightSource {
     position: Tuple4,
@@ -213,73 +209,6 @@ impl RadialLightSource {
         self.intensity
     }
 }
-
-pub fn ray_to_point(origin: Tuple4, point: Tuple4) -> Ray {
-    ray(origin, point - origin)
-}
-
-fn to_f64(v: usize) -> f64 {
-    let s = format!("{}", v);
-    return f64::from_str(&s).unwrap();
-}
-
-#[derive(Debug)]
-pub struct OldCamera {
-    canvas: Canvas,
-    plane: BoundedPlane,
-}
-
-impl OldCamera {
-    pub fn new(canv: Canvas, pln: BoundedPlane) -> OldCamera {
-        OldCamera {
-            canvas: canv,
-            plane: pln,
-        }
-    }
-
-    pub fn canvas(self: &Self) -> &Canvas {
-        &self.canvas
-    }
-
-    pub fn paint_colour_at(self: &mut Self, x: usize, y: usize, c: Tuple4) {
-        self.canvas.set_colour_at(x, y, c);
-    }
-
-    pub fn pixel_to_point(self: &Self, x: usize, y: usize) -> Tuple4 {
-        assert!(x < self.canvas.width);
-        assert!(y < self.canvas.height);
-
-        let world_width = self.plane.upper_right - self.plane.lower_left;
-        let x_factor : f64 = world_width.x() / to_f64(self.canvas.width);
-        let y_factor : f64 = world_width.y() / to_f64(self.canvas.height);
-        let x_float = to_f64(x);
-        let y_float = to_f64(y);
-
-        point(x_float * x_factor, world_width.y() - ((y_float + 1.0) * y_factor), 0.0)
-    }
-}
-
-#[derive(Debug)]
-pub struct BoundedPlane {
-    lower_left: Tuple4,
-    upper_right: Tuple4,
-    surface_normal: Tuple4,
-}
-
-type Triple = (f64, f64, f64);
-
-pub fn camera(c: Canvas, l_left: Triple, u_right: Triple, normal: Triple) -> OldCamera {
-    OldCamera::new(
-        c,
-        BoundedPlane {
-            lower_left: point(l_left.0, l_left.1, l_left.2),
-            upper_right: point(u_right.0, u_right.1, u_right.2),
-            surface_normal: vector(normal.0, normal.1, normal.2),
-        },
-    )
-}
-
-// ---- END camera related stuff
 
 pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
     let inversion_mat = s.transform.inverse();
@@ -604,82 +533,6 @@ impl Camera {
             }
         }
         canv
-    }
-}
-
-mod internal_rays {
-    use crate::*;
-
-    #[test]
-    fn rays_to_lightsrc() {
-        let orig1 = point(0.0, 0.0, 0.0);
-        let orig2 = point(3.0, 3.0, 0.0);
-        let target1 = point(0.0, 0.0, 1.0);
-        let target2 = point(5.0, 6.0, 7.0);
-
-        assert_eq!(ray_to_point(orig1, target1).origin.x(), 0.0);
-        assert_eq!(ray_to_point(orig1, target1).origin.y(), 0.0);
-        assert_eq!(ray_to_point(orig1, target1).origin.z(), 0.0);
-
-        assert_eq!(ray_to_point(orig1, target1).direction.x(), 0.0);
-        assert_eq!(ray_to_point(orig1, target1).direction.y(), 0.0);
-        assert_eq!(ray_to_point(orig1, target1).direction.z(), 1.0);
-
-        assert_eq!(ray_to_point(orig2, target2).origin.x(), 3.0);
-        assert_eq!(ray_to_point(orig2, target2).origin.y(), 3.0);
-        assert_eq!(ray_to_point(orig2, target2).origin.z(), 0.0);
-
-        assert_eq!(ray_to_point(orig2, target2).direction.x(), 2.0);
-        assert_eq!(ray_to_point(orig2, target2).direction.y(), 3.0);
-        assert_eq!(ray_to_point(orig2, target2).direction.z(), 7.0);
-    }
-
-    #[test]
-    fn pixel_index_to_point_in_space_xs() {
-        let cam = camera(
-            canvas(300, 300),
-            (0.0, 0.0, 0.0),
-            (60.0, 60.0, 0.0),
-            (0.0, 0.0, 1.0),
-        );
-
-        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(1, 299), point(0.2, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(2, 299), point(0.4, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(3, 299), point(0.6, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(4, 299), point(0.8, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(5, 299), point(1.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(299, 299), point(59.8, 0.0, 0.0));
-    }
-
-    #[test]
-    fn pixel_index_to_point_in_space_ys() {
-        let mut cam = camera(
-            canvas(300, 300),
-            (0.0, 0.0, 0.0),
-            (60.0, 60.0, 0.0),
-            (0.0, 0.0, 1.0),
-        );
-
-        assert_eq!(cam.pixel_to_point(0, 299), point(0.0, 0.0, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 298), point(0.0, 0.2, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 297), point(0.0, 0.4, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 296), point(0.0, 0.6, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 295), point(0.0, 0.8, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 294), point(0.0, 1.0, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 0), point(0.0, 59.8, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 1), point(0.0, 59.6, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 2), point(0.0, 59.4, 0.0));
-        assert_eq!(cam.pixel_to_point(0, 3), point(0.0, 59.2, 0.0));
-    }
-
-    #[test]
-    fn test_ray_trace() {
-        let mut s = unit_sphere();
-        s.set_transform(&(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5)));
-        let r = ray(point(30.0, 30.0, 0.0), vector(0.0, 0.0, 1.0));
-        let intersects = intersect(&r, &s);
-        assert_eq!(2, intersects.len());
     }
 }
 

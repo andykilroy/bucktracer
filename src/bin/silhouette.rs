@@ -28,7 +28,7 @@ fn raytrace(cam: &Camera, world: &World) -> Canvas {
             let r = cam.ray_for_pixel(x, y);
             let intersects = world.intersect(&r);
             let col = match hit(intersects) {
-                Some(h) => red,
+                Some(_hit) => red,
                 None => black
             };
             canv.set_colour_at(x as usize, y as usize, col);
