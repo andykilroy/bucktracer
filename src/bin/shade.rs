@@ -8,8 +8,8 @@ fn main() -> Result<()> {
     materl.set_colour(colour(1.0, 0.2, 1.0));
     let light = point_light(point(0.0, 60.0, -20.0), white());
     let mut s = unit_sphere();
-    s.set_material(&materl);
-    s.set_transform(&(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5)));
+    s.set_material(materl);
+    s.set_transform(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5));
     let world = World::with(vec![s], vec![light]);
 
     let mut cam = Camera::new(300, 300, FRAC_PI_2);

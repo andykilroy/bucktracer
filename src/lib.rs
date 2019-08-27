@@ -110,8 +110,8 @@ impl Sphere {
         self.transform
     }
 
-    pub fn set_transform(self: &mut Self, m: &Matrix) -> &mut Self {
-        self.transform = m.clone();
+    pub fn set_transform(self: &mut Self, m: Matrix) -> &mut Self {
+        self.transform = m;
         self
     }
 
@@ -119,8 +119,8 @@ impl Sphere {
         self.material
     }
 
-    pub fn set_material(self: &mut Self, m: &Material) -> &mut Self {
-        self.material = m.clone();
+    pub fn set_material(self: &mut Self, m: Material) -> &mut Self {
+        self.material = m;
         self
     }
 }
@@ -338,9 +338,9 @@ impl World {
         m.set_colour(colour(0.8, 1.0, 0.6));
         m.set_diffuse(0.7);
         m.set_specular(0.2);
-        outer.set_material(&m);
+        outer.set_material(m);
 
-        inner.set_transform(&scaling(0.5, 0.5, 0.5));
+        inner.set_transform(scaling(0.5, 0.5, 0.5));
 
         World {objects: vec![outer, inner], lights: vec![light]}
     }

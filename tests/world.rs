@@ -47,9 +47,9 @@ fn colour_with_an_intersection_behind_the_ray() {
     let mut inner = w.objects()[1];
 
     let mut outer_mat = outer.material();
-    outer.set_material(outer_mat.set_ambient(1.0));
+    outer.set_material(outer_mat.set_ambient(1.0).clone());
     let mut inner_mat = inner.material();
-    inner.set_material(inner_mat.set_ambient(1.0));
+    inner.set_material(inner_mat.set_ambient(1.0).clone());
 
     w.set_objects(vec![outer, inner]);
 

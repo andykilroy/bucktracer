@@ -43,7 +43,7 @@ fn a_normal_is_normalised() {
 #[test]
 fn normal_on_translated_sphere() {
     let mut s = unit_sphere();
-    s.set_transform(&translation(0.0, 1.0, 0.0));
+    s.set_transform(translation(0.0, 1.0, 0.0));
     let n = normal_at(&s, point(0.0, 1.70711, -0.70711));
 
     assert_eq!(n, vector(0.0, 0.70711, -0.70711));
@@ -55,7 +55,7 @@ fn normal_on_transformed_sphere() {
     let pi_by_5 = PI / 5.0;
     let rt2by2 = 2.0f64.sqrt() / 2.0;
 
-    s.set_transform(&(scaling(1.0, 0.5, 1.0) * rotation_z(pi_by_5)));
+    s.set_transform(scaling(1.0, 0.5, 1.0) * rotation_z(pi_by_5));
     let n = normal_at(&s, point(0.0, rt2by2, -rt2by2));
     assert_eq!(n, vector(0.0, 0.97014, -0.24254));
 }

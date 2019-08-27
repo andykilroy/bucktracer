@@ -38,7 +38,7 @@ fn assign_sphere_a_material() {
         .set_diffuse(1.0)
         .set_specular(1.0)
         .set_shininess(100.0);
-    s.set_material(&m);
+    s.set_material(m);
 
     assert_eq!(s.material().colour(), colour(0.4, 0.6, 0.5));
     assert_eq!(s.material().ambient(), 1.0);

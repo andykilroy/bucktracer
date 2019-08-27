@@ -133,7 +133,7 @@ fn scaling_a_ray() {
 fn intersect_scaled_sphere_with_a_ray() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
-    s.set_transform(&scaling(2.0, 2.0, 2.0));
+    s.set_transform(scaling(2.0, 2.0, 2.0));
     let xs = intersect(&r, &s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t_value, 3.0);
@@ -144,7 +144,7 @@ fn intersect_scaled_sphere_with_a_ray() {
 fn intersect_translated_sphere_with_a_ray_miss() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
-    s.set_transform(&translation(5.0, 0.0, 0.0));
+    s.set_transform(translation(5.0, 0.0, 0.0));
     let xs = intersect(&r, &s);
     assert_eq!(xs.len(), 0);
 }
@@ -153,7 +153,7 @@ fn intersect_translated_sphere_with_a_ray_miss() {
 fn intersect_translated_sphere_with_a_ray_hit() {
     let r = ray(point(5.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
-    s.set_transform(&translation(5.0, 0.0, 0.0));
+    s.set_transform(translation(5.0, 0.0, 0.0));
     let xs = intersect(&r, &s);
     assert_eq!(xs.len(), 2);
 }
