@@ -106,6 +106,10 @@ pub fn unit_sphere() -> Sphere {
 }
 
 impl Sphere {
+    pub fn position(self: &Self) -> Tuple4 {
+        self.transform.mult(self.pos)
+    }
+
     pub fn transform(&self) -> Matrix {
         self.transform
     }
@@ -450,6 +454,7 @@ pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
 
 // A camera where the canvas is 1 unit in front of the camera's
 // position (as given by from)
+#[derive(Debug)]
 pub struct Camera {
     hsize: u32,
     vsize: u32,

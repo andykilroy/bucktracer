@@ -5,3 +5,7 @@ authors = ["Andrew Kilroy <7545475+andykilroy@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
+exitfailure = "0.5"
+structopt = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.5"

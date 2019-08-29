@@ -1,5 +1,6 @@
 use bucktracer::*;
 use std::f64::consts::{FRAC_PI_4, FRAC_PI_2, FRAC_PI_3};
+use std::io::Write;
 use std::io::stdout;
 
 fn main() {

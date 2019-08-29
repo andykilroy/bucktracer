@@ -1,9 +1,10 @@
 use std::ops::{Add, Sub, Neg, Mul, Index};
+use serde::Deserialize;
 
 
 const EPSILON: f64 = 1e-5;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Deserialize)]
 pub struct Tuple4(f64, f64, f64, f64);
 
 
