@@ -139,7 +139,7 @@ struct MaterialConfig {
     shininess: Option<f64>,
 }
 
-fn to_colour(i : (f64, f64, f64)) -> Tuple4 {
+fn to_colour(i : (f64, f64, f64)) -> RGB {
     colour(i.0, i.1, i.2)
 }
 impl MaterialConfig {

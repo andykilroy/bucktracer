@@ -174,27 +174,6 @@ impl Index<usize> for Tuple4 {
 }
 
 
-pub fn colour(r: f64, g: f64, b: f64) -> Tuple4 {
-    Tuple4(r, g, b, 0.0)
-}
-
-pub fn red(Tuple4(r, _g, _b, _w): Tuple4) -> f64 {
-    r
-}
-pub fn green(Tuple4(_r, g, _b, _w): Tuple4) -> f64 {
-    g
-}
-pub fn blue(Tuple4(_r, _g, b, _w): Tuple4) -> f64 {
-    b
-}
-
-pub fn white() -> Tuple4 {
-    colour(1.0, 1.0, 1.0)
-}
-
-
-
-
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix {
     dim: Dimensions,
@@ -228,7 +207,7 @@ pub fn matrix(
 }
 
 
-pub fn matrix2(
+fn matrix2(
     (x1, y1) : (f64, f64),
     (x2, y2) : (f64, f64),
 ) -> Matrix {
@@ -242,7 +221,7 @@ pub fn matrix2(
     }
 }
 
-pub fn matrix3(
+fn matrix3(
     (x1, y1, z1) : (f64, f64, f64),
     (x2, y2, z2) : (f64, f64, f64),
     (x3, y3, z3) : (f64, f64, f64),

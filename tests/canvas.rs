@@ -4,15 +4,17 @@ use bucktracer::*;
 #[test]
 fn create_a_colour() {
     let c = colour(-0.5, 0.4, 1.7);
-    assert_eq!(-0.5, red(c));
-    assert_eq!( 0.4, green(c));
-    assert_eq!( 1.7, blue(c));
+    assert_eq!(-0.5, c.red());
+    assert_eq!( 0.4, c.green());
+    assert_eq!( 1.7, c.blue());
 }
 
 #[test]
 fn multiply_colours() {
-    assert_eq!(colour(0.9, 0.2, 0.04), 
-               colour(1.0, 0.2, 0.4).mult_pairwise(colour(0.9, 1.0, 0.1)));
+    let a: Tuple4 = colour(1.0, 0.2, 0.4).into();
+    let b: Tuple4 = colour(0.9, 1.0, 0.1).into();
+    assert_eq!(colour(0.9, 0.2, 0.04),
+               RGB::from(a.mult_pairwise(b)));
 }
 
 #[test]

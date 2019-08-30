@@ -6,12 +6,62 @@ use std::cmp::Ordering;
 mod math;
 
 pub use crate::math::*;
+use std::ops::{Mul, Add};
+
+/// A structure representing a colour in red, green, and blue components.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct RGB {
+    inner: Tuple4
+}
+
+
+pub fn colour(red: f64, green: f64, blue: f64) -> RGB {
+    RGB {inner: tuple(red, green, blue, 0.0)}
+}
+
+impl RGB {
+    pub fn red(self: &Self) -> f64 {
+        self.inner.x()
+    }
+    pub fn green(self: &Self) -> f64 {
+        self.inner.y()
+    }
+    pub fn blue(self: &Self) -> f64 {
+        self.inner.z()
+    }
+}
+
+impl From<Tuple4> for RGB {
+    fn from(x: Tuple4) -> Self {
+        RGB { inner: x }
+    }
+}
+
+impl Into<Tuple4> for RGB {
+    fn into(self) -> Tuple4 {
+        self.inner
+    }
+}
+
+impl Add for RGB {
+    type Output = RGB;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        RGB{ inner: (self.inner + rhs.inner) }
+    }
+}
+
+pub fn white() -> RGB {
+    colour(1.0, 1.0, 1.0)
+}
+
+
 
 #[derive(Debug)]
 pub struct Canvas { 
     pub width: usize, 
     pub height: usize,
-    pixels: Vec<Tuple4>
+    pixels: Vec<RGB>
 }
 
 pub fn canvas(w: usize, h: usize) -> Canvas {
@@ -21,10 +71,10 @@ pub fn canvas(w: usize, h: usize) -> Canvas {
 }
 
 impl Canvas {
-    pub fn colour_at(&self, x: usize, y: usize) -> Tuple4 {
+    pub fn colour_at(&self, x: usize, y: usize) -> RGB {
         self.pixels[y * self.width + x]
     }
-    pub fn set_colour_at(&mut self, x: usize, y: usize, c: Tuple4) {
+    pub fn set_colour_at(&mut self, x: usize, y: usize, c: RGB) {
         self.pixels[y * self.width + x] = c;
     }
 }
@@ -43,9 +93,9 @@ fn encode_ppm_pixels(c: &Canvas, w: &mut dyn Write, line_width: usize) -> IOResu
         for col in 0..(c.width) {
             let p = c.colour_at(col, row);
             let s = format!("{:.0} {:.0} {:.0} ", 
-                            clamp(red(p), 255),
-                            clamp(green(p), 255),
-                            clamp(blue(p), 255));
+                            clamp(p.red(), 255),
+                            clamp(p.green(), 255),
+                            clamp(p.blue(), 255));
 
             if char_width + s.len() > line_width {
                 writeln!(w)?;
@@ -194,10 +244,10 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
 #[derive(Debug, Copy, Clone)]
 pub struct RadialLightSource {
     position: Tuple4,
-    intensity: Tuple4, // a colour
+    intensity: RGB,
 }
 
-pub fn point_light(p: Tuple4, i: Tuple4) -> RadialLightSource {
+pub fn point_light(p: Tuple4, i: RGB) -> RadialLightSource {
     RadialLightSource {
         position: p,
         intensity: i,
@@ -209,7 +259,7 @@ impl RadialLightSource {
         self.position
     }
 
-    pub fn intensity(self: &Self) -> Tuple4 {
+    pub fn intensity(self: &Self) -> RGB {
         self.intensity
     }
 }
@@ -229,7 +279,7 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
-    colour: Tuple4,
+    colour: RGB,
     ambient: f64,
     diffuse: f64,
     specular: f64,
@@ -247,10 +297,10 @@ impl Material {
         }
     }
 
-    pub fn colour(self: &Self) -> Tuple4 {
+    pub fn colour(self: &Self) -> RGB {
         self.colour
     }
-    pub fn set_colour(self: &mut Self, x: Tuple4) -> &mut Self {
+    pub fn set_colour(self: &mut Self, x: RGB) -> &mut Self {
         self.colour = x;
         self
     }
@@ -295,13 +345,15 @@ pub fn lighting(
     normalv: Tuple4,
     mat: &Material,
     eyev: Tuple4,
-) -> Tuple4 {
-    let effective_colour = mat.colour().mult_pairwise(light.intensity());
+) -> RGB {
+    let matrl_colr: Tuple4 = mat.colour().into();
+    let light_intens: Tuple4 = light.intensity().into();
+    let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let lightv = (light.position() - pos).normalize();
     let ambient = effective_colour.scale(mat.ambient());
     let light_dot_normal = lightv.dot(normalv);
 
-    let black = colour(0.0, 0.0, 0.0);
+    let black: Tuple4 = colour(0.0, 0.0, 0.0).into();
     let (diffuse, specular) = if light_dot_normal < 0.0 {
         // the light is behind the surface
         (black, black)
@@ -314,12 +366,12 @@ pub fn lighting(
             (d, black)
         } else {
             let factor = reflect_dot_eye.powf(mat.shininess());
-            let s = light.intensity().scale(mat.specular() * factor);
+            let s = light_intens.scale(mat.specular() * factor);
             (d, s)
         }
     };
 
-    ambient + diffuse + specular
+    RGB::from(ambient + diffuse + specular)
 }
 
 #[derive(Debug)]
@@ -387,7 +439,7 @@ impl World {
         v
     }
 
-    pub fn colour_at_intersect(self: &Self, r: &Ray) -> Tuple4 {
+    pub fn colour_at_intersect(self: &Self, r: &Ray) -> RGB {
         let ints = self.intersect(r);
         let black = colour(0.0, 0.0, 0.0);
         let poss_hit = hit(ints).and_then(|h| {
@@ -428,7 +480,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     }
 }
 
-fn shade_hit(world: &World, comps: &Precomputed) -> Tuple4 {
+fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
     let mut c = colour(0.0, 0.0, 0.0);
     for light in world.lights.iter() {
         c = c + lighting(
