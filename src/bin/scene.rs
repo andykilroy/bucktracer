@@ -2,12 +2,8 @@ use bucktracer::*;
 use std::io::stdout;
 use std::path::PathBuf;
 use exitfailure::ExitFailure;
-use std::f64::consts::FRAC_2_PI;
-use std::io;
 use serde::Deserialize;
 
-#[macro_use]
-extern crate structopt;
 use structopt::StructOpt;
 
 fn main() -> Result<(), ExitFailure> {
@@ -17,7 +13,7 @@ fn main() -> Result<(), ExitFailure> {
     let world = config.world();
     let canvas = config.camera().render(&world);
     let mut stdout = stdout();
-    encode_ppm(&canvas, &mut stdout);
+    encode_ppm(&canvas, &mut stdout)?;
     Ok(())
 }
 
@@ -169,6 +165,7 @@ impl MaterialConfig {
 }
 
 
+#[cfg(test)]
 mod test {
     use crate::Config;
     use bucktracer::*;

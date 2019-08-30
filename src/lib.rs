@@ -542,6 +542,7 @@ impl Camera {
 }
 
 // ----- Testing non-public shading functions
+#[cfg(test)]
 mod internal_shading {
     use crate::*;
 

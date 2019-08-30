@@ -1,9 +1,9 @@
 use bucktracer::*;
 use std::f64::consts::{FRAC_PI_4, FRAC_PI_2, FRAC_PI_3};
-use std::io::Write;
 use std::io::stdout;
+use exitfailure::ExitFailure;
 
-fn main() {
+fn main() -> Result<(), ExitFailure>  {
     let mat = Material::default()
         .set_colour(colour(1.0, 0.9, 0.9))
         .set_specular(0.0).clone();
@@ -64,5 +64,6 @@ fn main() {
         ));
     let canvas = cam.render(&world);
     let mut stdout = stdout();
-    encode_ppm(&canvas, &mut stdout);
+    encode_ppm(&canvas, &mut stdout)?;
+    Ok(())
 }
