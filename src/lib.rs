@@ -6,7 +6,7 @@ use std::cmp::Ordering;
 mod math;
 
 pub use crate::math::*;
-use std::ops::{Mul, Add};
+use std::ops::Add;
 
 /// A structure representing a colour in red, green, and blue components.
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -56,7 +56,9 @@ pub fn white() -> RGB {
 }
 
 
-
+/// A structure used to record pixel colour values
+/// indexed by 2D coordinates.  (0,0) represents the
+/// top-left pixel of the canvas.
 #[derive(Debug)]
 pub struct Canvas { 
     pub width: usize, 
@@ -119,6 +121,8 @@ fn clamp(p: f64, max: u32) -> f64 {
     }
 }
 
+/// Represents a ray fired from a point in a particular
+/// direction
 #[derive(Debug, Clone)]
 pub struct Ray {
     pub origin: Tuple4,
@@ -138,6 +142,12 @@ pub fn transform(r: &Ray, m: &Matrix) -> Ray {
 }
 
 
+/// A sphere to be placed in the world.
+///
+/// A sphere has a transform that dictates where it is placed in
+/// the world, and also whether it is scaled or rotated in any way.
+/// It also is associated with material dictating its reflective
+/// properties.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Sphere {
     pos: Tuple4,
@@ -179,6 +189,7 @@ impl Sphere {
     }
 }
 
+// TODO make this non-public
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
@@ -241,6 +252,7 @@ fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) 
     }
 }
 
+/// A point that emits light in all directions.
 #[derive(Debug, Copy, Clone)]
 pub struct RadialLightSource {
     position: Tuple4,
@@ -277,6 +289,9 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
     v - norm.scale(2.0).scale(v.dot(norm))
 }
 
+/// Dictates the reflective properties of an object.
+///
+/// For example, colour and shininess.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
     colour: RGB,
@@ -374,6 +389,8 @@ pub fn lighting(
     RGB::from(ambient + diffuse + specular)
 }
 
+/// Represents a scene to be rendered.  Contains lights and
+/// objects
 #[derive(Debug)]
 pub struct World {
     objects: Vec<Sphere>,
@@ -504,8 +521,19 @@ pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
     m * translation(-from.x(), -from.y(), -from.z())
 }
 
-// A camera where the canvas is 1 unit in front of the camera's
-// position (as given by from)
+/// The configuration of a Camera sets up how a world will be
+/// viewed.  It sets up what portion of the scene is visible
+/// and what will be rendered in the final image.
+///
+/// Attributes influencing the final image are the number of
+/// horizontal and vertical pixels, the field of view angle,
+/// where the camera is positioned (the <em>from</em> position),
+/// where it is directed (the <em>to</em> position) and which
+/// direction is up (the <em>up</em> vector)
+///
+/// When the scene is rendered, an imaginary canvas is
+/// positioned 1 unit in front of the camera's
+/// <em>from</em> position towards the <em>to</em> position.
 #[derive(Debug)]
 pub struct Camera {
     hsize: u32,
