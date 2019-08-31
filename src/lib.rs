@@ -472,7 +472,20 @@ impl World {
         });
         poss_hit.unwrap_or(black)
     }
+
+    pub fn in_shadow(self: &Self, point: Tuple4, light: &RadialLightSource) -> bool {
+        let lgt_to_point = light.position() - point;
+        let mag = lgt_to_point.magnitude();
+        let r = ray(point, lgt_to_point.normalize());
+
+        let h = hit(self.intersect(&r));
+        match h {
+            Some(i) => i.t_value < mag,
+            _ => false
+        }
+    }
 }
+
 
 #[derive(Debug)]
 struct Precomputed {

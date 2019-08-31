@@ -56,5 +56,36 @@ fn colour_with_an_intersection_behind_the_ray() {
     let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
     let c = w.colour_at_intersect(&r);
     assert_eq!(c, inner_mat.colour());
+}
 
+#[test]
+fn point_not_in_shadow_when_nothing_colinear_with_point_and_light() {
+    let w = World::default();
+    let p = point(0.0, 10.0, 0.0);
+    let l = w.light_sources()[0];
+    assert_eq!(w.in_shadow(p, &l), false);
+}
+
+#[test]
+fn in_shadow_when_object_between_light_and_point() {
+    let w = World::default();
+    let p = point(10.0, -10.0, 10.0);
+    let l = w.light_sources()[0];
+    assert_eq!(w.in_shadow(p, &l), true);
+}
+
+#[test]
+fn point_not_in_shadow_when_light_source_between_point_and_object() {
+    let w = World::default();
+    let p = point(-20.0, 20.0, -20.0);
+    let l = w.light_sources()[0];
+    assert_eq!(w.in_shadow(p, &l), false);
+}
+
+#[test]
+fn point_not_in_shadow_when_point_between_light_source_and_object() {
+    let w = World::default();
+    let p = point(-2.0, 2.0, -2.0);
+    let l = w.light_sources()[0];
+    assert_eq!(w.in_shadow(p, &l), false);
 }
