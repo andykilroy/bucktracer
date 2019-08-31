@@ -360,12 +360,19 @@ pub fn lighting(
     normalv: Tuple4,
     mat: &Material,
     eyev: Tuple4,
+    in_shadow: bool
 ) -> RGB {
+
     let matrl_colr: Tuple4 = mat.colour().into();
     let light_intens: Tuple4 = light.intensity().into();
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
-    let lightv = (light.position() - pos).normalize();
     let ambient = effective_colour.scale(mat.ambient());
+
+    if in_shadow {
+        return RGB::from(ambient);
+    }
+
+    let lightv = (light.position() - pos).normalize();
     let light_dot_normal = lightv.dot(normalv);
 
     let black: Tuple4 = colour(0.0, 0.0, 0.0).into();
@@ -505,7 +512,9 @@ fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
             comps.point,
             comps.normalv,
             &comps.object.material,
-            comps.eyev);
+            comps.eyev,
+            false
+        );
     }
     c
 }
