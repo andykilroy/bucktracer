@@ -495,6 +495,7 @@ struct Precomputed {
     eyev: Tuple4,
     normalv: Tuple4,
     inside: bool,
+    over_point: Tuple4,
 }
 
 fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
@@ -514,6 +515,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
         eyev: e,
         normalv: norm,
         inside: inside,
+        over_point: pos + (norm.scale(1e-5))
     }
 }
 
@@ -522,11 +524,11 @@ fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
     for light in world.lights.iter() {
         c = c + lighting(
             light,
-            comps.point,
+            comps.over_point,
             comps.normalv,
             &comps.object.material,
             comps.eyev,
-            false
+            world.in_shadow(comps.over_point, light)
         );
     }
     c
@@ -736,5 +738,19 @@ mod shadows {
 
         let objects = vec![s1, s2];
         let w = World::with(vec![l], objects);
+        let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
+        let i = intersection(4.0, &s2);
+        let c = shade_hit(&w, &precompute(&i, &r));
+        assert_eq!(c, colour(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn the_hit_should_bump_the_point_slightly_in_the_direction_of_normalv() {
+        let shape = *(unit_sphere().set_transform(translation(0.0, 0.0, 1.0)));
+
+        let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+        let i = intersection(5.0, &shape);
+        let precomputed = precompute(&i, &r);
+        assert_eq!(true, precomputed.point.z() > precomputed.over_point.z())
     }
 }
