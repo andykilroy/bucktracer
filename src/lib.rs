@@ -400,8 +400,8 @@ pub fn lighting(
 /// objects
 #[derive(Debug)]
 pub struct World {
-    objects: Vec<Sphere>,
     lights: Vec<RadialLightSource>,
+    objects: Vec<Sphere>,
 }
 
 impl World {
@@ -425,7 +425,7 @@ impl World {
         World {objects: vec![outer, inner], lights: vec![light]}
     }
 
-    pub fn with(objects: Vec<Sphere>, lights: Vec<RadialLightSource>) -> World {
+    pub fn with(lights: Vec<RadialLightSource>, objects: Vec<Sphere>) -> World {
         World {objects, lights}
     }
 
@@ -712,7 +712,7 @@ mod internal_shading {
     #[test]
     fn shade_an_intersection_point_from_inside() {
         let light = point_light(point(0.0, 0.25, 0.0), white());
-        let w = World::with(World::default().objects(), vec![light]);
+        let w = World::with(vec![light], World::default().objects());
         let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shape = w.objects()[1];
         let i = intersection(0.5, &shape);
@@ -720,5 +720,21 @@ mod internal_shading {
         let comps = precompute(&i, &r);
         let c = shade_hit(&w, &comps);
         assert_eq!(c, colour(0.90498, 0.90498, 0.90498));
+    }
+}
+
+// ----- Test computing shadows
+#[cfg(test)]
+mod shadows {
+    use crate::*;
+
+    #[test]
+    fn an_intersection_in_shadow_returns_ambient_colour() {
+        let l = point_light(point(0.0, 0.0, -10.0), white());
+        let s1 = unit_sphere();
+        let s2 = *(unit_sphere().set_transform(translation(0.0, 0.0, 10.0)));
+
+        let objects = vec![s1, s2];
+        let w = World::with(vec![l], objects);
     }
 }

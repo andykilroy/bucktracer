@@ -12,7 +12,7 @@ fn main() -> Result<()> {
     let light = point_light(point(30.0, 30.0, 40.0), white());
     let mut s = unit_sphere();
     s.set_transform(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5));
-    let world = World::with(vec![s], vec![light]);
+    let world = World::with(vec![light], vec![s]);
     let canvas = raytrace(&cam, &world);
     let mut stdout = stdout();
     encode_ppm(&canvas, &mut stdout)

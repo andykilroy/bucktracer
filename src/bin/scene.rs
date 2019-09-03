@@ -33,8 +33,8 @@ struct Config {
 
 impl Config {
     fn world(self: &Self) -> World {
-        World::with(self.world.objects.iter().map(to_sphere).collect(),
-                    self.world.lights.iter().map(to_light).collect())
+        World::with(self.world.lights.iter().map(to_light).collect(),
+                    self.world.objects.iter().map(to_sphere).collect())
     }
 
     fn camera(self: &Self) -> Camera {

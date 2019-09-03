@@ -10,7 +10,7 @@ fn main() -> Result<()> {
     let mut s = unit_sphere();
     s.set_material(materl);
     s.set_transform(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5));
-    let world = World::with(vec![s], vec![light]);
+    let world = World::with(vec![light], vec![s]);
 
     let mut cam = Camera::new(300, 300, FRAC_PI_2);
     cam.set_transform(view_transform(
