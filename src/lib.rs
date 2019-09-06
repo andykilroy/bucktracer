@@ -142,34 +142,49 @@ pub fn transform(r: &Ray, m: &Matrix) -> Ray {
 }
 
 
-/// A sphere to be placed in the world.
+pub fn unit_sphere() -> Object {
+    Object {
+        transform: identity(),
+        material: Material::default(),
+        shape: Shape::Sphere {
+            pos: point(0.0, 0.0, 0.0),
+            radius: 1.0,
+        },
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum Shape {
+    Sphere { pos: Tuple4, radius: f64 }
+}
+
+impl Shape {
+    /// Calculates a normal appropriate for the object at the
+    /// specified position.  The position is always in object
+    /// co-ordinates.  The returned normal vector is also in
+    /// object space.
+    fn normal_at(self: &Self, position: Tuple4) -> Tuple4 {
+        match *self {
+            Shape::Sphere {pos: p, radius: _r} => {
+                position - p
+            }
+        }
+    }
+}
+/// An object to be placed in the world.
 ///
-/// A sphere has a transform that dictates where it is placed in
+/// The object has a transform that dictates where it is placed in
 /// the world, and also whether it is scaled or rotated in any way.
 /// It also is associated with material dictating its reflective
 /// properties.
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Sphere {
-    pos: Tuple4,
-    radius: f64,
+pub struct Object {
     transform: Matrix,
     material: Material,
+    shape: Shape
 }
 
-pub fn unit_sphere() -> Sphere {
-    Sphere {
-        pos: point(0.0, 0.0, 0.0),
-        radius: 1.0,
-        transform: identity(),
-        material: Material::default(),
-    }
-}
-
-impl Sphere {
-    pub fn position(self: &Self) -> Tuple4 {
-        self.transform.mult(self.pos)
-    }
-
+impl Object {
     pub fn transform(&self) -> Matrix {
         self.transform
     }
@@ -193,24 +208,24 @@ impl Sphere {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
-    pub intersected: Sphere
+    pub intersected: Object
 }
 
-pub fn intersection(t: f64, s: &Sphere) -> Intersection {
+pub fn intersection(t: f64, s: &Object) -> Intersection {
     Intersection {
         t_value: t,
         intersected: s.clone()
     }
 }
 
-pub fn intersect(orig: &Ray, s: &Sphere) -> Vec<Intersection> {
+pub fn intersect(orig: &Ray, s: &Object) -> Vec<Intersection> {
     let inverted = s.transform().inverse();
     let r = transform(orig, &inverted);
     intersect_(&r, s)
 }
 
-fn intersect_(r: &Ray, s: &Sphere) -> Vec<Intersection> {
-    // presume the sphere is centred at (0,0,0)
+fn intersect_(r: &Ray, s: &Object) -> Vec<Intersection> {
+    // presume the object is centred at (0,0,0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
     let b = 2.0 * r.direction.dot(s_to_ray);
@@ -276,10 +291,10 @@ impl RadialLightSource {
     }
 }
 
-pub fn normal_at(s: &Sphere, world_point: Tuple4) -> Tuple4 {
+pub fn normal_at(s: &Object, world_point: Tuple4) -> Tuple4 {
     let inversion_mat = s.transform.inverse();
     let object_point = inversion_mat.mult(world_point);
-    let object_normal = object_point - s.pos;
+    let object_normal = s.shape.normal_at(object_point);
     let tmp = inversion_mat.transpose().mult(object_normal);
 
     tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
@@ -401,7 +416,7 @@ pub fn lighting(
 #[derive(Debug)]
 pub struct World {
     lights: Vec<RadialLightSource>,
-    objects: Vec<Sphere>,
+    objects: Vec<Object>,
 }
 
 impl World {
@@ -425,7 +440,7 @@ impl World {
         World {objects: vec![outer, inner], lights: vec![light]}
     }
 
-    pub fn with(lights: Vec<RadialLightSource>, objects: Vec<Sphere>) -> World {
+    pub fn with(lights: Vec<RadialLightSource>, objects: Vec<Object>) -> World {
         World {objects, lights}
     }
 
@@ -433,11 +448,11 @@ impl World {
         self.lights.clone()
     }
 
-    pub fn objects(self: &Self) -> Vec<Sphere> {
+    pub fn objects(self: &Self) -> Vec<Object> {
         self.objects.clone()
     }
 
-    pub fn set_objects(self: &mut Self, v: Vec<Sphere>) -> &mut Self {
+    pub fn set_objects(self: &mut Self, v: Vec<Object>) -> &mut Self {
         self.objects = v;
         self
     }
@@ -490,7 +505,7 @@ impl World {
 #[derive(Debug)]
 struct Precomputed {
     t_value: f64,
-    object: Sphere,
+    object: Object,
     point: Tuple4,
     eyev: Tuple4,
     normalv: Tuple4,

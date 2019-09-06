@@ -49,7 +49,7 @@ impl Config {
     }
 }
 
-fn to_sphere(conf: &SphereConfig) -> Sphere {
+fn to_sphere(conf: &SphereConfig) -> Object {
     let mut s = unit_sphere();
     let t = transform_matrix(conf.transforms.clone());
     s.set_transform(t);
