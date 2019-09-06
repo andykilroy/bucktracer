@@ -157,3 +157,45 @@ fn intersect_translated_sphere_with_a_ray_hit() {
     let xs = intersect(&r, &s);
     assert_eq!(xs.len(), 2);
 }
+
+
+
+
+// Intersections with planes
+
+#[test]
+fn a_ray_parallel_to_the_plane_produces_no_intersects() {
+    let p = plane();
+    let r = ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
+    let xs = intersect(&r, &p);
+    assert_eq!(0, xs.len());
+}
+
+
+#[test]
+fn a_coplanar_ray_produces_no_intersects() {
+    let p = plane();
+    let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+    let xs = intersect(&r, &p);
+    assert_eq!(xs.len(), 0);
+}
+
+#[test]
+fn a_ray_intersects_a_plane_from_above() {
+    let p = plane();
+    let r = ray(point(0.0, 1.0, 0.0), vector(0.0, -1.0, 0.0));
+    let xs = intersect(&r, &p);
+    assert_eq!(xs.len(), 1);
+    assert_eq!(xs[0].t_value, 1.0);
+    assert_eq!(xs[0].intersected, p);
+}
+
+#[test]
+fn a_ray_intersects_a_plane_from_below() {
+    let p = plane();
+    let r = ray(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
+    let xs = intersect(&r, &p);
+    assert_eq!(xs.len(), 1);
+    assert_eq!(xs[0].t_value, 1.0);
+    assert_eq!(xs[0].intersected, p);
+}

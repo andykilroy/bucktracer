@@ -8,6 +8,8 @@ mod math;
 pub use crate::math::*;
 use std::ops::Add;
 
+const EPSILON: f64 = 1e-5;
+
 /// A structure representing a colour in red, green, and blue components.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct RGB {
@@ -243,11 +245,17 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
 pub fn intersect(orig: &Ray, s: &Object) -> Vec<Intersection> {
     let inverted = s.transform().inverse();
     let r = transform(orig, &inverted);
-    intersect_(&r, s)
+    let shape = s.shape;
+    match shape {
+        Shape::Sphere {pos: _, radius: _} =>
+            intersect_sphere(&r, s),
+        Shape::Plane =>
+            intersect_plane(&r, s)
+    }
 }
 
-fn intersect_(r: &Ray, s: &Object) -> Vec<Intersection> {
-    // presume the object is centred at (0,0,0)
+fn intersect_sphere(r: &Ray, s: &Object) -> Vec<Intersection> {
+    // presume the sphere is centred at (0,0,0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
     let b = 2.0 * r.direction.dot(s_to_ray);
@@ -263,6 +271,14 @@ fn intersect_(r: &Ray, s: &Object) -> Vec<Intersection> {
             intersection(t1, s),
             intersection(t2, s)
         ]
+    }
+}
+
+fn intersect_plane(r: &Ray, s: &Object) -> Vec<Intersection> {
+    if r.direction.y().abs() < EPSILON {
+        vec![]
+    } else {
+        vec![intersection(-r.origin.y() / r.direction.y(), s)]
     }
 }
 

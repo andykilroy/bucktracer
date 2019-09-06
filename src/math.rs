@@ -1,7 +1,6 @@
 use std::ops::{Add, Sub, Neg, Mul, Index};
 
-
-const EPSILON: f64 = 1e-5;
+use super::EPSILON;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple4(f64, f64, f64, f64);
