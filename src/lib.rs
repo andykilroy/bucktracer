@@ -153,9 +153,18 @@ pub fn unit_sphere() -> Object {
     }
 }
 
+pub fn plane() -> Object {
+    Object {
+        transform: identity(),
+        material: Material::default(),
+        shape: Shape::Plane,
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Shape {
-    Sphere { pos: Tuple4, radius: f64 }
+    Sphere { pos: Tuple4, radius: f64 },
+    Plane,
 }
 
 impl Shape {
@@ -163,10 +172,13 @@ impl Shape {
     /// specified position.  The position is always in object
     /// co-ordinates.  The returned normal vector is also in
     /// object space.
-    fn normal_at(self: &Self, position: Tuple4) -> Tuple4 {
+    fn local_normal_at(self: &Self, position: Tuple4) -> Tuple4 {
         match *self {
             Shape::Sphere {pos: p, radius: _r} => {
                 position - p
+            },
+            Shape::Plane => {
+                vector(0.0, 1.0, 0.0)
             }
         }
     }
@@ -202,6 +214,16 @@ impl Object {
         self.material = m;
         self
     }
+
+    pub fn normal_at(self: &Self, world_point: Tuple4) -> Tuple4 {
+        let inversion_mat = self.transform.inverse();
+        let object_point = inversion_mat.mult(world_point);
+        let object_normal = self.shape.local_normal_at(object_point);
+        let tmp = inversion_mat.transpose().mult(object_normal);
+
+        tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
+    }
+
 }
 
 // TODO make this non-public
@@ -291,14 +313,6 @@ impl RadialLightSource {
     }
 }
 
-pub fn normal_at(s: &Object, world_point: Tuple4) -> Tuple4 {
-    let inversion_mat = s.transform.inverse();
-    let object_point = inversion_mat.mult(world_point);
-    let object_normal = s.shape.normal_at(object_point);
-    let tmp = inversion_mat.transpose().mult(object_normal);
-
-    tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
-}
 
 pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
     v - norm.scale(2.0).scale(v.dot(norm))
@@ -515,7 +529,7 @@ struct Precomputed {
 
 fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     let pos = position(r.clone(), i.t_value);
-    let n = normal_at(&i.intersected, pos);
+    let n = i.intersected.normal_at(pos);
     let e = -(r.direction);
     let inside = n.dot(e) < 0.0;
     let norm = if inside {
@@ -767,5 +781,36 @@ mod shadows {
         let i = intersection(5.0, &shape);
         let precomputed = precompute(&i, &r);
         assert_eq!(true, precomputed.point.z() > precomputed.over_point.z())
+    }
+}
+
+#[cfg(test)]
+mod planes {
+    use crate::*;
+    use std::f64::consts::FRAC_PI_2;
+
+    #[test]
+    fn normal_of_a_plane_is_up() {
+        let p: Shape = Shape::Plane;
+        let n1 = p.local_normal_at(point(0.0, 0.0, 0.0));
+        let n2 = p.local_normal_at(point(10.0, 0.0, -10.0));
+        let n3 = p.local_normal_at(point(-5.0, 0.0, 150.0));
+
+        assert_eq!(n1, vector(0.0, 1.0, 0.0));
+        assert_eq!(n2, vector(0.0, 1.0, 0.0));
+        assert_eq!(n3, vector(0.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn normal_of_a_plane_object_is_constant_everywhere() {
+        let mut p: Object = plane();
+        p.set_transform(rotation_z(FRAC_PI_2));
+        let n1 = p.normal_at(point(0.0, 0.0, 0.0));
+        let n2 = p.normal_at(point(10.0, 0.0, -10.0));
+        let n3 = p.normal_at(point(-5.0, 0.0, 150.0));
+
+        assert_eq!(n1, vector(-1.0, 0.0, 0.0));
+        assert_eq!(n2, vector(-1.0, 0.0, 0.0));
+        assert_eq!(n3, vector(-1.0, 0.0, 0.0));
     }
 }
