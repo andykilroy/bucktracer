@@ -34,7 +34,7 @@ struct Config {
 impl Config {
     fn world(self: &Self) -> World {
         World::with(self.world.lights.iter().map(to_light).collect(),
-                    self.world.objects.iter().map(to_sphere).collect())
+                    self.world.objects.iter().map(to_object).collect())
     }
 
     fn camera(self: &Self) -> Camera {
@@ -49,10 +49,13 @@ impl Config {
     }
 }
 
-fn to_sphere(conf: &SphereConfig) -> Object {
-    let mut s = unit_sphere();
-    let t = transform_matrix(conf.transforms.clone());
-    s.set_transform(t);
+fn to_object(conf: &ObjectConfig) -> Object {
+    let mut s = match conf.shape {
+        Shape::Sphere => unit_sphere(),
+        Shape::Plane => plane(),
+    };
+
+    s.set_transform(transform_matrix(conf.transforms.clone()));
     conf.material.and_then(|mat| {
         s.set_material(mat.as_material());
         Some(mat)
@@ -84,7 +87,7 @@ fn radians(x: f64) -> f64 {
 #[derive(Debug, Clone, Deserialize)]
 struct WorldConfig {
     lights: Vec<LightSourceConfig>,
-    objects: Vec<SphereConfig>
+    objects: Vec<ObjectConfig>
 }
 
 #[derive(Debug, Copy, Clone, Deserialize)]
@@ -104,9 +107,10 @@ struct LightSourceConfig {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-struct SphereConfig {
+struct ObjectConfig {
     transforms: Vec<Transform>,
-    material: Option<MaterialConfig>
+    material: Option<MaterialConfig>,
+    shape: Shape
 }
 
 #[derive(Debug, Copy, Clone, Deserialize)]
@@ -223,7 +227,7 @@ mod test {
             .clone()
         );
 
-        let conf = r"
+        let conf = r##"
 [camera]
 hsize = 500
 vsize = 250
@@ -238,6 +242,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # floor
 [[world.objects]]
+    shape = "Sphere"
     transforms = [ { Scale = {x = 10.0, y = 0.01, z = 10.0} } ]
     [world.objects.material]
         colour = [1.0, 0.9, 0.9]
@@ -245,6 +250,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # right wall
 [[world.objects]]
+    shape = "Sphere"
     transforms = [
         { Scale = {x = 10.0, y = 0.01, z = 10.0} },
         { RotateX = {angle = 90.0} },
@@ -257,6 +263,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # left wall
 [[world.objects]]
+    shape = "Sphere"
     transforms = [
         { Scale = {x = 10.0, y = 0.01, z = 10.0} },
         { RotateX = {angle = 90.0} },
@@ -270,6 +277,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # left
 [[world.objects]]
+    shape = "Sphere"
     transforms = [
         { Scale = { x = 0.33, y = 0.33, z = 0.33} },
         { Translate = { x = -1.5, y = 0.33, z = -0.75} }
@@ -281,6 +289,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # middle
 [[world.objects]]
+    shape = "Sphere"
     transforms = [
         { Translate = { x = -0.5, y = 1.0, z = 0.5} }
     ]
@@ -291,6 +300,7 @@ intensity = [1.0, 1.0, 1.0]
 
 # right
 [[world.objects]]
+    shape = "Sphere"
     transforms = [
         { Scale = { x = 0.5, y = 0.5, z = 0.5} },
         { Translate = { x = 1.5, y = 0.5, z = -0.5} }
@@ -300,7 +310,7 @@ intensity = [1.0, 1.0, 1.0]
         diffuse = 0.7
         specular = 0.3
 
-        ";
+        "##;
         let config: Config = toml::from_str(conf).unwrap();
         let lights = config.world().light_sources();
         assert_eq!(lights.len(), 1);

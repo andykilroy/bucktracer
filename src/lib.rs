@@ -3,6 +3,8 @@ use std::io::Result as IOResult;
 use std::io::Write;
 use std::cmp::Ordering;
 
+use serde::Deserialize;
+
 mod math;
 
 pub use crate::math::*;
@@ -160,8 +162,11 @@ pub fn plane() -> Object {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-enum Shape {
+/// Determines what shape an object has.
+///
+/// Influences the calculation of surface normals and intersections.
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
+pub enum Shape {
     Sphere,
     Plane,
 }
