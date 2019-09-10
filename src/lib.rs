@@ -148,10 +148,7 @@ pub fn unit_sphere() -> Object {
     Object {
         transform: identity(),
         material: Material::default(),
-        shape: Shape::Sphere {
-            pos: point(0.0, 0.0, 0.0),
-            radius: 1.0,
-        },
+        shape: Shape::Sphere,
     }
 }
 
@@ -165,7 +162,7 @@ pub fn plane() -> Object {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Shape {
-    Sphere { pos: Tuple4, radius: f64 },
+    Sphere,
     Plane,
 }
 
@@ -176,8 +173,9 @@ impl Shape {
     /// object space.
     fn local_normal_at(self: &Self, position: Tuple4) -> Tuple4 {
         match *self {
-            Shape::Sphere {pos: p, radius: _r} => {
-                position - p
+            Shape::Sphere => {
+                // presume the sphere is centred at (0, 0, 0)
+                position - point(0.0, 0.0, 0.0)
             },
             Shape::Plane => {
                 vector(0.0, 1.0, 0.0)
@@ -247,7 +245,7 @@ pub fn intersect(orig: &Ray, s: &Object) -> Vec<Intersection> {
     let r = transform(orig, &inverted);
     let shape = s.shape;
     match shape {
-        Shape::Sphere {pos: _, radius: _} =>
+        Shape::Sphere =>
             intersect_sphere(&r, s),
         Shape::Plane =>
             intersect_plane(&r, s)
