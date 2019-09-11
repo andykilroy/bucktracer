@@ -420,7 +420,7 @@ pub fn lighting(
 
     let matrl_colr: Tuple4 = {
         if let Some(p) = mat.pattern {
-            stripe_at(p, pos)
+            p.colour_at(pos)
         } else {
             mat.colour()
         }.into()
@@ -787,35 +787,49 @@ mod internal_shading {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Pattern {
-    a: RGB,
-    b: RGB
+pub enum Pattern {
+    Solid(RGB),
+    Stripes {a: RGB, b: RGB},
 }
 
-pub fn stripe_pattern(c1: RGB, c2: RGB) -> Pattern {
-    Pattern {a: c1, b: c2}
+impl Pattern {
+    pub fn solid(c: RGB) -> Pattern {
+        Pattern::Solid(c)
+    }
+    pub fn stripes(c1: RGB, c2: RGB) -> Pattern {
+        Pattern::Stripes {a: c1, b: c2}
+    }
+
+    pub fn colour_at(self: &Self, world_pos: Tuple4) -> RGB {
+        match *self {
+            Pattern::Stripes {a, b} =>
+                stripe_at(a, b, world_pos),
+            Pattern::Solid(c) =>
+                c
+        }
+    }
 }
 
-pub fn stripe_at(ptrn: Pattern, pos: Tuple4) -> RGB {
+fn stripe_at(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
     // TODO when f64::rem_euclid() comes out, use that to reduce these
     // if-else clauses.
     if pos.x() >= 0.0 {
         if pos.x() % 2.0 >= 1.0 {
-            RGB::black()
+            b
         } else {
-            RGB::white()
+            a
         }
     }
     else {
         let rem = pos.x() % 2.0;
         if rem < -1.0 {
-            RGB::white()
+            a
         } else if rem >= 0.0 {
-            RGB::white()
+            a
         } else {
-            RGB::black()
+            b
         }
     }
 }

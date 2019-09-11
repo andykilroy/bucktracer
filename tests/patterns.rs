@@ -6,6 +6,35 @@ fn white() -> RGB {
 fn black() -> RGB {
     RGB::black()
 }
+fn stripe_pattern(c1: RGB, c2: RGB) -> Pattern {
+    Pattern::stripes(c1, c2)
+}
+fn stripe_at(ptrn: Pattern, pos: Tuple4) -> RGB {
+    ptrn.colour_at(pos)
+}
+
+#[test]
+fn a_solid_pattern_is_the_same_everywhere() {
+    let c = colour(0.8, 0.5, 0.9);
+    let p = Pattern::solid(c);
+    assert_eq!(p.colour_at(point(0.0,-2.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0,-1.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 1.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 2.0, 0.0)), c);
+
+    assert_eq!(p.colour_at(point(0.0, 0.0,-2.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0,-1.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, 1.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, 2.0)), c);
+
+    assert_eq!(p.colour_at(point(-2.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(-1.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point( 0.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point( 1.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point( 2.0, 0.0, 0.0)), c);
+}
 
 #[test]
 fn a_stripe_pattern_is_constant_in_y() {
