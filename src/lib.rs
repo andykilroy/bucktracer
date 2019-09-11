@@ -344,7 +344,6 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
     pattern: Pattern,
-    colour: RGB,
     ambient: f64,
     diffuse: f64,
     specular: f64,
@@ -355,7 +354,6 @@ impl Material {
     pub fn default() -> Material {
         Material {
             pattern: Pattern::solid(RGB::white()),
-            colour: RGB::white(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -370,14 +368,6 @@ impl Material {
         self.pattern = p;
         self
     }
-    pub fn colour(self: &Self) -> RGB {
-        self.colour
-    }
-    pub fn set_colour(self: &mut Self, x: RGB) -> &mut Self {
-        self.colour = x;
-        self
-    }
-
     pub fn ambient(self: &Self) -> f64 {
         self.ambient
     }
