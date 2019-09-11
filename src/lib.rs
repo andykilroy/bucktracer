@@ -789,15 +789,14 @@ impl Pattern {
 
     pub fn colour_at(self: &Self, world_pos: Tuple4) -> RGB {
         match *self {
+            Pattern::Solid(c) => c,
             Pattern::Stripes {a, b} =>
-                stripe_at(a, b, world_pos),
-            Pattern::Solid(c) =>
-                c
+                choose_stripe_colour(a, b, world_pos),
         }
     }
 }
 
-fn stripe_at(a: RGB, b: RGB, pos: Tuple4) -> RGB {
+fn choose_stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
     // TODO when f64::rem_euclid() comes out, use that to reduce these
