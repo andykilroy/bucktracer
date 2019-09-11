@@ -14,6 +14,57 @@ fn stripe_at(ptrn: Pattern, pos: Tuple4) -> RGB {
 }
 
 #[test]
+fn patterns_are_equal() {
+    let wht = RGB::white();
+    let p1 = Pattern::solid(wht);
+    let p2 = Pattern::solid(RGB::white());
+    let p3 = Pattern::solid(RGB::white());
+    let p4 = Pattern::solid(colour(1.0, 0.0, 0.0));
+    let p5 = Pattern::stripes(RGB::white(), RGB::black());
+    let p6 = Pattern::stripes(RGB::black(), RGB::white());
+
+    // reflexive
+    assert_eq!(p1, p1);
+    assert_eq!(p2, p2);
+    assert_eq!(p3, p3);
+    assert_eq!(p4, p4);
+    assert_eq!(p5, p5);
+    assert_eq!(p6, p6);
+
+    // symmetric
+    assert_eq!(p1, p2);
+    assert_eq!(p2, p1);
+    assert_eq!(p3, p2);
+    assert_eq!(p2, p3);
+
+    // transitive
+    assert_eq!(p1, p3)
+}
+
+#[test]
+fn patterns_not_equal() {
+    let wht = RGB::white();
+    let p1 = Pattern::solid(wht);
+    let p2 = Pattern::solid(RGB::white());
+    let p3 = Pattern::solid(RGB::white());
+    let p4 = Pattern::solid(colour(1.0, 0.0, 0.0));
+    let p5 = Pattern::stripes(RGB::white(), RGB::black());
+    let p6 = Pattern::stripes(RGB::black(), RGB::white());
+
+    assert_ne!(p1, p4);
+    assert_ne!(p4, p1);
+
+    assert_ne!(p4, p5);
+    assert_ne!(p5, p4);
+
+    assert_ne!(p5, p6);
+    assert_ne!(p6, p5);
+
+    assert_ne!(p6, p1);
+    assert_ne!(p1, p6);
+}
+
+#[test]
 fn a_solid_pattern_is_the_same_everywhere() {
     let c = colour(0.8, 0.5, 0.9);
     let p = Pattern::solid(c);

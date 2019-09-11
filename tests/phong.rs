@@ -13,11 +13,32 @@ fn point_light_has_intensity_and_position() {
 #[test]
 fn default_material() {
     let m = Material::default();
-    assert_eq!(m.colour(), RGB::white());
+    let solid_white = Pattern::solid(RGB::white());
+    assert_eq!(m.pattern(), solid_white);
     assert_eq!(m.ambient(), 0.1);
     assert_eq!(m.diffuse(), 0.9);
     assert_eq!(m.specular(), 0.9);
     assert_eq!(m.shininess(), 200.0);
+}
+
+#[test]
+fn materials_not_equal() {
+    let df = Material::default();
+    let by_pattern = *(Material::default().set_pattern(Pattern::stripes(
+        colour(1.0, 0.0, 0.0),
+        RGB::white()
+    )));
+    let by_ambient = *(Material::default().set_ambient(0.5));
+    let by_diffuse = *(Material::default().set_diffuse(0.6));
+    let by_specular = *(Material::default().set_specular(0.4));
+    let by_shininess = *(Material::default().set_shininess(0.1));
+
+    assert_ne!(df, by_pattern);
+    assert_ne!(df, by_ambient);
+    assert_ne!(df, by_diffuse);
+    assert_ne!(df, by_specular);
+    assert_ne!(df, by_shininess);
+
 }
 
 #[test]
@@ -33,14 +54,15 @@ fn assign_sphere_a_material() {
 
     assert_eq!(s.material(), Material::default());
 
-    m.set_colour(colour(0.4, 0.6, 0.5))
+    let p = Pattern::solid(colour(0.4, 0.6, 0.5));
+    m.set_pattern(p)
         .set_ambient(1.0)
         .set_diffuse(1.0)
         .set_specular(1.0)
         .set_shininess(100.0);
     s.set_material(m);
 
-    assert_eq!(s.material().colour(), colour(0.4, 0.6, 0.5));
+    assert_eq!(s.material().pattern(), p);
     assert_eq!(s.material().ambient(), 1.0);
     assert_eq!(s.material().diffuse(), 1.0);
     assert_eq!(s.material().specular(), 1.0);
