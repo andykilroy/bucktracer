@@ -57,7 +57,7 @@ fn colour_with_an_intersection_behind_the_ray() {
 
     let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
     let c = w.colour_at_intersect(&r);
-    assert_eq!(c, inner_mat.colour());
+    assert_eq!(c, RGB::white());
 }
 
 #[test]

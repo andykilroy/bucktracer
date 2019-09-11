@@ -5,7 +5,7 @@ use exitfailure::ExitFailure;
 
 fn main() -> Result<(), ExitFailure>  {
     let mat = Material::default()
-        .set_colour(colour(1.0, 0.9, 0.9))
+        .set_pattern(Pattern::solid(colour(1.0, 0.9, 0.9)))
         .set_specular(0.0).clone();
 
     let mut floor = unit_sphere();
@@ -31,14 +31,14 @@ fn main() -> Result<(), ExitFailure>  {
     let mut middle = unit_sphere();
     middle.set_transform(translation(-0.5, 1.0, 0.5));
     middle.set_material(Material::default()
-        .set_colour(colour(0.1, 1.0, 0.5))
+        .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
         .set_diffuse(0.7)
         .set_specular(0.3).clone());
 
     let mut right = unit_sphere();
     right.set_transform(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
     right.set_material(Material::default()
-        .set_colour(colour(0.5, 1.0, 0.1))
+        .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
         .set_diffuse(0.7)
         .set_specular(0.3)
         .clone()
@@ -47,7 +47,7 @@ fn main() -> Result<(), ExitFailure>  {
     let mut left = unit_sphere();
     left.set_transform(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
     left.set_material(Material::default()
-        .set_colour(colour(0.5, 1.0, 0.1))
+        .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
         .set_diffuse(0.7)
         .set_specular(0.3)
         .clone()

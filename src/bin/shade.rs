@@ -5,7 +5,8 @@ use std::f64::consts::FRAC_PI_2;
 fn main() -> Result<()> {
 
     let mut materl = Material::default();
-    materl.set_colour(colour(1.0, 0.2, 1.0));
+    materl.set_pattern(Pattern::solid(colour(1.0, 0.2, 1.0)));
+
     let light = point_light(point(0.0, 60.0, -20.0), RGB::white());
     let mut s = unit_sphere();
     s.set_material(materl);
