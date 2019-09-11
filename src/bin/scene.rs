@@ -150,7 +150,7 @@ impl MaterialConfig {
     fn as_material(self: &Self) -> Material {
         let mut m = Material::default();
         if self.colour.is_some() {
-            m.set_colour(to_colour(self.colour.unwrap()));
+            m.set_pattern(Pattern::solid(to_colour(self.colour.unwrap())));
         }
         if self.ambient.is_some() {
             m.set_ambient(self.ambient.unwrap());
@@ -179,7 +179,7 @@ mod test {
     fn read_of_config() {
 
         let mat = Material::default()
-            .set_colour(colour(1.0, 0.9, 0.9))
+            .set_pattern(Pattern::solid(colour(1.0, 0.9, 0.9)))
             .set_specular(0.0).clone();
 
         let mut floor = unit_sphere();
@@ -205,14 +205,14 @@ mod test {
         let mut middle = unit_sphere();
         middle.set_transform(translation(-0.5, 1.0, 0.5));
         middle.set_material(Material::default()
-            .set_colour(colour(0.1, 1.0, 0.5))
+            .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
             .set_diffuse(0.7)
             .set_specular(0.3).clone());
 
         let mut right = unit_sphere();
         right.set_transform(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
         right.set_material(Material::default()
-            .set_colour(colour(0.5, 1.0, 0.1))
+            .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
             .set_diffuse(0.7)
             .set_specular(0.3)
             .clone()
@@ -221,7 +221,7 @@ mod test {
         let mut left = unit_sphere();
         left.set_transform(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
         left.set_material(Material::default()
-            .set_colour(colour(0.5, 1.0, 0.1))
+            .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
             .set_diffuse(0.7)
             .set_specular(0.3)
             .clone()
