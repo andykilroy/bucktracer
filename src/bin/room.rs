@@ -53,7 +53,7 @@ fn main() -> Result<(), ExitFailure>  {
         .clone()
     );
 
-    let light = point_light(point(-10.0, 10.0, -10.0), white());
+    let light = point_light(point(-10.0, 10.0, -10.0), RGB::white());
     let world = World::with(vec![light], vec![floor, right_wall, left_wall, left, middle, right]);
     let mut cam = Camera::new(500, 250, FRAC_PI_3);
     cam.set_transform(

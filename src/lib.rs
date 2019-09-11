@@ -18,12 +18,18 @@ pub struct RGB {
     inner: Tuple4
 }
 
-
 pub fn colour(red: f64, green: f64, blue: f64) -> RGB {
     RGB {inner: tuple(red, green, blue, 0.0)}
 }
 
 impl RGB {
+    pub fn white() -> RGB {
+        colour(1.0, 1.0, 1.0)
+    }
+    pub fn black() -> RGB {
+        colour(0.0, 0.0, 0.0)
+    }
+
     pub fn red(self: &Self) -> f64 {
         self.inner.x()
     }
@@ -53,10 +59,6 @@ impl Add for RGB {
     fn add(self, rhs: Self) -> Self::Output {
         RGB{ inner: (self.inner + rhs.inner) }
     }
-}
-
-pub fn white() -> RGB {
-    colour(1.0, 1.0, 1.0)
 }
 
 
@@ -231,7 +233,6 @@ impl Object {
 
 }
 
-// TODO make this non-public
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
@@ -352,7 +353,7 @@ pub struct Material {
 impl Material {
     pub fn default() -> Material {
         Material {
-            colour: white(),
+            colour: RGB::white(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -458,7 +459,7 @@ impl World {
     }
 
     pub fn default() -> World {
-        let light = point_light(point(-10.0, 10.0, -10.0), white());
+        let light = point_light(point(-10.0, 10.0, -10.0), RGB::white());
         let mut outer = unit_sphere();
         let mut inner = unit_sphere();
 
@@ -761,7 +762,7 @@ mod internal_shading {
 
     #[test]
     fn shade_an_intersection_point_from_inside() {
-        let light = point_light(point(0.0, 0.25, 0.0), white());
+        let light = point_light(point(0.0, 0.25, 0.0), RGB::white());
         let w = World::with(vec![light], World::default().objects());
         let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let shape = w.objects()[1];
@@ -780,7 +781,7 @@ mod shadows {
 
     #[test]
     fn an_intersection_in_shadow_returns_ambient_colour() {
-        let l = point_light(point(0.0, 0.0, -10.0), white());
+        let l = point_light(point(0.0, 0.0, -10.0), RGB::white());
         let s1 = unit_sphere();
         let s2 = *(unit_sphere().set_transform(translation(0.0, 0.0, 10.0)));
 
