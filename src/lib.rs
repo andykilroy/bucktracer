@@ -343,6 +343,7 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 /// For example, colour and shininess.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
+    pattern: Option<Pattern>,
     colour: RGB,
     ambient: f64,
     diffuse: f64,
@@ -353,6 +354,7 @@ pub struct Material {
 impl Material {
     pub fn default() -> Material {
         Material {
+            pattern: None,
             colour: RGB::white(),
             ambient: 0.1,
             diffuse: 0.9,
@@ -361,6 +363,10 @@ impl Material {
         }
     }
 
+    pub fn set_pattern(self: &mut Self, p: Pattern) -> &mut Self {
+        self.pattern = Some(p);
+        self
+    }
     pub fn colour(self: &Self) -> RGB {
         self.colour
     }
@@ -412,7 +418,13 @@ pub fn lighting(
     in_shadow: bool
 ) -> RGB {
 
-    let matrl_colr: Tuple4 = mat.colour().into();
+    let matrl_colr: Tuple4 = {
+        if let Some(p) = mat.pattern {
+            stripe_at(p, pos)
+        } else {
+            mat.colour()
+        }.into()
+    };
     let light_intens: Tuple4 = light.intensity().into();
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let ambient = effective_colour.scale(mat.ambient());
@@ -774,7 +786,7 @@ mod internal_shading {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Pattern {
     a: RGB,
     b: RGB
