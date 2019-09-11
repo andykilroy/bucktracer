@@ -774,6 +774,40 @@ mod internal_shading {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub struct Pattern {
+    a: RGB,
+    b: RGB
+}
+
+pub fn stripe_pattern(c1: RGB, c2: RGB) -> Pattern {
+    Pattern {a: c1, b: c2}
+}
+
+pub fn stripe_at(ptrn: Pattern, pos: Tuple4) -> RGB {
+    // pos must be in object co-ordinates not world...
+
+    // TODO when f64::rem_euclid() comes out, use that to reduce these
+    // if-else clauses.
+    if pos.x() >= 0.0 {
+        if pos.x() % 2.0 >= 1.0 {
+            RGB::black()
+        } else {
+            RGB::white()
+        }
+    }
+    else {
+        let rem = pos.x() % 2.0;
+        if rem < -1.0 {
+            RGB::white()
+        } else if rem >= 0.0 {
+            RGB::white()
+        } else {
+            RGB::black()
+        }
+    }
+}
+
 // ----- Test computing shadows
 #[cfg(test)]
 mod shadows {
