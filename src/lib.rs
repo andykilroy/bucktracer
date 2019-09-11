@@ -343,7 +343,7 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 /// For example, colour and shininess.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
-    pattern: Option<Pattern>,
+    pattern: Pattern,
     colour: RGB,
     ambient: f64,
     diffuse: f64,
@@ -354,7 +354,7 @@ pub struct Material {
 impl Material {
     pub fn default() -> Material {
         Material {
-            pattern: None,
+            pattern: Pattern::solid(RGB::white()),
             colour: RGB::white(),
             ambient: 0.1,
             diffuse: 0.9,
@@ -363,8 +363,11 @@ impl Material {
         }
     }
 
+    pub fn pattern(self: &Self) -> Pattern {
+        self.pattern
+    }
     pub fn set_pattern(self: &mut Self, p: Pattern) -> &mut Self {
-        self.pattern = Some(p);
+        self.pattern = p;
         self
     }
     pub fn colour(self: &Self) -> RGB {
@@ -418,13 +421,7 @@ pub fn lighting(
     in_shadow: bool
 ) -> RGB {
 
-    let matrl_colr: Tuple4 = {
-        if let Some(p) = mat.pattern {
-            p.colour_at(pos)
-        } else {
-            mat.colour()
-        }.into()
-    };
+    let matrl_colr: Tuple4 = mat.pattern.colour_at(pos).into();
     let light_intens: Tuple4 = light.intensity().into();
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let ambient = effective_colour.scale(mat.ambient());
@@ -476,7 +473,7 @@ impl World {
         let mut inner = unit_sphere();
 
         let mut m = Material::default();
-        m.set_colour(colour(0.8, 1.0, 0.6));
+        m.set_pattern(Pattern::solid(colour(0.8, 1.0, 0.6)));
         m.set_diffuse(0.7);
         m.set_specular(0.2);
         outer.set_material(m);

@@ -1,4 +1,5 @@
 use bucktracer::*;
+use std::f64::consts::FRAC_PI_2;
 
 #[test]
 fn create_a_world() {
@@ -16,7 +17,8 @@ fn properties_of_default_world() {
 
     let s1 = world.objects()[0];
     let s2 = world.objects()[1];
-    assert_eq!(s1.material().colour(), colour(0.8, 1.0, 0.6));
+    let p = Pattern::solid(colour(0.8, 1.0, 0.6));
+    assert_eq!(s1.material().pattern(), p);
     assert_eq!(s1.material().diffuse(), 0.7);
     assert_eq!(s1.material().specular(), 0.2);
 
@@ -88,4 +90,18 @@ fn point_not_in_shadow_when_point_between_light_source_and_object() {
     let p = point(-2.0, 2.0, -2.0);
     let l = w.light_sources()[0];
     assert_eq!(w.in_shadow(p, &l), false);
+}
+
+#[test]
+fn render_world_with_camera() {
+    let w = World::default();
+    let mut c = Camera::new(11, 11, FRAC_PI_2);
+    let t = view_transform(
+        point(0.0, 0.0, -5.0),
+        point(0.0, 0.0, 0.0),
+        vector(0.0, 1.0, 0.0)
+    );
+    c.set_transform(t);
+    let image = c.render(&w);
+    assert_eq!(image.colour_at(5, 5), colour(0.38066, 0.47583, 0.2855))
 }

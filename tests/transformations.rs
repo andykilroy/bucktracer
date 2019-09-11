@@ -195,17 +195,3 @@ fn ray_when_camera_transformed() {
     assert_eq!(r.origin, point(0.0, 2.0, -5.0));
     assert_eq!(r.direction, vector(SQRT_2/2.0, 0.0, -SQRT_2/2.0));
 }
-
-#[test]
-fn render_world_with_camera() {
-    let w = World::default();
-    let mut c = Camera::new(11, 11, FRAC_PI_2);
-    let t = view_transform(
-        point(0.0, 0.0, -5.0),
-        point(0.0, 0.0, 0.0),
-        vector(0.0, 1.0, 0.0)
-    );
-    c.set_transform(t);
-    let image = c.render(&w);
-    assert_eq!(image.colour_at(5, 5), colour(0.38066, 0.47583, 0.2855))
-}
