@@ -140,3 +140,55 @@ fn lighting_with_a_pattern_applied() {
     assert_eq!(c1, RGB::white());
     assert_eq!(c2, RGB::black());
 }
+
+
+fn test_mat(p: Pattern, t: Matrix) -> Material {
+    Material::default()
+        .set_pattern(p)
+        .set_pattern_transform(t)
+        .clone()
+}
+
+#[test]
+fn stripes_with_an_object_transform() {
+    let mut s = unit_sphere();
+    s.set_transform(scaling(2.0, 2.0, 2.0));
+    s.set_material(test_mat(
+        stripe_pattern(RGB::white(), RGB::black()),
+        identity()
+    ));
+
+    let c1 = s.material_colour_at(point(1.5, 0.0, 0.0));
+    let c2 = s.material_colour_at(point(2.5, 0.0, 0.0));
+    assert_eq!(c1, RGB::white());
+    assert_eq!(c2, RGB::black());
+}
+
+#[test]
+fn stripes_with_a_pattern_transform() {
+    let mut s = unit_sphere();
+    s.set_material(test_mat(
+        stripe_pattern(RGB::white(), RGB::black()),
+        scaling(2.0, 2.0, 2.0)
+    ));
+
+    let c1 = s.material_colour_at(point(1.5, 0.0, 0.0));
+    let c2 = s.material_colour_at(point(2.5, 0.0, 0.0));
+    assert_eq!(c1, RGB::white());
+    assert_eq!(c2, RGB::black());
+}
+
+#[test]
+fn stripes_with_an_object_and_pattern_transform() {
+    let mut s = unit_sphere();
+    s.set_transform(scaling(2.0, 2.0, 2.0));
+    s.set_material(test_mat(
+        stripe_pattern(RGB::white(), RGB::black()),
+        translation(0.5, 0.0, 0.0)
+    ));
+
+    let c1 = s.material_colour_at(point(2.5, 0.0, 0.0));
+    let c2 = s.material_colour_at(point(3.0, 0.0, 0.0));
+    assert_eq!(c1, RGB::white());
+    assert_eq!(c2, RGB::black());
+}

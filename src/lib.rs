@@ -204,6 +204,8 @@ pub struct Object {
 }
 
 impl Object {
+    /// A transformation matrix to convert co-ordinates from
+    /// object space to world space.
     pub fn transform(&self) -> Matrix {
         self.transform
     }
@@ -229,6 +231,14 @@ impl Object {
         let tmp = inversion_mat.transpose().mult(object_normal);
 
         tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
+    }
+
+    pub fn material_colour_at(self: &Self, world_point: Tuple4) -> RGB {
+        let to_pattern_space =
+            self.material().pattern_transform.inverse() *
+            self.transform.inverse();
+        let p = to_pattern_space.mult(world_point);
+        self.material().pattern().colour_at(p)
     }
 
 }
@@ -344,6 +354,7 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
     pattern: Pattern,
+    pattern_transform: Matrix,
     ambient: f64,
     diffuse: f64,
     specular: f64,
@@ -354,6 +365,7 @@ impl Material {
     pub fn default() -> Material {
         Material {
             pattern: Pattern::solid(RGB::white()),
+            pattern_transform: identity(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -366,6 +378,10 @@ impl Material {
     }
     pub fn set_pattern(self: &mut Self, p: Pattern) -> &mut Self {
         self.pattern = p;
+        self
+    }
+    pub fn set_pattern_transform(self: &mut Self, m: Matrix) -> &mut Self {
+        self.pattern_transform = m;
         self
     }
     pub fn ambient(self: &Self) -> f64 {
@@ -693,6 +709,58 @@ impl Camera {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Pattern {
+    Solid(RGB),
+    Stripes {a: RGB, b: RGB},
+}
+
+impl Pattern {
+    pub fn solid(c: RGB) -> Pattern {
+        Pattern::Solid(c)
+    }
+    pub fn stripes(c1: RGB, c2: RGB) -> Pattern {
+        Pattern::Stripes {a: c1, b: c2}
+    }
+
+    pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
+        match *self {
+            Pattern::Solid(c) => c,
+            Pattern::Stripes {a, b} =>
+                choose_stripe_colour(a, b, pattern_space_pos),
+        }
+    }
+}
+
+fn choose_stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
+    // pos must be in object co-ordinates not world...
+
+    // TODO when f64::rem_euclid() comes out, use that to reduce these
+    // if-else clauses.
+    if pos.x() >= 0.0 {
+        if pos.x() % 2.0 >= 1.0 {
+            b
+        } else {
+            a
+        }
+    }
+    else {
+        let rem = pos.x() % 2.0;
+        if rem < -1.0 {
+            a
+        } else if rem >= 0.0 {
+            a
+        } else {
+            b
+        }
+    }
+}
+
+fn stripe_at_object(p: Pattern, o: Object, world_pos: Tuple4) -> RGB {
+    p.colour_at(world_pos)
+}
+
+
 // ----- Testing non-public shading functions
 #[cfg(test)]
 mod internal_shading {
@@ -770,53 +838,6 @@ mod internal_shading {
         let comps = precompute(&i, &r);
         let c = shade_hit(&w, &comps);
         assert_eq!(c, colour(0.90498, 0.90498, 0.90498));
-    }
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Pattern {
-    Solid(RGB),
-    Stripes {a: RGB, b: RGB},
-}
-
-impl Pattern {
-    pub fn solid(c: RGB) -> Pattern {
-        Pattern::Solid(c)
-    }
-    pub fn stripes(c1: RGB, c2: RGB) -> Pattern {
-        Pattern::Stripes {a: c1, b: c2}
-    }
-
-    pub fn colour_at(self: &Self, world_pos: Tuple4) -> RGB {
-        match *self {
-            Pattern::Solid(c) => c,
-            Pattern::Stripes {a, b} =>
-                choose_stripe_colour(a, b, world_pos),
-        }
-    }
-}
-
-fn choose_stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
-    // pos must be in object co-ordinates not world...
-
-    // TODO when f64::rem_euclid() comes out, use that to reduce these
-    // if-else clauses.
-    if pos.x() >= 0.0 {
-        if pos.x() % 2.0 >= 1.0 {
-            b
-        } else {
-            a
-        }
-    }
-    else {
-        let rem = pos.x() % 2.0;
-        if rem < -1.0 {
-            a
-        } else if rem >= 0.0 {
-            a
-        } else {
-            b
-        }
     }
 }
 
