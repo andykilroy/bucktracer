@@ -22,7 +22,7 @@ fn properties_of_default_world() {
     assert_eq!(s1.material().diffuse(), 0.7);
     assert_eq!(s1.material().specular(), 0.2);
 
-    assert_eq!(s2.transform(), scaling(0.5, 0.5, 0.5));
+    assert_eq!(s2.transform_to_world(), scaling(0.5, 0.5, 0.5));
 
 }
 

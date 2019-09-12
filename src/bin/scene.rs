@@ -55,7 +55,7 @@ fn to_object(conf: &ObjectConfig) -> Object {
         Shape::Plane => plane(),
     };
 
-    s.set_transform(transform_matrix(conf.transforms.clone()));
+    s.set_transform_to_world(transform_matrix(conf.transforms.clone()));
     conf.material.and_then(|mat| {
         s.set_material(mat.as_material());
         Some(mat)
@@ -183,11 +183,11 @@ mod test {
             .set_specular(0.0).clone();
 
         let mut floor = unit_sphere();
-        floor.set_transform(scaling(10.0, 0.01, 10.0));
+        floor.set_transform_to_world(scaling(10.0, 0.01, 10.0));
         floor.set_material(mat);
 
         let mut left_wall = unit_sphere();
-        left_wall.set_transform(
+        left_wall.set_transform_to_world(
             translation(0.0, 0.0, 5.0) *
                 rotation_y(-FRAC_PI_4) * rotation_x(FRAC_PI_2) *
                 scaling(10.0, 0.01, 10.0)
@@ -195,7 +195,7 @@ mod test {
         left_wall.set_material(mat);
 
         let mut right_wall = unit_sphere();
-        right_wall.set_transform(
+        right_wall.set_transform_to_world(
             translation(0.0, 0.0, 5.0) *
                 rotation_y(FRAC_PI_4) * rotation_x(FRAC_PI_2) *
                 scaling(10.0, 0.01, 10.0)
@@ -203,14 +203,14 @@ mod test {
         right_wall.set_material(mat);
 
         let mut middle = unit_sphere();
-        middle.set_transform(translation(-0.5, 1.0, 0.5));
+        middle.set_transform_to_world(translation(-0.5, 1.0, 0.5));
         middle.set_material(Material::default()
             .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
             .set_diffuse(0.7)
             .set_specular(0.3).clone());
 
         let mut right = unit_sphere();
-        right.set_transform(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
+        right.set_transform_to_world(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
         right.set_material(Material::default()
             .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
             .set_diffuse(0.7)
@@ -219,7 +219,7 @@ mod test {
         );
 
         let mut left = unit_sphere();
-        left.set_transform(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
+        left.set_transform_to_world(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
         left.set_material(Material::default()
             .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
             .set_diffuse(0.7)

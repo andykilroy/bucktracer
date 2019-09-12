@@ -162,7 +162,7 @@ fn test_mat(p: Pattern, t: Matrix) -> Material {
 #[test]
 fn stripes_with_an_object_transform() {
     let mut s = unit_sphere();
-    s.set_transform(scaling(2.0, 2.0, 2.0));
+    s.set_transform_to_world(scaling(2.0, 2.0, 2.0));
     s.set_material(test_mat(
         stripe_pattern(RGB::white(), RGB::black()),
         identity()
@@ -191,7 +191,7 @@ fn stripes_with_a_pattern_transform() {
 #[test]
 fn stripes_with_an_object_and_pattern_transform() {
     let mut s = unit_sphere();
-    s.set_transform(scaling(2.0, 2.0, 2.0));
+    s.set_transform_to_world(scaling(2.0, 2.0, 2.0));
     s.set_material(test_mat(
         stripe_pattern(RGB::white(), RGB::black()),
         translation(0.5, 0.0, 0.0)
@@ -206,7 +206,7 @@ fn stripes_with_an_object_and_pattern_transform() {
 #[test]
 fn gradient_x_within_0_and_1() {
     let mut s = unit_sphere();
-    s.set_transform(identity());
+    s.set_transform_to_world(identity());
     s.set_material(test_mat(
         Pattern::gradient(green(), blue()),
         identity()
@@ -220,7 +220,7 @@ fn gradient_x_within_0_and_1() {
 #[test]
 fn gradient_x_out_of_bounds() {
     let mut s = unit_sphere();
-    s.set_transform(identity());
+    s.set_transform_to_world(identity());
     s.set_material(test_mat(
         Pattern::gradient(green(), blue()),
         identity()

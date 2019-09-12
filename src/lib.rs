@@ -150,7 +150,7 @@ pub fn transform(r: &Ray, m: &Matrix) -> Ray {
 
 pub fn unit_sphere() -> Object {
     Object {
-        transform: identity(),
+        transform_to_object: identity(),
         material: Material::default(),
         shape: Shape::Sphere,
     }
@@ -158,7 +158,7 @@ pub fn unit_sphere() -> Object {
 
 pub fn plane() -> Object {
     Object {
-        transform: identity(),
+        transform_to_object: identity(),
         material: Material::default(),
         shape: Shape::Plane,
     }
@@ -198,21 +198,31 @@ impl Shape {
 /// properties.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Object {
-    transform: Matrix,
+    transform_to_object: Matrix,
     material: Material,
     shape: Shape
 }
 
 impl Object {
-    /// A transformation matrix to convert co-ordinates from
+    /// The transformation matrix to convert co-ordinates from
     /// object space to world space.
-    pub fn transform(&self) -> Matrix {
-        self.transform
+    pub fn transform_to_world(&self) -> Matrix {
+        self.transform_to_object.inverse()
     }
 
-    pub fn set_transform(self: &mut Self, m: Matrix) -> &mut Self {
-        self.transform = m;
+    pub fn set_transform_to_world(self: &mut Self, m: Matrix) -> &mut Self {
+        // The given matrix describes the object -> world coordinate transform.
+        // The transformation from world -> object is performed more frequently.
+        // In the interests of performance, store the world -> object transform,
+        // so the inverse does not have to be computed all the time.
+        self.transform_to_object = m.inverse();
         self
+    }
+
+    /// The transformation matrix to convert co-ordinates from
+    /// world space to object space.
+    pub fn transform_to_object(&self) -> Matrix {
+        self.transform_to_object
     }
 
     pub fn material(&self) -> Material {
@@ -225,7 +235,7 @@ impl Object {
     }
 
     pub fn normal_at(self: &Self, world_point: Tuple4) -> Tuple4 {
-        let inversion_mat = self.transform.inverse();
+        let inversion_mat = self.transform_to_object();
         let object_point = inversion_mat.mult(world_point);
         let object_normal = self.shape.local_normal_at(object_point);
         let tmp = inversion_mat.transpose().mult(object_normal);
@@ -236,7 +246,7 @@ impl Object {
     pub fn material_colour_at(self: &Self, world_point: Tuple4) -> RGB {
         let to_pattern_space =
             self.material().pattern_transform.inverse() *
-            self.transform.inverse();
+            self.transform_to_object();
         let p = to_pattern_space.mult(world_point);
         self.material().pattern().colour_at(p)
     }
@@ -257,8 +267,8 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
 }
 
 pub fn intersect(orig: &Ray, s: &Object) -> Vec<Intersection> {
-    let inverted = s.transform().inverse();
-    let r = transform(orig, &inverted);
+    let to_object_space = s.transform_to_object();
+    let r = transform(orig, &to_object_space);
     let shape = s.shape;
     match shape {
         Shape::Sphere =>
@@ -490,7 +500,7 @@ impl World {
         m.set_specular(0.2);
         outer.set_material(m);
 
-        inner.set_transform(scaling(0.5, 0.5, 0.5));
+        inner.set_transform_to_world(scaling(0.5, 0.5, 0.5));
 
         World {objects: vec![outer, inner], lights: vec![light]}
     }
@@ -874,7 +884,7 @@ mod shadows {
     fn an_intersection_in_shadow_returns_ambient_colour() {
         let l = point_light(point(0.0, 0.0, -10.0), RGB::white());
         let s1 = unit_sphere();
-        let s2 = *(unit_sphere().set_transform(translation(0.0, 0.0, 10.0)));
+        let s2 = *(unit_sphere().set_transform_to_world(translation(0.0, 0.0, 10.0)));
 
         let objects = vec![s1, s2];
         let w = World::with(vec![l], objects);
@@ -886,7 +896,7 @@ mod shadows {
 
     #[test]
     fn the_hit_should_bump_the_point_slightly_in_the_direction_of_normalv() {
-        let shape = *(unit_sphere().set_transform(translation(0.0, 0.0, 1.0)));
+        let shape = *(unit_sphere().set_transform_to_world(translation(0.0, 0.0, 1.0)));
 
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let i = intersection(5.0, &shape);
@@ -915,7 +925,7 @@ mod planes {
     #[test]
     fn normal_of_a_plane_object_is_constant_everywhere() {
         let mut p: Object = plane();
-        p.set_transform(rotation_z(FRAC_PI_2));
+        p.set_transform_to_world(rotation_z(FRAC_PI_2));
         let n1 = p.normal_at(point(0.0, 0.0, 0.0));
         let n2 = p.normal_at(point(10.0, 0.0, -10.0));
         let n3 = p.normal_at(point(-5.0, 0.0, 150.0));
