@@ -45,8 +45,8 @@ fn patterns_are_equal() {
 fn patterns_not_equal() {
     let wht = RGB::white();
     let p1 = Pattern::solid(wht);
-    let p2 = Pattern::solid(RGB::white());
-    let p3 = Pattern::solid(RGB::white());
+    let _p2 = Pattern::solid(RGB::white());
+    let _p3 = Pattern::solid(RGB::white());
     let p4 = Pattern::solid(colour(1.0, 0.0, 0.0));
     let p5 = Pattern::stripes(RGB::white(), RGB::black());
     let p6 = Pattern::stripes(RGB::black(), RGB::white());
@@ -130,12 +130,15 @@ fn lighting_with_a_pattern_applied() {
     m.set_ambient(1.0);
     m.set_diffuse(0.0);
     m.set_specular(0.0);
+    let mut s = unit_sphere();
+    s.set_material(m);
+
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let c1 = lighting(&light, point(0.9, 0.0, 0.0), normalv, &m, eyev, false);
-    let c2 = lighting(&light, point(1.1, 0.0, 0.0), normalv, &m, eyev, false);
+    let c1 = lighting(&light, point(0.9, 0.0, 0.0), normalv, &s, eyev, false);
+    let c2 = lighting(&light, point(1.1, 0.0, 0.0), normalv, &s, eyev, false);
 
     assert_eq!(c1, RGB::white());
     assert_eq!(c2, RGB::black());

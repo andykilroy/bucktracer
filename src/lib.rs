@@ -380,6 +380,11 @@ impl Material {
         self.pattern = p;
         self
     }
+    /// A transformation to transform from pattern space to
+    /// object space co-ordinates.
+    pub fn pattern_transform(self: &Self) -> Matrix {
+        self.pattern_transform
+    }
     pub fn set_pattern_transform(self: &mut Self, m: Matrix) -> &mut Self {
         self.pattern_transform = m;
         self
@@ -422,12 +427,13 @@ pub fn lighting(
     light: &RadialLightSource,
     pos: Tuple4,
     normalv: Tuple4,
-    mat: &Material,
+    obj: &Object,
     eyev: Tuple4,
     in_shadow: bool
 ) -> RGB {
 
-    let matrl_colr: Tuple4 = mat.pattern.colour_at(pos).into();
+    let mat = obj.material;
+    let matrl_colr: Tuple4 = obj.material_colour_at(pos).into();
     let light_intens: Tuple4 = light.intensity().into();
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let ambient = effective_colour.scale(mat.ambient());
@@ -590,7 +596,7 @@ fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
             light,
             comps.over_point,
             comps.normalv,
-            &comps.object.material,
+            &comps.object,
             comps.eyev,
             world.in_shadow(comps.over_point, light)
         );
@@ -755,11 +761,6 @@ fn choose_stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
         }
     }
 }
-
-fn stripe_at_object(p: Pattern, o: Object, world_pos: Tuple4) -> RGB {
-    p.colour_at(world_pos)
-}
-
 
 // ----- Testing non-public shading functions
 #[cfg(test)]

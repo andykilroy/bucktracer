@@ -74,26 +74,26 @@ fn assign_sphere_a_material() {
 
 #[test]
 fn lighting_with_eye_between_light_and_the_surface() {
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &m, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(1.9, 1.9, 1.9));
 }
 
 #[test]
 fn lighting_with_the_surface_in_shadow() {
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
     let in_shade = true;
 
-    let result = lighting(&light, pos, normalv, &m, eyev, in_shade);
+    let result = lighting(&light, pos, normalv, &s, eyev, in_shade);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
 
@@ -101,49 +101,49 @@ fn lighting_with_the_surface_in_shadow() {
 #[test]
 fn lighting_with_eye_between_light_and_the_surface_at_45_angle() {
     let rt2by2 = f64::sqrt(2.0) / 2.0;
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, rt2by2, -rt2by2);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &m, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(1.0, 1.0, 1.0));
 }
 
 #[test]
 fn lighting_with_eye_opposite_surface_light_offset_45_angle() {
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 10.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &m, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(0.7364, 0.7364, 0.7364));
 }
 
 #[test]
 fn lighting_with_eye_in_path_of_reflection_vector() {
     let rt2by2 = f64::sqrt(2.0) / 2.0;
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, -rt2by2, -rt2by2);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 10.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &m, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(1.6364, 1.6364, 1.6364));
 }
 
 #[test]
 fn lighting_with_light_behind_the_surface() {
-    let m = Material::default();
+    let s = unit_sphere();
     let pos = point(0.0, 0.0, 0.0);
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, 10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &m, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
