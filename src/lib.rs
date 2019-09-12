@@ -548,12 +548,11 @@ impl World {
 
     pub fn colour_at_intersect(self: &Self, r: &Ray) -> RGB {
         let ints = self.intersect(r);
-        let black = colour(0.0, 0.0, 0.0);
         let poss_hit = hit(ints).and_then(|h| {
             let precomputed = precompute(&h, r);
             Some(shade_hit(self, &precomputed))
         });
-        poss_hit.unwrap_or(black)
+        poss_hit.unwrap_or(RGB::black())
     }
 
     pub fn in_shadow(self: &Self, point: Tuple4, light: &RadialLightSource) -> bool {
