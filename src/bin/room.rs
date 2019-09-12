@@ -31,8 +31,9 @@ fn main() -> Result<(), ExitFailure>  {
     let mut middle = unit_sphere();
     middle.set_transform(translation(-0.5, 1.0, 0.5));
     middle.set_material(Material::default()
-        .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
+        .set_pattern(Pattern::stripes(colour(0.1, 1.0, 0.5), RGB::white()))
         .set_diffuse(0.7)
+        .set_pattern_transform(rotation_z(FRAC_PI_3) * translation(0.5, 0.0, 0.0))
         .set_specular(0.3).clone());
 
     let mut right = unit_sphere();
