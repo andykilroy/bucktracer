@@ -40,7 +40,7 @@ impl Config {
     fn camera(self: &Self) -> Camera {
         let CameraConfig {hsize, vsize, fov_as_degrees, from, to, up} = self.camera;
         let mut camera = Camera::new(hsize, vsize, radians(fov_as_degrees));
-        camera.set_transform(view_transform(
+        camera.set_view_transform(view_transform(
             point(from.0, from.1, from.2),
             point(to.0, to.1, to.2),
             vector(up.0, up.1, up.2)
@@ -321,7 +321,7 @@ intensity = [1.0, 1.0, 1.0]
         assert_eq!(cam.hsize(), 500);
         assert_eq!(cam.vsize(), 250);
         assert_eq!(true, almost_eq(cam.field_of_view(), FRAC_PI_3));
-        assert_eq!(cam.transform(), view_transform(
+        assert_eq!(cam.view_transform(), view_transform(
             point(0.0, 1.5, -5.0),
             point(0.0, 1.0, 0.0),
             vector(0.0, 1.0, 0.0)

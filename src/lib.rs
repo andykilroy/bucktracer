@@ -646,7 +646,7 @@ pub struct Camera {
     half_width: f64,
     half_height: f64,
     pixel_size: f64,
-    transform: Matrix,
+    inverse_view_t: Matrix,
 }
 
 impl Camera {
@@ -673,7 +673,7 @@ impl Camera {
             half_width,
             half_height,
             pixel_size,
-            transform: identity(),
+            inverse_view_t: identity(),
         }
     }
     pub fn hsize(self: &Self) -> u32 {
@@ -685,11 +685,14 @@ impl Camera {
     pub fn field_of_view(self: &Self) -> f64 {
         self.fov
     }
-    pub fn transform(self: &Self) -> Matrix {
-        self.transform
+    pub fn view_transform(self: &Self) -> Matrix {
+        self.inverse_view_t.inverse()
     }
-    pub fn set_transform(self: &mut Self, m: Matrix) -> &mut Self {
-        self.transform = m;
+    pub fn inverse_view_t(self: &Self) -> Matrix {
+        self.inverse_view_t
+    }
+    pub fn set_view_transform(self: &mut Self, m: Matrix) -> &mut Self {
+        self.inverse_view_t = m.inverse();
         self
     }
     pub fn pixel_size(self: &Self) -> f64 {
@@ -704,7 +707,7 @@ impl Camera {
         let yoffset = (f64::from(py) + 0.5) * self.pixel_size;
         let worldx = self.half_width - xoffset;
         let worldy = self.half_height - yoffset;
-        let inv_t = self.transform.inverse();
+        let inv_t = self.inverse_view_t();
 
         let pixel = inv_t.mult(point(worldx, worldy, -1.0));
         let origin = inv_t.mult(point(0.0, 0.0, 0.0));
