@@ -155,7 +155,7 @@ fn lighting_with_a_pattern_applied() {
 fn test_mat(p: Pattern, t: Matrix) -> Material {
     Material::default()
         .set_pattern(p)
-        .set_pattern_transform(t)
+        .set_pattern_to_object_spc(t)
         .clone()
 }
 

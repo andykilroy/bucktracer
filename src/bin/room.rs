@@ -33,7 +33,7 @@ fn main() -> Result<(), ExitFailure>  {
     middle.set_material(Material::default()
         .set_pattern(Pattern::stripes(colour(0.1, 1.0, 0.5), RGB::white()))
         .set_diffuse(0.7)
-        .set_pattern_transform(rotation_z(FRAC_PI_3) * translation(0.5, 0.0, 0.0))
+        .set_pattern_to_object_spc(rotation_z(FRAC_PI_3) * translation(0.5, 0.0, 0.0))
         .set_specular(0.3).clone());
 
     let mut right = unit_sphere();
@@ -49,7 +49,7 @@ fn main() -> Result<(), ExitFailure>  {
     left.set_transform_to_world(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
     left.set_material(Material::default()
         .set_pattern(Pattern::gradient(colour(1.0, 0.0, 0.0), colour(1.0, 1.0, 0.0)))
-        .set_pattern_transform(rotation_z(FRAC_PI_3) * scaling(2.0, 2.0, 2.0) * translation(-0.5, 0.0, 0.0))
+        .set_pattern_to_object_spc(rotation_z(FRAC_PI_3) * scaling(2.0, 2.0, 2.0) * translation(-0.5, 0.0, 0.0))
         .set_diffuse(0.7)
         .set_specular(0.3)
         .clone()

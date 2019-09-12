@@ -245,7 +245,7 @@ impl Object {
 
     pub fn material_colour_at(self: &Self, world_point: Tuple4) -> RGB {
         let to_pattern_space =
-            self.material().pattern_transform.inverse() *
+            self.material().object_to_pattern_spc() *
             self.transform_to_object();
         let p = to_pattern_space.mult(world_point);
         self.material().pattern().colour_at(p)
@@ -364,7 +364,7 @@ pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
     pattern: Pattern,
-    pattern_transform: Matrix,
+    object_to_pattern_spc: Matrix,
     ambient: f64,
     diffuse: f64,
     specular: f64,
@@ -375,7 +375,7 @@ impl Material {
     pub fn default() -> Material {
         Material {
             pattern: Pattern::solid(RGB::white()),
-            pattern_transform: identity(),
+            object_to_pattern_spc: identity(),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -392,11 +392,14 @@ impl Material {
     }
     /// A transformation to transform from pattern space to
     /// object space co-ordinates.
-    pub fn pattern_transform(self: &Self) -> Matrix {
-        self.pattern_transform
+    pub fn pattern_to_object_spc(self: &Self) -> Matrix {
+        self.object_to_pattern_spc.inverse()
     }
-    pub fn set_pattern_transform(self: &mut Self, m: Matrix) -> &mut Self {
-        self.pattern_transform = m;
+    pub fn object_to_pattern_spc(self: &Self) -> Matrix {
+        self.object_to_pattern_spc
+    }
+    pub fn set_pattern_to_object_spc(self: &mut Self, m: Matrix) -> &mut Self {
+        self.object_to_pattern_spc = m.inverse();
         self
     }
     pub fn ambient(self: &Self) -> f64 {
