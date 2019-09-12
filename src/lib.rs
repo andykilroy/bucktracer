@@ -719,6 +719,7 @@ impl Camera {
 pub enum Pattern {
     Solid(RGB),
     Stripes {a: RGB, b: RGB},
+    Gradient {a: RGB, b: RGB},
 }
 
 impl Pattern {
@@ -728,17 +729,39 @@ impl Pattern {
     pub fn stripes(c1: RGB, c2: RGB) -> Pattern {
         Pattern::Stripes {a: c1, b: c2}
     }
+    pub fn gradient(a: RGB, b: RGB) -> Pattern {
+        Pattern::Gradient {a, b}
+    }
 
     pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
         match *self {
             Pattern::Solid(c) => c,
             Pattern::Stripes {a, b} =>
-                choose_stripe_colour(a, b, pattern_space_pos),
+                stripe_colour(a, b, pattern_space_pos),
+            Pattern::Gradient {a, b} =>
+                gradient_colour(a, b, pattern_space_pos),
         }
     }
 }
 
-fn choose_stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
+fn gradient_colour(
+    RGB {inner: a}: RGB,
+    RGB {inner: b}: RGB,
+    pos: Tuple4)
+    -> RGB {
+    // the x component of pos is expected to be int the range [0,1]
+    let distance = b - a;
+    let frac = if pos.x() >= 1.0 {
+        1.0
+    } else if pos.x() < 0.0{
+        0.0
+    } else {
+        pos.x() - pos.x().floor()
+    };
+
+    RGB::from(a + (distance.scale(frac)))
+}
+fn stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
     // TODO when f64::rem_euclid() comes out, use that to reduce these

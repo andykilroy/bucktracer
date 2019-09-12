@@ -48,7 +48,8 @@ fn main() -> Result<(), ExitFailure>  {
     let mut left = unit_sphere();
     left.set_transform(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
     left.set_material(Material::default()
-        .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
+        .set_pattern(Pattern::gradient(colour(1.0, 0.0, 0.0), colour(1.0, 1.0, 0.0)))
+        .set_pattern_transform(rotation_z(FRAC_PI_3) * scaling(2.0, 2.0, 2.0) * translation(-0.5, 0.0, 0.0))
         .set_diffuse(0.7)
         .set_specular(0.3)
         .clone()

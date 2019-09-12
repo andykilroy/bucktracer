@@ -12,6 +12,13 @@ fn stripe_pattern(c1: RGB, c2: RGB) -> Pattern {
 fn stripe_at(ptrn: Pattern, pos: Tuple4) -> RGB {
     ptrn.colour_at(pos)
 }
+fn green() -> RGB {
+    colour(0.0, 1.0, 0.0)
+}
+fn blue() -> RGB {
+    colour(0.0, 0.0, 1.0)
+}
+
 
 #[test]
 fn patterns_are_equal() {
@@ -194,4 +201,33 @@ fn stripes_with_an_object_and_pattern_transform() {
     let c2 = s.material_colour_at(point(3.0, 0.0, 0.0));
     assert_eq!(c1, RGB::white());
     assert_eq!(c2, RGB::black());
+}
+
+#[test]
+fn gradient_x_within_0_and_1() {
+    let mut s = unit_sphere();
+    s.set_transform(identity());
+    s.set_material(test_mat(
+        Pattern::gradient(green(), blue()),
+        identity()
+    ));
+
+    assert_eq!(s.material_colour_at(point(0.0, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
+    assert_eq!(s.material_colour_at(point(0.5, 0.0, 0.0)), colour(0.0, 0.5, 0.5));
+    assert_eq!(s.material_colour_at(point(1.0, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
+}
+
+#[test]
+fn gradient_x_out_of_bounds() {
+    let mut s = unit_sphere();
+    s.set_transform(identity());
+    s.set_material(test_mat(
+        Pattern::gradient(green(), blue()),
+        identity()
+    ));
+
+    assert_eq!(s.material_colour_at(point(-1.0, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
+    assert_eq!(s.material_colour_at(point(-0.5, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
+    assert_eq!(s.material_colour_at(point(1.5, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
+    assert_eq!(s.material_colour_at(point(2.0, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
 }
