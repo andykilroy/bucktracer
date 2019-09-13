@@ -266,19 +266,30 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
     }
 }
 
-pub fn intersect(orig: &Ray, s: &Object) -> Vec<Intersection> {
+pub fn append_intersects(
+    orig: &Ray,
+    s: &Object,
+    vec: &mut Vec<Intersection>
+){
     let to_object_space = s.world_to_object_spc();
     let r = transform(orig, &to_object_space);
     let shape = s.shape;
     match shape {
-        Shape::Sphere =>
-            intersect_sphere(&r, s),
-        Shape::Plane =>
-            intersect_plane(&r, s)
+        Shape::Sphere => {
+            if let Some((a, b)) = intersect_sphere(&r, s) {
+                vec.push(a);
+                vec.push(b);
+            }
+        },
+        Shape::Plane => {
+            if let Some(a) = intersect_plane(&r, s) {
+                vec.push(a);
+            }
+        }
     }
 }
 
-fn intersect_sphere(r: &Ray, s: &Object) -> Vec<Intersection> {
+fn intersect_sphere(r: &Ray, s: &Object) -> Option<(Intersection, Intersection)> {
     // presume the sphere is centred at (0,0,0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
@@ -287,22 +298,19 @@ fn intersect_sphere(r: &Ray, s: &Object) -> Vec<Intersection> {
     let discriminant = b.powf(2.0) - (4.0 * a * c);
 
     if discriminant < 0.0 {
-        vec![]
+        None
     } else {
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        vec![
-            intersection(t1, s),
-            intersection(t2, s)
-        ]
+        Some((intersection(t1, s), intersection(t2, s)))
     }
 }
 
-fn intersect_plane(r: &Ray, s: &Object) -> Vec<Intersection> {
+fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
     if r.direction.y().abs() < EPSILON {
-        vec![]
+        None
     } else {
-        vec![intersection(-r.origin.y() / r.direction.y(), s)]
+        Some(intersection(-r.origin.y() / r.direction.y(), s))
     }
 }
 
@@ -526,9 +534,9 @@ impl World {
     }
 
     pub fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
-        let mut v: Vec<Intersection> = vec![];
+        let mut v: Vec<Intersection> = Vec::with_capacity(128);
         for obj in self.objects.iter() {
-            v.extend(intersect(r, obj).iter());
+            append_intersects(r, obj, &mut v);
         }
 
         v.sort_by(|i1, i2| {

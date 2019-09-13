@@ -57,7 +57,7 @@ fn main() -> Result<(), ExitFailure>  {
 
     let light = point_light(point(-10.0, 10.0, -10.0), RGB::white());
     let world = World::with(vec![light], vec![floor, right_wall, left_wall, left, middle, right]);
-    let mut cam = Camera::new(500, 250, FRAC_PI_3);
+    let mut cam = Camera::new(2560, 1600, FRAC_PI_3);
     cam.set_view_transform(
         view_transform(
             point(0.0, 1.5, -5.0),

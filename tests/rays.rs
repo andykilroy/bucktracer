@@ -23,7 +23,8 @@ fn calc_position() {
 fn ray_intersects_sphere() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs[0].t_value, 4.0);
     assert_eq!(xs[1].t_value, 6.0);
 }
@@ -32,7 +33,8 @@ fn ray_intersects_sphere() {
 fn ray_intersects_sphere_at_tangent() {
     let r = ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs[0].t_value, 5.0);
     assert_eq!(xs[1].t_value, 5.0);
 }
@@ -41,7 +43,8 @@ fn ray_intersects_sphere_at_tangent() {
 fn ray_misses_sphere() {
     let r = ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs.len(), 0);
 }
 
@@ -49,7 +52,8 @@ fn ray_misses_sphere() {
 fn ray_originates_inside_sphere() {
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs[0].t_value, -1.0);
     assert_eq!(xs[1].t_value,  1.0);
 }
@@ -58,7 +62,8 @@ fn ray_originates_inside_sphere() {
 fn ray_originates_in_front_of_sphere() {
     let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
     let s = unit_sphere();
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs[0].t_value, -6.0);
     assert_eq!(xs[1].t_value, -4.0);
 }
@@ -134,7 +139,8 @@ fn intersect_scaled_sphere_with_a_ray() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
     s.set_object_to_world_spc(scaling(2.0, 2.0, 2.0));
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t_value, 3.0);
     assert_eq!(xs[1].t_value, 7.0);
@@ -145,7 +151,8 @@ fn intersect_translated_sphere_with_a_ray_miss() {
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
     s.set_object_to_world_spc(translation(5.0, 0.0, 0.0));
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs.len(), 0);
 }
 
@@ -154,7 +161,8 @@ fn intersect_translated_sphere_with_a_ray_hit() {
     let r = ray(point(5.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let mut s = unit_sphere();
     s.set_object_to_world_spc(translation(5.0, 0.0, 0.0));
-    let xs = intersect(&r, &s);
+    let mut xs = vec![];
+    append_intersects(&r, &s, &mut xs);
     assert_eq!(xs.len(), 2);
 }
 
@@ -167,7 +175,8 @@ fn intersect_translated_sphere_with_a_ray_hit() {
 fn a_ray_parallel_to_the_plane_produces_no_intersects() {
     let p = plane();
     let r = ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
-    let xs = intersect(&r, &p);
+    let mut xs = vec![];
+    append_intersects(&r, &p, &mut xs);
     assert_eq!(0, xs.len());
 }
 
@@ -176,7 +185,8 @@ fn a_ray_parallel_to_the_plane_produces_no_intersects() {
 fn a_coplanar_ray_produces_no_intersects() {
     let p = plane();
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-    let xs = intersect(&r, &p);
+    let mut xs = vec![];
+    append_intersects(&r, &p, &mut xs);
     assert_eq!(xs.len(), 0);
 }
 
@@ -184,7 +194,8 @@ fn a_coplanar_ray_produces_no_intersects() {
 fn a_ray_intersects_a_plane_from_above() {
     let p = plane();
     let r = ray(point(0.0, 1.0, 0.0), vector(0.0, -1.0, 0.0));
-    let xs = intersect(&r, &p);
+    let mut xs = vec![];
+    append_intersects(&r, &p, &mut xs);
     assert_eq!(xs.len(), 1);
     assert_eq!(xs[0].t_value, 1.0);
     assert_eq!(xs[0].intersected, p);
@@ -194,7 +205,8 @@ fn a_ray_intersects_a_plane_from_above() {
 fn a_ray_intersects_a_plane_from_below() {
     let p = plane();
     let r = ray(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
-    let xs = intersect(&r, &p);
+    let mut xs = vec![];
+    append_intersects(&r, &p, &mut xs);
     assert_eq!(xs.len(), 1);
     assert_eq!(xs[0].t_value, 1.0);
     assert_eq!(xs[0].intersected, p);
