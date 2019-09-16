@@ -542,7 +542,7 @@ impl World {
     }
 
     pub fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
-        let mut v: Vec<Intersection> = Vec::with_capacity(128);
+        let mut v: Vec<Intersection> = Vec::with_capacity(2 * self.objects.len());
         for obj in self.objects.iter() {
             append_intersects(r, obj, &mut v);
         }
