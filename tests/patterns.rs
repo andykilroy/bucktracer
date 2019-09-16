@@ -231,3 +231,13 @@ fn gradient_x_out_of_bounds() {
     assert_eq!(s.material_colour_at(point(1.5, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
     assert_eq!(s.material_colour_at(point(2.0, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
 }
+
+#[test]
+fn ring_pattern_extends_in_both_x_and_z() {
+    let p = Pattern::ring(white(), black());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), white());
+    assert_eq!(p.colour_at(point(1.0, 0.0, 0.0)), black());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 1.0)), black());
+    // 0.708 is just a bit more than sqrt(2) / 2
+    assert_eq!(p.colour_at(point(0.708, 0.0, 0.708)), black());
+}

@@ -37,9 +37,10 @@ fn main() -> Result<(), ExitFailure>  {
         .set_specular(0.3).clone());
 
     let mut right = unit_sphere();
-    right.set_object_to_world_spc(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
+    right.set_object_to_world_spc(translation(1.5, 1.0, -0.5));
     right.set_material(Material::default()
-        .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
+        .set_pattern(Pattern::ring(colour(0.0, 0.75, 1.0), colour(0.0, 0.0, 1.0)))
+        .set_pattern_to_object_spc(rotation_y(-FRAC_PI_3) * rotation_z(FRAC_PI_3) * scaling(0.1, 0.1, 0.1))
         .set_diffuse(0.7)
         .set_specular(0.3)
         .clone()
