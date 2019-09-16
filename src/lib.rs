@@ -14,6 +14,8 @@ const EPSILON: f64 = 1e-5;
 
 /// A structure representing a colour in red, green, and blue components.
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Deserialize)]
+#[serde(from = "(f64, f64, f64)")]
 pub struct RGB {
     inner: Tuple4
 }
@@ -50,6 +52,12 @@ impl From<Tuple4> for RGB {
 impl Into<Tuple4> for RGB {
     fn into(self) -> Tuple4 {
         self.inner
+    }
+}
+
+impl From<(f64, f64, f64)> for RGB {
+    fn from((r, g, b): (f64, f64, f64)) -> Self {
+        colour(r, g, b)
     }
 }
 
@@ -739,10 +747,11 @@ impl Camera {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Deserialize)]
 pub enum Pattern {
     Solid(RGB),
     Stripes {a: RGB, b: RGB},
-    Gradient {a: RGB, b: RGB},
+    Gradient { from: RGB, to: RGB},
 }
 
 impl Pattern {
@@ -753,7 +762,7 @@ impl Pattern {
         Pattern::Stripes {a: c1, b: c2}
     }
     pub fn gradient(a: RGB, b: RGB) -> Pattern {
-        Pattern::Gradient {a, b}
+        Pattern::Gradient { from: a, to: b }
     }
 
     pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
@@ -761,8 +770,8 @@ impl Pattern {
             Pattern::Solid(c) => c,
             Pattern::Stripes {a, b} =>
                 stripe_colour(a, b, pattern_space_pos),
-            Pattern::Gradient {a, b} =>
-                gradient_colour(a, b, pattern_space_pos),
+            Pattern::Gradient {from, to} =>
+                gradient_colour(from, to, pattern_space_pos),
         }
     }
 }
