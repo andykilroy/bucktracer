@@ -753,6 +753,7 @@ pub enum Pattern {
     Stripes {a: RGB, b: RGB},
     Gradient { from: RGB, to: RGB},
     Ring {a: RGB, b: RGB},
+    Checkers {a: RGB, b: RGB},
 }
 
 impl Pattern {
@@ -768,6 +769,9 @@ impl Pattern {
     pub fn ring(a: RGB, b: RGB) -> Pattern {
         Pattern::Ring { a, b }
     }
+    pub fn checkers(a: RGB, b: RGB) -> Pattern {
+        Pattern::Checkers { a, b }
+    }
 
     pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
         match *self {
@@ -777,7 +781,9 @@ impl Pattern {
             Pattern::Gradient {from, to} =>
                 gradient_colour(from, to, pattern_space_pos),
             Pattern::Ring {a, b} =>
-                ring_colour(a, b, pattern_space_pos)
+                ring_colour(a, b, pattern_space_pos),
+            Pattern::Checkers {a, b} =>
+                checkers_colour(a, b, pattern_space_pos),
         }
     }
 }
@@ -825,6 +831,15 @@ fn stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
 
 fn ring_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
     let s = (p.x().powi(2) + p.z().powi(2)).sqrt();
+    if (s % 2.0).floor() == 0.0 {
+        a
+    } else {
+        b
+    }
+}
+
+fn checkers_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
+    let s = p.x() + p.y() + p.z();
     if (s % 2.0).floor() == 0.0 {
         a
     } else {

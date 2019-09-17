@@ -241,3 +241,42 @@ fn ring_pattern_extends_in_both_x_and_z() {
     // 0.708 is just a bit more than sqrt(2) / 2
     assert_eq!(p.colour_at(point(0.708, 0.0, 0.708)), black());
 }
+
+#[test]
+fn checkers_pattern_alternates_with_x() {
+    let p = Pattern::checkers(blue(), green());
+    assert_eq!(p.colour_at(point(-2.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(-1.0, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point( 0.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point( 1.0, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point( 2.0, 0.0, 0.0)), blue());
+}
+
+#[test]
+fn checkers_pattern_alternates_with_y() {
+    let p = Pattern::checkers(blue(), green());
+    assert_eq!(p.colour_at(point(0.0, -2.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, -1.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0,  0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0,  1.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0,  2.0, 0.0)), blue());
+}
+
+#[test]
+fn checkers_pattern_alternates_with_z() {
+    let p = Pattern::checkers(blue(), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0, -2.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, -1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  2.0)), blue());
+}
+
+#[test]
+fn checkers_pattern_combinations() {
+    let p = Pattern::checkers(blue(), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0, -1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 1.0, -1.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, -1.0, -1.0)), blue());
+    assert_eq!(p.colour_at(point(-1.0, -1.0, -1.0)), green());
+}
