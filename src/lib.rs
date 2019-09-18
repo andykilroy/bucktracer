@@ -808,24 +808,10 @@ fn gradient_colour(
 fn stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
-    // TODO when f64::rem_euclid() comes out, use that to reduce these
-    // if-else clauses.
-    if pos.x() >= 0.0 {
-        if pos.x() % 2.0 >= 1.0 {
-            b
-        } else {
-            a
-        }
-    }
-    else {
-        let rem = pos.x() % 2.0;
-        if rem < -1.0 {
-            a
-        } else if rem >= 0.0 {
-            a
-        } else {
-            b
-        }
+    if rem_euclid(pos.x(), 2.0) >= 1.0 {
+        b
+    } else {
+        a
     }
 }
 
@@ -839,11 +825,25 @@ fn ring_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
 }
 
 fn checkers_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
-    let s = p.x() + p.y() + p.z();
-    if (s % 2.0).floor() == 0.0 {
+    let s = p.x().floor() + p.y().floor() + p.z().floor();
+    if rem_euclid(s, 2.0) == 0.0 {
         a
     } else {
         b
+    }
+}
+
+fn rem_euclid(x: f64, y: f64) -> f64 {
+    let d = x / y;
+    let r = x % y;
+    if d < 0.0 {
+        if r == 0.0 {
+            r
+        } else {
+            y + r
+        }
+    } else {
+        r
     }
 }
 
@@ -985,5 +985,32 @@ mod planes {
         assert_eq!(n1, vector(-1.0, 0.0, 0.0));
         assert_eq!(n2, vector(-1.0, 0.0, 0.0));
         assert_eq!(n3, vector(-1.0, 0.0, 0.0));
+    }
+}
+
+#[cfg(test)]
+mod euclid {
+    use crate::*;
+
+    #[test]
+    fn positive_numerator_positive_denominator() {
+        assert_eq!(rem_euclid(0.0, 2.0), 0.0);
+        assert_eq!(rem_euclid(0.5, 2.0), 0.5);
+        assert_eq!(rem_euclid(1.0, 2.0), 1.0);
+        assert_eq!(rem_euclid(1.5, 2.0), 1.5);
+        assert_eq!(rem_euclid(2.0, 2.0), 0.0);
+        assert_eq!(rem_euclid(2.5, 2.0), 0.5);
+        assert_eq!(rem_euclid(3.0, 2.0), 1.0);
+    }
+
+    #[test]
+    fn negative_numerator_positive_denominator() {
+        assert_eq!(rem_euclid(0.0, 2.0), 0.0);
+        assert_eq!(rem_euclid(-0.5, 2.0), 1.5);
+        assert_eq!(rem_euclid(-1.0, 2.0), 1.0);
+        assert_eq!(rem_euclid(-1.5, 2.0), 0.5);
+        assert_eq!(rem_euclid(-2.0, 2.0), 0.0);
+        assert_eq!(rem_euclid(-2.5, 2.0), 1.5);
+        assert_eq!(rem_euclid(-3.0, 2.0), 1.0);
     }
 }

@@ -246,30 +246,45 @@ fn ring_pattern_extends_in_both_x_and_z() {
 fn checkers_pattern_alternates_with_x() {
     let p = Pattern::checkers(blue(), green());
     assert_eq!(p.colour_at(point(-2.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(-1.9, 0.0, 0.0)), blue());
     assert_eq!(p.colour_at(point(-1.0, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(-0.9, 0.0, 0.0)), green());
     assert_eq!(p.colour_at(point( 0.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point( 0.1, 0.0, 0.0)), blue());
     assert_eq!(p.colour_at(point( 1.0, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point( 1.1, 0.0, 0.0)), green());
     assert_eq!(p.colour_at(point( 2.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point( 2.1, 0.0, 0.0)), blue());
 }
 
 #[test]
 fn checkers_pattern_alternates_with_y() {
     let p = Pattern::checkers(blue(), green());
     assert_eq!(p.colour_at(point(0.0, -2.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, -1.9, 0.0)), blue());
     assert_eq!(p.colour_at(point(0.0, -1.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0, -0.9, 0.0)), green());
     assert_eq!(p.colour_at(point(0.0,  0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0,  0.1, 0.0)), blue());
     assert_eq!(p.colour_at(point(0.0,  1.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0,  1.1, 0.0)), green());
     assert_eq!(p.colour_at(point(0.0,  2.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0,  2.1, 0.0)), blue());
 }
 
 #[test]
 fn checkers_pattern_alternates_with_z() {
     let p = Pattern::checkers(blue(), green());
     assert_eq!(p.colour_at(point(0.0, 0.0, -2.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, -1.9)), blue());
     assert_eq!(p.colour_at(point(0.0, 0.0, -1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0, -0.9)), green());
     assert_eq!(p.colour_at(point(0.0, 0.0,  0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  0.1)), blue());
     assert_eq!(p.colour_at(point(0.0, 0.0,  1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  1.1)), green());
     assert_eq!(p.colour_at(point(0.0, 0.0,  2.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0,  2.1)), blue());
 }
 
 #[test]
