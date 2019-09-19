@@ -147,3 +147,10 @@ fn lighting_with_light_behind_the_surface() {
     let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
+
+
+#[test]
+fn default_material_is_not_reflective() {
+    let m = Material::default();
+    assert_eq!(m.reflective(), 0.0);
+}

@@ -385,6 +385,7 @@ pub struct Material {
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    reflective: f64,
 }
 
 impl Material {
@@ -396,6 +397,7 @@ impl Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            reflective: 0.0,
         }
     }
 
@@ -594,6 +596,7 @@ struct Precomputed {
     normalv: Tuple4,
     inside: bool,
     over_point: Tuple4,
+    reflectv: Tuple4,
 }
 
 fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
@@ -606,6 +609,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     } else {
         n
     };
+    let r = reflect(r.direction, norm);
     Precomputed {
         t_value: i.t_value,
         object: i.intersected,
@@ -613,7 +617,8 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
         eyev: e,
         normalv: norm,
         inside: inside,
-        over_point: pos + (norm.scale(1e-5))
+        over_point: pos + (norm.scale(1e-5)),
+        reflectv: r,
     }
 }
 
@@ -1013,4 +1018,23 @@ mod euclid {
         assert_eq!(rem_euclid(-2.5, 2.0), 1.5);
         assert_eq!(rem_euclid(-3.0, 2.0), 1.0);
     }
+}
+
+#[cfg(test)]
+mod reflection {
+    use crate::*;
+    use std::f64::consts::*;
+
+    const ROOT2_BY_2: f64 = SQRT_2 / 2.0;
+
+    #[test]
+    fn compute_reflective_vector() {
+        let p = plane();
+        let r = ray(point(0.0, 1.0, -1.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+        let inter = intersection(SQRT_2, &p);
+        let comps = precompute(&inter, &r);
+
+        assert_eq!(comps.reflectv, vector(0.0, ROOT2_BY_2, ROOT2_BY_2));
+    }
+
 }
