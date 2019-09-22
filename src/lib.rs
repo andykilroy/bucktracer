@@ -781,6 +781,7 @@ impl Camera {
     }
 }
 
+/// Describes how to colour the surface of an object.
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 pub enum Pattern {
     Solid(RGB),
