@@ -156,7 +156,7 @@ fn default_transform() -> Vec<Transform> {
 }
 
 impl MaterialConfig {
-    fn as_material(self: &Self) -> Material {
+    fn as_material(&self) -> Material {
         let mut m = Material::default();
         if self.colour.is_some() {
             m.set_pattern(Pattern::solid(self.colour.unwrap()));
@@ -164,7 +164,7 @@ impl MaterialConfig {
         if self.pattern.is_some() {
             m.set_pattern(self.pattern.unwrap());
         }
-        if self.pattern_to_object_spc.len() > 0 {
+        if !self.pattern_to_object_spc.is_empty() {
             m.set_pattern_to_object_spc(transform_matrix(self.pattern_to_object_spc.clone()));
         }
         if self.ambient.is_some() {

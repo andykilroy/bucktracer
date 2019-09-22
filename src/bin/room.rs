@@ -4,10 +4,9 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 use std::io::stdout;
 
 fn main() -> Result<(), ExitFailure> {
-    let mat = Material::default()
+    let mat = *Material::default()
         .set_pattern(Pattern::solid(colour(1.0, 0.9, 0.9)))
-        .set_specular(0.0)
-        .clone();
+        .set_specular(0.0);
 
     let mut floor = unit_sphere();
     floor.set_object_to_world_spc(scaling(10.0, 0.01, 10.0));

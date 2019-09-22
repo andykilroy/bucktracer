@@ -198,8 +198,8 @@ impl Shape {
     /// specified position.  The position is always in object
     /// co-ordinates.  The returned normal vector is also in
     /// object space.
-    fn local_normal_at(self: &Self, position: Tuple4) -> Tuple4 {
-        match *self {
+    fn local_normal_at(self, position: Tuple4) -> Tuple4 {
+        match self {
             Shape::Sphere => {
                 // presume the sphere is centred at (0, 0, 0)
                 position - point(0.0, 0.0, 0.0)
@@ -208,6 +208,7 @@ impl Shape {
         }
     }
 }
+
 /// An object to be placed in the world.
 ///
 /// The object has a transform that dictates where it is placed in
@@ -277,7 +278,7 @@ pub struct Intersection {
 pub fn intersection(t: f64, s: &Object) -> Intersection {
     Intersection {
         t_value: t,
-        intersected: s.clone(),
+        intersected: *s,
     }
 }
 
@@ -300,7 +301,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     }
 }
 
-fn intersect_sphere(r: &Ray, s: &Object) -> Option<(Intersection, Intersection)> {
+fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {
     // presume the sphere is centred at (0,0,0)
     let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
     let a = r.direction.dot(r.direction);
@@ -313,7 +314,7 @@ fn intersect_sphere(r: &Ray, s: &Object) -> Option<(Intersection, Intersection)>
     } else {
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        Some((intersection(t1, s), intersection(t2, s)))
+        Some((intersection(t1, sphere), intersection(t2, sphere)))
     }
 }
 
@@ -585,7 +586,7 @@ impl World {
             let precomputed = precompute(&h, r);
             Some(shade_hit(self, &precomputed, rlimit))
         });
-        poss_hit.unwrap_or(RGB::black())
+        poss_hit.unwrap_or_else(RGB::black)
     }
 
     pub fn in_shadow(self: &Self, point: Tuple4, light: &RadialLightSource) -> bool {
@@ -630,8 +631,8 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     let pos = r.position(i.t_value);
     let n = i.intersected.normal_at(pos);
     let e = -(r.direction);
-    let inside = n.dot(e) < 0.0;
-    let norm = if inside { -n } else { n };
+    let is_inside = n.dot(e) < 0.0;
+    let norm = if is_inside { -n } else { n };
     let r = reflect(r.direction, norm);
     Precomputed {
         t_value: i.t_value,
@@ -639,7 +640,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
         point: pos,
         eyev: e,
         normalv: norm,
-        inside: inside,
+        inside: is_inside,
         over_point: pos + (norm.scale(1e-5)),
         reflectv: r,
     }
