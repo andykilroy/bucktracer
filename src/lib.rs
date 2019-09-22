@@ -592,7 +592,7 @@ impl World {
         }
     }
 
-    fn reflected_colour(self: &Self, comps: Precomputed) -> RGB {
+    fn reflected_colour(self: &Self, comps: &Precomputed) -> RGB {
         if comps.object.material.reflective == 0.0 {
             RGB::black()
         } else {
@@ -642,14 +642,16 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
 fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
     let mut c = colour(0.0, 0.0, 0.0);
     for light in world.lights.iter() {
-        c = c + lighting(
+        let l = lighting(
             light,
             comps.over_point,
             comps.normalv,
             &comps.object,
             comps.eyev,
-            world.in_shadow(comps.over_point, light)
-        );
+            world.in_shadow(comps.over_point, light),
+            );
+        let r = world.reflected_colour(&comps);
+        c = c + l + r;
     }
     c
 }
@@ -1063,7 +1065,7 @@ mod reflection {
         let obj: Object = w.objects[1];
         let i = intersection(1.0, &obj);
 
-        assert_eq!(w.reflected_colour(precompute(&i, &r)), RGB::black());
+        assert_eq!(w.reflected_colour(&precompute(&i, &r)), RGB::black());
     }
 
     #[test]
@@ -1076,9 +1078,24 @@ mod reflection {
 
         let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
         let i = intersection(SQRT_2, &p);
-        let rgb = w.reflected_colour(precompute(&i, &r));
+        let rgb = w.reflected_colour(&precompute(&i, &r));
 
         assert_eq!(rgb, colour(0.19033, 0.23791, 0.14274));
+    }
+
+    #[test]
+    fn shade_hit_for_reflective_material() {
+        let mut w = World::default();
+        let mut p = plane();
+        p.material.reflective = 0.5;
+        p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
+        w.objects.push(p);
+
+        let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+        let i = intersection(SQRT_2, &p);
+        let rgb = shade_hit(&w, &precompute(&i, &r));
+
+        assert_eq!(rgb, colour(0.87675, 0.92434, 0.82918));
     }
 
     fn almost_eq(x1: f64, x2: f64) -> bool {
