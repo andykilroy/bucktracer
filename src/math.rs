@@ -66,69 +66,51 @@ impl Neg for Tuple4 {
 
 impl Tuple4 {
     pub fn x(&self) -> f64 {
-        match *self {
-            Tuple4(x, _, _, _) => x,
-        }
+        self.0
     }
 
     pub fn y(&self) -> f64 {
-        match *self {
-            Tuple4(_, y, _, _) => y,
-        }
+        self.1
     }
 
     pub fn z(&self) -> f64 {
-        match *self {
-            Tuple4(_, _, z, _) => z,
-        }
+        self.2
     }
 
     pub fn w(&self) -> f64 {
-        match *self {
-            Tuple4(_, _, _, w) => w,
-        }
+        self.3
     }
 
-    pub fn scale(self, c: f64) -> Tuple4 {
-        match self {
-            Tuple4(x, y, z, w) => Tuple4(c * x, c * y, c * z, c * w),
-        }
+    pub fn scale(self, factor: f64) -> Tuple4 {
+        let Tuple4(x, y, z, w) = self;
+        Tuple4(factor * x, factor * y, factor * z, factor * w)
     }
 
     pub fn magnitude(self) -> f64 {
-        match self {
-            Tuple4(x, y, z, w) => f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2)),
-        }
+        let Tuple4(x, y, z, w) = self;
+        f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2))
     }
 
     pub fn normalize(self) -> Tuple4 {
-        match self {
-            Tuple4(x, y, z, w) => {
-                let c = self.magnitude();
-                Tuple4(x / c, y / c, z / c, w / c)
-            }
-        }
+        let Tuple4(x, y, z, w) = self;
+        let divisor = self.magnitude();
+        Tuple4(x / divisor, y / divisor, z / divisor, w / divisor)
     }
 
     pub fn dot(self, Tuple4(x2, y2, z2, w2): Tuple4) -> f64 {
-        match self {
-            Tuple4(x1, y1, z1, w1) => x1 * x2 + y1 * y2 + z1 * z2 + w1 * w2,
-        }
+        let Tuple4(x1, y1, z1, w1) = self;
+        x1 * x2 + y1 * y2 + z1 * z2 + w1 * w2
     }
 
     pub fn cross(self, Tuple4(b1, b2, b3, _b4): Tuple4) -> Tuple4 {
-        match self {
-            Tuple4(a1, a2, a3, _a4) => {
-                vector(a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1)
-            }
-        }
+        let Tuple4(a1, a2, a3, _a4) = self;
+        vector(a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1)
     }
 
     // hadamard product
     pub fn mult_pairwise(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
-        match self {
-            Tuple4(a1, a2, a3, a4) => Tuple4(a1 * b1, a2 * b2, a3 * b3, a4 * b4),
-        }
+        let Tuple4(a1, a2, a3, a4) = self;
+        Tuple4(a1 * b1, a2 * b2, a3 * b3, a4 * b4)
     }
 }
 
@@ -136,14 +118,13 @@ impl Index<usize> for Tuple4 {
     type Output = f64;
 
     fn index(&self, index: usize) -> &f64 {
-        match self {
-            Tuple4(x, y, z, w) => match index {
-                0 => &x,
-                1 => &y,
-                2 => &z,
-                3 => &w,
-                _ => panic!("unexpected index"),
-            },
+        let Tuple4(x, y, z, w) = self;
+        match index {
+            0 => &x,
+            1 => &y,
+            2 => &z,
+            3 => &w,
+            _ => panic!("unexpected index"),
         }
     }
 }
@@ -387,11 +368,11 @@ impl Matrix {
     }
 }
 
-fn det_x2(x: &Matrix) -> f64 {
-    let a = x[0][0];
-    let b = x[0][1];
-    let c = x[1][0];
-    let d = x[1][1];
+fn det_x2(orig: &Matrix) -> f64 {
+    let a = orig[0][0];
+    let b = orig[0][1];
+    let c = orig[1][0];
+    let d = orig[1][1];
     (a * d) - (b * c)
 }
 
