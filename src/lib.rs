@@ -452,6 +452,13 @@ impl Material {
         self
     }
 
+    pub fn reflective(&self) -> f64 {
+        self.reflective
+    }
+    pub fn set_reflective(&mut self, r: f64) -> &mut Self {
+        self.reflective = r;
+        self
+    }
 }
 
 pub fn lighting(
@@ -582,6 +589,16 @@ impl World {
         match h {
             Some(i) => i.t_value < mag,
             _ => false
+        }
+    }
+
+    fn reflected_colour(self: &Self, comps: Precomputed) -> RGB {
+        if comps.object.material.reflective == 0.0 {
+            RGB::black()
+        } else {
+            let reflected_ray = ray(comps.over_point, comps.reflectv);
+            let c : Tuple4 = self.colour_at_intersect(&reflected_ray).into();
+            RGB::from(c.scale(comps.object.material.reflective))
         }
     }
 }
@@ -1037,4 +1054,36 @@ mod reflection {
         assert_eq!(comps.reflectv, vector(0.0, ROOT2_BY_2, ROOT2_BY_2));
     }
 
+    #[test]
+    fn reflected_colour_for_non_reflective_material_is_black() {
+        let mut w = World::default();
+        w.objects[1].material.set_reflective(0.0);
+        w.objects[1].material.set_ambient(1.0);
+        let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+        let obj: Object = w.objects[1];
+        let i = intersection(1.0, &obj);
+
+        assert_eq!(w.reflected_colour(precompute(&i, &r)), RGB::black());
+    }
+
+    #[test]
+    fn reflected_colour_for_reflective_material() {
+        let mut w = World::default();
+        let mut p = plane();
+        p.material.reflective = 0.5;
+        p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
+        w.objects.push(p);
+
+        let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+        let i = intersection(SQRT_2, &p);
+        let rgb = w.reflected_colour(precompute(&i, &r));
+
+        assert_eq!(rgb, colour(0.19033, 0.23791, 0.14274));
+    }
+
+    fn almost_eq(x1: f64, x2: f64) -> bool {
+        f64::abs(x1 - x2) < EPSILON
+    }
 }
+
+
