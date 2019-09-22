@@ -13,10 +13,10 @@ fn calc_position() {
     let v = vector(1.0, 0.0, 0.0);
     let r = ray(p, v);
 
-    assert_eq!(position(r.clone(),  0.0), point(2.0, 3.0, 4.0));
-    assert_eq!(position(r.clone(),  1.0), point(3.0, 3.0, 4.0));
+    assert_eq!(position(r.clone(), 0.0), point(2.0, 3.0, 4.0));
+    assert_eq!(position(r.clone(), 1.0), point(3.0, 3.0, 4.0));
     assert_eq!(position(r.clone(), -1.0), point(1.0, 3.0, 4.0));
-    assert_eq!(position(r.clone(),  2.5), point(4.5, 3.0, 4.0));
+    assert_eq!(position(r.clone(), 2.5), point(4.5, 3.0, 4.0));
 }
 
 #[test]
@@ -55,7 +55,7 @@ fn ray_originates_inside_sphere() {
     let mut xs = vec![];
     append_intersects(&r, &s, &mut xs);
     assert_eq!(xs[0].t_value, -1.0);
-    assert_eq!(xs[1].t_value,  1.0);
+    assert_eq!(xs[1].t_value, 1.0);
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn finding_hits_when_t_values_are_positive() {
 fn finding_hits_when_some_intersections_have_negative_t() {
     let s = unit_sphere();
     let i1 = intersection(-1.0, &s);
-    let i2 = intersection( 1.0, &s);
+    let i2 = intersection(1.0, &s);
     let xs = vec![i1, i2];
     assert_eq!(Some(i2), hit(xs));
 }
@@ -166,9 +166,6 @@ fn intersect_translated_sphere_with_a_ray_hit() {
     assert_eq!(xs.len(), 2);
 }
 
-
-
-
 // Intersections with planes
 
 #[test]
@@ -179,7 +176,6 @@ fn a_ray_parallel_to_the_plane_produces_no_intersects() {
     append_intersects(&r, &p, &mut xs);
     assert_eq!(0, xs.len());
 }
-
 
 #[test]
 fn a_coplanar_ray_produces_no_intersects() {

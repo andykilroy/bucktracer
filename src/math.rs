@@ -1,16 +1,14 @@
-use std::ops::{Add, Sub, Neg, Mul, Index};
+use std::ops::{Add, Index, Mul, Neg, Sub};
 
 use super::EPSILON;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple4(f64, f64, f64, f64);
 
-
 #[allow(clippy::float_cmp)]
 pub fn is_point(Tuple4(_, _, _, w): Tuple4) -> bool {
     w == 1.0
 }
-
 
 pub fn is_vector(v: Tuple4) -> bool {
     !is_point(v)
@@ -29,13 +27,9 @@ pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
 }
 
 impl PartialEq for Tuple4 {
-
     fn eq(&self, Tuple4(b1, b2, b3, b4): &Tuple4) -> bool {
         let Tuple4(a1, a2, a3, a4) = self;
-        almost_eq(*a1, *b1) &&
-            almost_eq(*a2, *b2) &&
-            almost_eq(*a3, *b3) &&
-            almost_eq(*a4, *b4)
+        almost_eq(*a1, *b1) && almost_eq(*a2, *b2) && almost_eq(*a3, *b3) && almost_eq(*a4, *b4)
     }
 }
 
@@ -73,40 +67,37 @@ impl Neg for Tuple4 {
 impl Tuple4 {
     pub fn x(&self) -> f64 {
         match *self {
-            Tuple4(x, _, _, _) => x
+            Tuple4(x, _, _, _) => x,
         }
     }
 
     pub fn y(&self) -> f64 {
         match *self {
-            Tuple4(_, y, _, _) => y
+            Tuple4(_, y, _, _) => y,
         }
     }
 
     pub fn z(&self) -> f64 {
         match *self {
-            Tuple4(_, _, z, _) => z
+            Tuple4(_, _, z, _) => z,
         }
     }
 
     pub fn w(&self) -> f64 {
         match *self {
-            Tuple4(_, _, _, w) => w
+            Tuple4(_, _, _, w) => w,
         }
     }
 
-
     pub fn scale(self, c: f64) -> Tuple4 {
         match self {
-            Tuple4(x, y, z, w) =>
-                Tuple4(c*x, c*y, c*z, c*w)
+            Tuple4(x, y, z, w) => Tuple4(c * x, c * y, c * z, c * w),
         }
     }
 
     pub fn magnitude(self) -> f64 {
         match self {
-            Tuple4(x, y, z, w) =>
-                f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2))
+            Tuple4(x, y, z, w) => f64::sqrt(x.powi(2) + y.powi(2) + z.powi(2) + w.powi(2)),
         }
     }
 
@@ -114,28 +105,21 @@ impl Tuple4 {
         match self {
             Tuple4(x, y, z, w) => {
                 let c = self.magnitude();
-                Tuple4(x/c, y/c, z/c, w/c)
+                Tuple4(x / c, y / c, z / c, w / c)
             }
         }
     }
 
     pub fn dot(self, Tuple4(x2, y2, z2, w2): Tuple4) -> f64 {
         match self {
-            Tuple4(x1, y1, z1, w1) => {
-                x1 * x2 +
-                    y1 * y2 +
-                    z1 * z2 +
-                    w1 * w2
-            }
+            Tuple4(x1, y1, z1, w1) => x1 * x2 + y1 * y2 + z1 * z2 + w1 * w2,
         }
     }
 
     pub fn cross(self, Tuple4(b1, b2, b3, _b4): Tuple4) -> Tuple4 {
         match self {
             Tuple4(a1, a2, a3, _a4) => {
-                vector(a2 * b3 - a3 * b2,
-                       a3 * b1 - a1 * b3,
-                       a1 * b2 - a2 * b1)
+                vector(a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1)
             }
         }
     }
@@ -143,12 +127,7 @@ impl Tuple4 {
     // hadamard product
     pub fn mult_pairwise(self, Tuple4(b1, b2, b3, b4): Tuple4) -> Tuple4 {
         match self {
-            Tuple4(a1, a2, a3, a4) => {
-                Tuple4(a1 * b1,
-                       a2 * b2,
-                       a3 * b3,
-                       a4 * b4)
-            }
+            Tuple4(a1, a2, a3, a4) => Tuple4(a1 * b1, a2 * b2, a3 * b3, a4 * b4),
         }
     }
 }
@@ -158,20 +137,16 @@ impl Index<usize> for Tuple4 {
 
     fn index(&self, index: usize) -> &f64 {
         match self {
-            Tuple4(x, y, z, w) => {
-                match index {
-                    0 => &x,
-                    1 => &y,
-                    2 => &z,
-                    3 => &w,
-                    _ => panic!("unexpected index")
-                }
-            }
+            Tuple4(x, y, z, w) => match index {
+                0 => &x,
+                1 => &y,
+                2 => &z,
+                3 => &w,
+                _ => panic!("unexpected index"),
+            },
         }
     }
-
 }
-
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix {
@@ -179,23 +154,22 @@ pub struct Matrix {
     r1: Tuple4,
     r2: Tuple4,
     r3: Tuple4,
-    r4: Tuple4
+    r4: Tuple4,
 }
 
 #[derive(Debug, Copy, Clone)]
 enum Dimensions {
     X2,
     X3,
-    X4
+    X4,
 }
 
 pub fn matrix(
-    (x1, y1, z1, w1) : (f64, f64, f64, f64),
-    (x2, y2, z2, w2) : (f64, f64, f64, f64),
-    (x3, y3, z3, w3) : (f64, f64, f64, f64),
-    (x4, y4, z4, w4) : (f64, f64, f64, f64)
+    (x1, y1, z1, w1): (f64, f64, f64, f64),
+    (x2, y2, z2, w2): (f64, f64, f64, f64),
+    (x3, y3, z3, w3): (f64, f64, f64, f64),
+    (x4, y4, z4, w4): (f64, f64, f64, f64),
 ) -> Matrix {
-
     Matrix {
         dim: Dimensions::X4,
         r1: Tuple4(x1, y1, z1, w1),
@@ -205,12 +179,7 @@ pub fn matrix(
     }
 }
 
-
-fn matrix2(
-    (x1, y1) : (f64, f64),
-    (x2, y2) : (f64, f64),
-) -> Matrix {
-
+fn matrix2((x1, y1): (f64, f64), (x2, y2): (f64, f64)) -> Matrix {
     Matrix {
         dim: Dimensions::X2,
         r1: Tuple4(x1, y1, 0.0, 0.0),
@@ -221,11 +190,10 @@ fn matrix2(
 }
 
 fn matrix3(
-    (x1, y1, z1) : (f64, f64, f64),
-    (x2, y2, z2) : (f64, f64, f64),
-    (x3, y3, z3) : (f64, f64, f64),
+    (x1, y1, z1): (f64, f64, f64),
+    (x2, y2, z2): (f64, f64, f64),
+    (x3, y3, z3): (f64, f64, f64),
 ) -> Matrix {
-
     Matrix {
         dim: Dimensions::X3,
         r1: Tuple4(x1, y1, z1, 0.0),
@@ -235,10 +203,12 @@ fn matrix3(
     }
 }
 pub fn identity() -> Matrix {
-    matrix((1.0, 0.0, 0.0, 0.0),
-           (0.0, 1.0, 0.0, 0.0),
-           (0.0, 0.0, 1.0, 0.0),
-           (0.0, 0.0, 0.0, 1.0))
+    matrix(
+        (1.0, 0.0, 0.0, 0.0),
+        (0.0, 1.0, 0.0, 0.0),
+        (0.0, 0.0, 1.0, 0.0),
+        (0.0, 0.0, 0.0, 1.0),
+    )
 }
 
 impl Index<usize> for Matrix {
@@ -250,17 +220,14 @@ impl Index<usize> for Matrix {
             1 => &self.r2,
             2 => &self.r3,
             3 => &self.r4,
-            _ => panic!("unexpected index for matrix")
+            _ => panic!("unexpected index for matrix"),
         }
     }
 }
 
 impl PartialEq for Matrix {
     fn eq(&self, y: &Matrix) -> bool {
-        self.r1 == y.r1 &&
-            self.r2 == y.r2 &&
-            self.r3 == y.r3 &&
-            self.r4 == y.r4
+        self.r1 == y.r1 && self.r2 == y.r2 && self.r3 == y.r3 && self.r4 == y.r4
     }
 }
 
@@ -302,7 +269,8 @@ fn mult_mat(a: &Matrix, b: &Matrix) -> Matrix {
         (a1b1, a1b2, a1b3, a1b4),
         (a2b1, a2b2, a2b3, a2b4),
         (a3b1, a3b2, a3b3, a3b4),
-        (a4b1, a4b2, a4b3, a4b4))
+        (a4b1, a4b2, a4b3, a4b4),
+    )
 }
 
 impl Matrix {
@@ -315,24 +283,23 @@ impl Matrix {
     }
 
     pub fn col(&self, i: usize) -> Tuple4 {
-        Tuple4(self[0][i],
-               self[1][i],
-               self[2][i],
-               self[3][i])
+        Tuple4(self[0][i], self[1][i], self[2][i], self[3][i])
     }
 
     pub fn transpose(&self) -> Matrix {
-        matrix((self[0][0], self[1][0], self[2][0], self[3][0]),
-               (self[0][1], self[1][1], self[2][1], self[3][1]),
-               (self[0][2], self[1][2], self[2][2], self[3][2]),
-               (self[0][3], self[1][3], self[2][3], self[3][3]))
+        matrix(
+            (self[0][0], self[1][0], self[2][0], self[3][0]),
+            (self[0][1], self[1][1], self[2][1], self[3][1]),
+            (self[0][2], self[1][2], self[2][2], self[3][2]),
+            (self[0][3], self[1][3], self[2][3], self[3][3]),
+        )
     }
 
     pub fn det(&self) -> f64 {
         match self.dim {
             Dimensions::X2 => det_x2(self),
             Dimensions::X3 => det_x3(self),
-            Dimensions::X4 => det_x4(self)
+            Dimensions::X4 => det_x4(self),
         }
     }
 
@@ -340,7 +307,7 @@ impl Matrix {
         match self.dim {
             Dimensions::X3 => submatr_x3(self, row, col),
             Dimensions::X4 => submatr_x4(self, row, col),
-            _ => panic!("no expected submatrix of a 2x2 matrix")
+            _ => panic!("no expected submatrix of a 2x2 matrix"),
         }
     }
 
@@ -349,18 +316,40 @@ impl Matrix {
     }
 
     pub fn cofactor(&self, row: usize, col: usize) -> f64 {
-        if (row + col) % 2 ==  0 {
+        if (row + col) % 2 == 0 {
             self.minor(row, col)
         } else {
-            - self.minor(row, col)
+            -self.minor(row, col)
         }
     }
 
     pub fn cofactors(&self) -> Matrix {
-        matrix((self.cofactor(0, 0), self.cofactor(0, 1), self.cofactor(0, 2), self.cofactor(0, 3)),
-               (self.cofactor(1, 0), self.cofactor(1, 1), self.cofactor(1, 2), self.cofactor(1, 3)),
-               (self.cofactor(2, 0), self.cofactor(2, 1), self.cofactor(2, 2), self.cofactor(2, 3)),
-               (self.cofactor(3, 0), self.cofactor(3, 1), self.cofactor(3, 2), self.cofactor(3, 3)))
+        matrix(
+            (
+                self.cofactor(0, 0),
+                self.cofactor(0, 1),
+                self.cofactor(0, 2),
+                self.cofactor(0, 3),
+            ),
+            (
+                self.cofactor(1, 0),
+                self.cofactor(1, 1),
+                self.cofactor(1, 2),
+                self.cofactor(1, 3),
+            ),
+            (
+                self.cofactor(2, 0),
+                self.cofactor(2, 1),
+                self.cofactor(2, 2),
+                self.cofactor(2, 3),
+            ),
+            (
+                self.cofactor(3, 0),
+                self.cofactor(3, 1),
+                self.cofactor(3, 2),
+                self.cofactor(3, 3),
+            ),
+        )
     }
 
     fn scale_elems(&self, y: f64) -> Matrix {
@@ -374,7 +363,7 @@ impl Matrix {
     }
 
     pub fn inverse(&self) -> Matrix {
-        self.cofactors().transpose().scale_elems(1.0/self.det())
+        self.cofactors().transpose().scale_elems(1.0 / self.det())
     }
 
     pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix {
@@ -396,9 +385,7 @@ impl Matrix {
     pub fn rotate_z(self, r: f64) -> Matrix {
         rotation_z(r) * self
     }
-
 }
-
 
 fn det_x2(x: &Matrix) -> f64 {
     let a = x[0][0];
@@ -409,16 +396,14 @@ fn det_x2(x: &Matrix) -> f64 {
 }
 
 fn det_x3(x: &Matrix) -> f64 {
-    x[0][0] * x.cofactor(0, 0) +
-        x[0][1] * x.cofactor(0, 1) +
-        x[0][2] * x.cofactor(0, 2)
+    x[0][0] * x.cofactor(0, 0) + x[0][1] * x.cofactor(0, 1) + x[0][2] * x.cofactor(0, 2)
 }
 
 fn det_x4(x: &Matrix) -> f64 {
-    x[0][0] * x.cofactor(0, 0) +
-        x[0][1] * x.cofactor(0, 1) +
-        x[0][2] * x.cofactor(0, 2) +
-        x[0][3] * x.cofactor(0, 3)
+    x[0][0] * x.cofactor(0, 0)
+        + x[0][1] * x.cofactor(0, 1)
+        + x[0][2] * x.cofactor(0, 2)
+        + x[0][3] * x.cofactor(0, 3)
 }
 
 fn submatr_x3(x: &Matrix, row: usize, col: usize) -> Matrix {
@@ -464,44 +449,53 @@ fn submatr_x4(x: &Matrix, row: usize, col: usize) -> Matrix {
     matrix3(
         (collected[0], collected[1], collected[2]),
         (collected[3], collected[4], collected[5]),
-        (collected[6], collected[7], collected[8])
+        (collected[6], collected[7], collected[8]),
     )
 }
 
-
 pub fn translation(x: f64, y: f64, z: f64) -> Matrix {
-    matrix((1.0, 0.0, 0.0, x),
-           (0.0, 1.0, 0.0, y),
-           (0.0, 0.0, 1.0, z),
-           (0.0, 0.0, 0.0, 1.0))
+    matrix(
+        (1.0, 0.0, 0.0, x),
+        (0.0, 1.0, 0.0, y),
+        (0.0, 0.0, 1.0, z),
+        (0.0, 0.0, 0.0, 1.0),
+    )
 }
 
 pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
-    matrix((x  , 0.0, 0.0, 0.0),
-           (0.0, y  , 0.0, 0.0),
-           (0.0, 0.0, z  , 0.0),
-           (0.0, 0.0, 0.0, 1.0))
+    matrix(
+        (x, 0.0, 0.0, 0.0),
+        (0.0, y, 0.0, 0.0),
+        (0.0, 0.0, z, 0.0),
+        (0.0, 0.0, 0.0, 1.0),
+    )
 }
 
 pub fn rotation_x(r: f64) -> Matrix {
-    matrix((1.0,    0.0,     0.0,     0.0),
-           (0.0, cos(r), -sin(r),     0.0),
-           (0.0, sin(r),  cos(r),     0.0),
-           (0.0,    0.0,     0.0,     1.0))
+    matrix(
+        (1.0, 0.0, 0.0, 0.0),
+        (0.0, cos(r), -sin(r), 0.0),
+        (0.0, sin(r), cos(r), 0.0),
+        (0.0, 0.0, 0.0, 1.0),
+    )
 }
 
 pub fn rotation_y(r: f64) -> Matrix {
-    matrix(( cos(r),    0.0,  sin(r),     0.0),
-           (    0.0,    1.0,     0.0,     0.0),
-           (-sin(r),    0.0,  cos(r),     0.0),
-           (    0.0,    0.0,     0.0,     1.0))
+    matrix(
+        ( cos(r), 0.0, sin(r), 0.0),
+        (    0.0, 1.0,    0.0, 0.0),
+        (-sin(r), 0.0, cos(r), 0.0),
+        (    0.0, 0.0,    0.0, 1.0),
+    )
 }
 
 pub fn rotation_z(r: f64) -> Matrix {
-    matrix((cos(r), -sin(r),     0.0,     0.0),
-           (sin(r),  cos(r),     0.0,     0.0),
-           (   0.0,     0.0,     1.0,     0.0),
-           (   0.0,     0.0,     0.0,     1.0))
+    matrix(
+        (cos(r), -sin(r), 0.0, 0.0),
+        (sin(r),  cos(r), 0.0, 0.0),
+        (   0.0,     0.0, 1.0, 0.0),
+        (   0.0,     0.0, 0.0, 1.0),
+    )
 }
 
 // I don't like the call style of the trig functions in f64
@@ -520,43 +514,43 @@ mod test {
 
     #[test]
     fn determinant() {
-
-        let a =
-            matrix2(( 1.0, 5.0),
-                    (-3.0, 2.0));
+        let a = matrix2((1.0, 5.0), (-3.0, 2.0));
         assert_eq!(17.0, a.det());
-
     }
 
     #[test]
     fn submatrix_of_3x3() {
-        let a = matrix3((1.0, 5.0, 0.0),
-                        (-3.0, 2.0, 7.0),
-                        (0.0, 6.0, -3.0));
+        let a = matrix3((1.0, 5.0, 0.0), (-3.0, 2.0, 7.0), (0.0, 6.0, -3.0));
 
-        assert_eq!(a.submatrix(0, 2),
-                   matrix2((-3.0, 2.0),
-                           (0.0, 6.0)));
+        assert_eq!(a.submatrix(0, 2), matrix2((-3.0, 2.0), (0.0, 6.0)));
     }
 
     #[test]
     fn submatrix_of_4x4() {
-        let a = matrix((-6.0, 1.0, 1.0, 6.0),
-                       (-8.0, 5.0, 8.0, 6.0),
-                       (-1.0, 0.0, 8.0, 2.0),
-                       (-7.0, 1.0, -1.0, 1.0));
+        let a = matrix(
+            (-6.0, 1.0, 1.0, 6.0),
+            (-8.0, 5.0, 8.0, 6.0),
+            (-1.0, 0.0, 8.0, 2.0),
+            (-7.0, 1.0, -1.0, 1.0),
+        );
 
-        assert_eq!(a.submatrix(2, 1),
-                   matrix3((-6.0, 1.0, 6.0),
-                           (-8.0, 8.0, 6.0),
-                           (-7.0, -1.0, 1.0)));
+        assert_eq!(
+            a.submatrix(2, 1),
+            matrix3(
+                (-6.0, 1.0, 6.0),
+                (-8.0, 8.0, 6.0),
+                (-7.0, -1.0, 1.0)
+            )
+        );
     }
 
     #[test]
     fn minor_of_3x3() {
-        let a = matrix3((3.0, 5.0, 0.0),
-                        (2.0, -1.0, -7.0),
-                        (6.0, -1.0, 5.0));
+        let a = matrix3(
+            (3.0, 5.0, 0.0),
+            (2.0, -1.0, -7.0),
+            (6.0, -1.0, 5.0)
+        );
         let b = a.submatrix(1, 0);
 
         assert_eq!(25.0, b.det());
@@ -565,9 +559,11 @@ mod test {
 
     #[test]
     fn cofactors_of_3x3() {
-        let a = matrix3((3.0, 5.0, 0.0),
-                        (2.0, -1.0, -7.0),
-                        (6.0, -1.0, 5.0));
+        let a = matrix3(
+            (3.0, 5.0, 0.0),
+            (2.0, -1.0, -7.0),
+            (6.0, -1.0, 5.0)
+        );
         assert_eq!(a.minor(0, 0), -12.0);
         assert_eq!(a.cofactor(0, 0), -12.0);
         assert_eq!(a.minor(1, 0), 25.0);
@@ -576,9 +572,10 @@ mod test {
 
     #[test]
     fn determinant_of_3x3() {
-        let a = matrix3((1.0, 2.0, 6.0),
-                        (-5.0, 8.0, -4.0),
-                        (2.0, 6.0, 4.0));
+        let a = matrix3(
+            (1.0, 2.0, 6.0),
+            (-5.0, 8.0, -4.0),
+            (2.0, 6.0, 4.0));
         assert_eq!(a.cofactor(0, 0), 56.0);
         assert_eq!(a.cofactor(0, 1), 12.0);
         assert_eq!(a.cofactor(0, 2), -46.0);
@@ -587,14 +584,16 @@ mod test {
 
     #[test]
     fn determinant_of_4x4() {
-        let a = matrix((-2.0, -8.0,  3.0, 5.0),
-                       (-3.0,  1.0,  7.0, 3.0),
-                       ( 1.0,  2.0, -9.0, 6.0),
-                       (-6.0,  7.0,  7.0, -9.0));
+        let a = matrix(
+            (-2.0, -8.0, 3.0, 5.0),
+            (-3.0, 1.0, 7.0, 3.0),
+            (1.0, 2.0, -9.0, 6.0),
+            (-6.0, 7.0, 7.0, -9.0),
+        );
         assert_eq!(a.cofactor(0, 0), 690.0);
         assert_eq!(a.cofactor(0, 1), 447.0);
         assert_eq!(a.cofactor(0, 2), 210.0);
-        assert_eq!(a.cofactor(0, 3),  51.0);
+        assert_eq!(a.cofactor(0, 3), 51.0);
         assert_eq!(a.det(), -4071.0);
     }
 

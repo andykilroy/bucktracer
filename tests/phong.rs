@@ -24,10 +24,8 @@ fn default_material() {
 #[test]
 fn materials_not_equal() {
     let df = Material::default();
-    let by_pattern = *(Material::default().set_pattern(Pattern::stripes(
-        colour(1.0, 0.0, 0.0),
-        RGB::white()
-    )));
+    let by_pattern =
+        *(Material::default().set_pattern(Pattern::stripes(colour(1.0, 0.0, 0.0), RGB::white())));
     let by_ambient = *(Material::default().set_ambient(0.5));
     let by_diffuse = *(Material::default().set_diffuse(0.6));
     let by_specular = *(Material::default().set_specular(0.4));
@@ -38,7 +36,6 @@ fn materials_not_equal() {
     assert_ne!(df, by_diffuse);
     assert_ne!(df, by_specular);
     assert_ne!(df, by_shininess);
-
 }
 
 #[test]
@@ -97,7 +94,6 @@ fn lighting_with_the_surface_in_shadow() {
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
 
-
 #[test]
 fn lighting_with_eye_between_light_and_the_surface_at_45_angle() {
     let rt2by2 = f64::sqrt(2.0) / 2.0;
@@ -147,7 +143,6 @@ fn lighting_with_light_behind_the_surface() {
     let result = lighting(&light, pos, normalv, &s, eyev, false);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
-
 
 #[test]
 fn default_material_is_not_reflective() {

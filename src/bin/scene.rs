@@ -1,8 +1,8 @@
 use bucktracer::*;
-use std::io::stdout;
-use std::path::PathBuf;
 use exitfailure::ExitFailure;
 use serde::Deserialize;
+use std::io::stdout;
+use std::path::PathBuf;
 
 use structopt::StructOpt;
 
@@ -17,33 +17,40 @@ fn main() -> Result<(), ExitFailure> {
     Ok(())
 }
 
-
-
 #[derive(Debug, StructOpt)]
 #[structopt(about = "Read in a scene", rename_all = "kebab-case")]
 struct CommandArgs {
-    file: PathBuf
+    file: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
 struct Config {
     world: WorldConfig,
-    camera: CameraConfig
+    camera: CameraConfig,
 }
 
 impl Config {
     fn world(self: &Self) -> World {
-        World::with(self.world.lights.iter().map(to_light).collect(),
-                    self.world.objects.iter().map(to_object).collect())
+        World::with(
+            self.world.lights.iter().map(to_light).collect(),
+            self.world.objects.iter().map(to_object).collect(),
+        )
     }
 
     fn camera(self: &Self) -> Camera {
-        let CameraConfig {hsize, vsize, fov_as_degrees, from, to, up} = self.camera;
+        let CameraConfig {
+            hsize,
+            vsize,
+            fov_as_degrees,
+            from,
+            to,
+            up,
+        } = self.camera;
         let mut camera = Camera::new(hsize, vsize, radians(fov_as_degrees));
         camera.set_view_transform(view_transform(
             point(from.0, from.1, from.2),
             point(to.0, to.1, to.2),
-            vector(up.0, up.1, up.2)
+            vector(up.0, up.1, up.2),
         ));
         camera
     }
@@ -66,16 +73,14 @@ fn to_object(conf: &ObjectConfig) -> Object {
 
 fn transform_matrix(v: Vec<Transform>) -> Matrix {
     let acc = identity();
-    v.iter().fold(acc, |x, item| {
-        item.matrix() * x
-    })
+    v.iter().fold(acc, |x, item| item.matrix() * x)
 }
 
 fn to_light(conf: &LightSourceConfig) -> RadialLightSource {
-    point_light(point(conf.position.0,
-                      conf.position.1,
-                      conf.position.2),
-                conf.intensity)
+    point_light(
+        point(conf.position.0, conf.position.1, conf.position.2),
+        conf.intensity,
+    )
 }
 
 fn radians(x: f64) -> f64 {
@@ -85,7 +90,7 @@ fn radians(x: f64) -> f64 {
 #[derive(Debug, Clone, Deserialize)]
 struct WorldConfig {
     lights: Vec<LightSourceConfig>,
-    objects: Vec<ObjectConfig>
+    objects: Vec<ObjectConfig>,
 }
 
 #[derive(Debug, Copy, Clone, Deserialize)]
@@ -101,14 +106,14 @@ struct CameraConfig {
 #[derive(Debug, Copy, Clone, Deserialize)]
 struct LightSourceConfig {
     position: (f64, f64, f64),
-    intensity: RGB
+    intensity: RGB,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 struct ObjectConfig {
     transforms: Vec<Transform>,
     material: Option<MaterialConfig>,
-    shape: Shape
+    shape: Shape,
 }
 
 #[derive(Debug, Copy, Clone, Deserialize)]
@@ -125,11 +130,11 @@ impl Transform {
     fn matrix(self: &Self) -> Matrix {
         match *self {
             Transform::Identity => identity(),
-            Transform::Translate {x, y, z} => translation(x, y ,z),
-            Transform::Scale {x, y, z} => scaling(x, y, z),
-            Transform::RotateX {angle} => rotation_x(radians(angle)),
-            Transform::RotateY {angle} => rotation_y(radians(angle)),
-            Transform::RotateZ {angle} => rotation_z(radians(angle)),
+            Transform::Translate { x, y, z } => translation(x, y, z),
+            Transform::Scale { x, y, z } => scaling(x, y, z),
+            Transform::RotateX { angle } => rotation_x(radians(angle)),
+            Transform::RotateY { angle } => rotation_y(radians(angle)),
+            Transform::RotateZ { angle } => rotation_z(radians(angle)),
         }
     }
 }
@@ -178,19 +183,18 @@ impl MaterialConfig {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use crate::Config;
     use bucktracer::*;
-    use std::f64::consts::{FRAC_PI_4, FRAC_PI_2, FRAC_PI_3};
+    use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 
     #[test]
     fn read_of_config() {
-
         let mat = Material::default()
             .set_pattern(Pattern::solid(colour(1.0, 0.9, 0.9)))
-            .set_specular(0.0).clone();
+            .set_specular(0.0)
+            .clone();
 
         let mut floor = unit_sphere();
         floor.set_object_to_world_spc(scaling(10.0, 0.01, 10.0));
@@ -198,43 +202,50 @@ mod test {
 
         let mut left_wall = unit_sphere();
         left_wall.set_object_to_world_spc(
-            translation(0.0, 0.0, 5.0) *
-                rotation_y(-FRAC_PI_4) * rotation_x(FRAC_PI_2) *
-                scaling(10.0, 0.01, 10.0)
+            translation(0.0, 0.0, 5.0)
+                * rotation_y(-FRAC_PI_4)
+                * rotation_x(FRAC_PI_2)
+                * scaling(10.0, 0.01, 10.0),
         );
         left_wall.set_material(mat);
 
         let mut right_wall = unit_sphere();
         right_wall.set_object_to_world_spc(
-            translation(0.0, 0.0, 5.0) *
-                rotation_y(FRAC_PI_4) * rotation_x(FRAC_PI_2) *
-                scaling(10.0, 0.01, 10.0)
+            translation(0.0, 0.0, 5.0)
+                * rotation_y(FRAC_PI_4)
+                * rotation_x(FRAC_PI_2)
+                * scaling(10.0, 0.01, 10.0),
         );
         right_wall.set_material(mat);
 
         let mut middle = unit_sphere();
         middle.set_object_to_world_spc(translation(-0.5, 1.0, 0.5));
-        middle.set_material(Material::default()
-            .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
-            .set_diffuse(0.7)
-            .set_specular(0.3).clone());
+        middle.set_material(
+            Material::default()
+                .set_pattern(Pattern::solid(colour(0.1, 1.0, 0.5)))
+                .set_diffuse(0.7)
+                .set_specular(0.3)
+                .clone(),
+        );
 
         let mut right = unit_sphere();
         right.set_object_to_world_spc(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
-        right.set_material(Material::default()
-            .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
-            .set_diffuse(0.7)
-            .set_specular(0.3)
-            .clone()
+        right.set_material(
+            Material::default()
+                .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
+                .set_diffuse(0.7)
+                .set_specular(0.3)
+                .clone(),
         );
 
         let mut left = unit_sphere();
         left.set_object_to_world_spc(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
-        left.set_material(Material::default()
-            .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
-            .set_diffuse(0.7)
-            .set_specular(0.3)
-            .clone()
+        left.set_material(
+            Material::default()
+                .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
+                .set_diffuse(0.7)
+                .set_specular(0.3)
+                .clone(),
         );
 
         let conf = r##"
@@ -331,27 +342,27 @@ intensity = [1.0, 1.0, 1.0]
         assert_eq!(cam.hsize(), 500);
         assert_eq!(cam.vsize(), 250);
         assert_eq!(true, almost_eq(cam.field_of_view(), FRAC_PI_3));
-        assert_eq!(cam.view_transform(), view_transform(
-            point(0.0, 1.5, -5.0),
-            point(0.0, 1.0, 0.0),
-            vector(0.0, 1.0, 0.0)
-        ));
+        assert_eq!(
+            cam.view_transform(),
+            view_transform(
+                point(0.0, 1.5, -5.0),
+                point(0.0, 1.0, 0.0),
+                vector(0.0, 1.0, 0.0)
+            )
+        );
 
-        assert_eq!(config.world().objects(), vec![
-            floor,
-            right_wall,
-            left_wall,
-            left,
-            middle,
-            right
-        ]);
+        assert_eq!(
+            config.world().objects(),
+            vec![floor, right_wall, left_wall, left, middle, right]
+        );
     }
 
     #[test]
     fn read_gradient_and_striped_object() {
         let mat = Material::default()
             .set_pattern(Pattern::solid(colour(1.0, 0.9, 0.9)))
-            .set_specular(0.0).clone();
+            .set_specular(0.0)
+            .clone();
 
         let mut floor = unit_sphere();
         floor.set_object_to_world_spc(scaling(10.0, 0.01, 10.0));
@@ -359,45 +370,57 @@ intensity = [1.0, 1.0, 1.0]
 
         let mut left_wall = unit_sphere();
         left_wall.set_object_to_world_spc(
-            translation(0.0, 0.0, 5.0) *
-                rotation_y(-FRAC_PI_4) * rotation_x(FRAC_PI_2) *
-                scaling(10.0, 0.01, 10.0)
+            translation(0.0, 0.0, 5.0)
+                * rotation_y(-FRAC_PI_4)
+                * rotation_x(FRAC_PI_2)
+                * scaling(10.0, 0.01, 10.0),
         );
         left_wall.set_material(mat);
 
         let mut right_wall = unit_sphere();
         right_wall.set_object_to_world_spc(
-            translation(0.0, 0.0, 5.0) *
-                rotation_y(FRAC_PI_4) * rotation_x(FRAC_PI_2) *
-                scaling(10.0, 0.01, 10.0)
+            translation(0.0, 0.0, 5.0)
+                * rotation_y(FRAC_PI_4)
+                * rotation_x(FRAC_PI_2)
+                * scaling(10.0, 0.01, 10.0),
         );
         right_wall.set_material(mat);
 
         let mut middle = unit_sphere();
         middle.set_object_to_world_spc(translation(-0.5, 1.0, 0.5));
-        middle.set_material(Material::default()
-            .set_pattern(Pattern::stripes(colour(0.1, 1.0, 0.5), RGB::white()))
-            .set_diffuse(0.7)
-            .set_pattern_to_object_spc(rotation_z(FRAC_PI_3) * translation(0.5, 0.0, 0.0))
-            .set_specular(0.3).clone());
+        middle.set_material(
+            Material::default()
+                .set_pattern(Pattern::stripes(colour(0.1, 1.0, 0.5), RGB::white()))
+                .set_diffuse(0.7)
+                .set_pattern_to_object_spc(rotation_z(FRAC_PI_3) * translation(0.5, 0.0, 0.0))
+                .set_specular(0.3)
+                .clone(),
+        );
 
         let mut right = unit_sphere();
         right.set_object_to_world_spc(translation(1.5, 0.5, -0.5) * scaling(0.5, 0.5, 0.5));
-        right.set_material(Material::default()
-            .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
-            .set_diffuse(0.7)
-            .set_specular(0.3)
-            .clone()
+        right.set_material(
+            Material::default()
+                .set_pattern(Pattern::solid(colour(0.5, 1.0, 0.1)))
+                .set_diffuse(0.7)
+                .set_specular(0.3)
+                .clone(),
         );
 
         let mut left = unit_sphere();
         left.set_object_to_world_spc(translation(-1.5, 0.33, -0.75) * scaling(0.33, 0.33, 0.33));
-        left.set_material(Material::default()
-            .set_pattern(Pattern::gradient(colour(1.0, 0.0, 0.0), colour(1.0, 1.0, 0.0)))
-            .set_pattern_to_object_spc(rotation_z(FRAC_PI_3) * scaling(2.0, 2.0, 2.0) * translation(-0.5, 0.0, 0.0))
-            .set_diffuse(0.7)
-            .set_specular(0.3)
-            .clone()
+        left.set_material(
+            Material::default()
+                .set_pattern(Pattern::gradient(
+                    colour(1.0, 0.0, 0.0),
+                    colour(1.0, 1.0, 0.0),
+                ))
+                .set_pattern_to_object_spc(
+                    rotation_z(FRAC_PI_3) * scaling(2.0, 2.0, 2.0) * translation(-0.5, 0.0, 0.0),
+                )
+                .set_diffuse(0.7)
+                .set_specular(0.3)
+                .clone(),
         );
 
         let conf = r##"
@@ -503,20 +526,19 @@ intensity = [1.0, 1.0, 1.0]
         assert_eq!(cam.hsize(), 500);
         assert_eq!(cam.vsize(), 250);
         assert_eq!(true, almost_eq(cam.field_of_view(), FRAC_PI_3));
-        assert_eq!(cam.view_transform(), view_transform(
-            point(0.0, 1.5, -5.0),
-            point(0.0, 1.0, 0.0),
-            vector(0.0, 1.0, 0.0)
-        ));
+        assert_eq!(
+            cam.view_transform(),
+            view_transform(
+                point(0.0, 1.5, -5.0),
+                point(0.0, 1.0, 0.0),
+                vector(0.0, 1.0, 0.0)
+            )
+        );
 
-        assert_eq!(config.world().objects(), vec![
-            floor,
-            right_wall,
-            left_wall,
-            left,
-            middle,
-            right
-        ]);
+        assert_eq!(
+            config.world().objects(),
+            vec![floor, right_wall, left_wall, left, middle, right]
+        );
     }
 
     fn almost_eq(x1: f64, x2: f64) -> bool {
@@ -526,7 +548,7 @@ intensity = [1.0, 1.0, 1.0]
     #[test]
     #[allow(non_snake_case)]
     fn test_converting_3tuple_to_RGB() {
-        let c : RGB = RGB::from((0.5, 0.2, 0.7));
+        let c: RGB = RGB::from((0.5, 0.2, 0.7));
         assert_eq!(c, colour(0.5, 0.2, 0.7));
     }
 }

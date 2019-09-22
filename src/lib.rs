@@ -1,7 +1,7 @@
-use std::vec;
+use std::cmp::Ordering;
 use std::io::Result as IOResult;
 use std::io::Write;
-use std::cmp::Ordering;
+use std::vec;
 
 use serde::Deserialize;
 
@@ -13,15 +13,16 @@ use std::ops::Add;
 const EPSILON: f64 = 1e-5;
 
 /// A structure representing a colour in red, green, and blue components.
-#[derive(Debug, Copy, Clone, PartialEq)]
-#[derive(Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 #[serde(from = "(f64, f64, f64)")]
 pub struct RGB {
-    inner: Tuple4
+    inner: Tuple4,
 }
 
 pub fn colour(red: f64, green: f64, blue: f64) -> RGB {
-    RGB {inner: tuple(red, green, blue, 0.0)}
+    RGB {
+        inner: tuple(red, green, blue, 0.0),
+    }
 }
 
 impl RGB {
@@ -65,25 +66,30 @@ impl Add for RGB {
     type Output = RGB;
 
     fn add(self, rhs: Self) -> Self::Output {
-        RGB{ inner: (self.inner + rhs.inner) }
+        RGB {
+            inner: (self.inner + rhs.inner),
+        }
     }
 }
-
 
 /// A structure used to record pixel colour values
 /// indexed by 2D coordinates.  (0,0) represents the
 /// top-left pixel of the canvas.
 #[derive(Debug)]
-pub struct Canvas { 
-    pub width: usize, 
+pub struct Canvas {
+    pub width: usize,
     pub height: usize,
-    pixels: Vec<RGB>
+    pixels: Vec<RGB>,
 }
 
 pub fn canvas(w: usize, h: usize) -> Canvas {
     let length = w * h;
     let arr = vec![colour(0.0, 0.0, 0.0); length];
-    Canvas {width: w, height: h, pixels: arr}
+    Canvas {
+        width: w,
+        height: h,
+        pixels: arr,
+    }
 }
 
 impl Canvas {
@@ -108,10 +114,12 @@ fn encode_ppm_pixels(c: &Canvas, w: &mut dyn Write, line_width: usize) -> IOResu
         let mut char_width = 0;
         for col in 0..(c.width) {
             let p = c.colour_at(col, row);
-            let s = format!("{:.0} {:.0} {:.0} ", 
-                            clamp(p.red(), 255),
-                            clamp(p.green(), 255),
-                            clamp(p.blue(), 255));
+            let s = format!(
+                "{:.0} {:.0} {:.0} ",
+                clamp(p.red(), 255),
+                clamp(p.green(), 255),
+                clamp(p.blue(), 255)
+            );
 
             if char_width + s.len() > line_width {
                 writeln!(w)?;
@@ -140,11 +148,14 @@ fn clamp(p: f64, max: u32) -> f64 {
 #[derive(Debug, Clone)]
 pub struct Ray {
     pub origin: Tuple4,
-    pub direction: Tuple4
+    pub direction: Tuple4,
 }
 
 pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
-    Ray { origin: o, direction: d }
+    Ray {
+        origin: o,
+        direction: d,
+    }
 }
 
 pub fn position(ray: Ray, t: f64) -> Tuple4 {
@@ -154,7 +165,6 @@ pub fn position(ray: Ray, t: f64) -> Tuple4 {
 pub fn transform(r: &Ray, m: &Matrix) -> Ray {
     ray(m.mult(r.origin), m.mult(r.direction))
 }
-
 
 pub fn unit_sphere() -> Object {
     Object {
@@ -191,10 +201,8 @@ impl Shape {
             Shape::Sphere => {
                 // presume the sphere is centred at (0, 0, 0)
                 position - point(0.0, 0.0, 0.0)
-            },
-            Shape::Plane => {
-                vector(0.0, 1.0, 0.0)
             }
+            Shape::Plane => vector(0.0, 1.0, 0.0),
         }
     }
 }
@@ -208,7 +216,7 @@ impl Shape {
 pub struct Object {
     world_to_object_spc: Matrix,
     material: Material,
-    shape: Shape
+    shape: Shape,
 }
 
 impl Object {
@@ -252,33 +260,26 @@ impl Object {
     }
 
     pub fn material_colour_at(self: &Self, world_point: Tuple4) -> RGB {
-        let to_pattern_space =
-            self.material().object_to_pattern_spc() *
-            self.world_to_object_spc();
+        let to_pattern_space = self.material().object_to_pattern_spc() * self.world_to_object_spc();
         let p = to_pattern_space.mult(world_point);
         self.material().pattern().colour_at(p)
     }
-
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
-    pub intersected: Object
+    pub intersected: Object,
 }
 
 pub fn intersection(t: f64, s: &Object) -> Intersection {
     Intersection {
         t_value: t,
-        intersected: s.clone()
+        intersected: s.clone(),
     }
 }
 
-pub fn append_intersects(
-    orig: &Ray,
-    s: &Object,
-    vec: &mut Vec<Intersection>
-){
+pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let to_object_space = s.world_to_object_spc();
     let r = transform(orig, &to_object_space);
     let shape = s.shape;
@@ -288,7 +289,7 @@ pub fn append_intersects(
                 vec.push(a);
                 vec.push(b);
             }
-        },
+        }
         Shape::Plane => {
             if let Some(a) = intersect_plane(&r, s) {
                 vec.push(a);
@@ -326,13 +327,14 @@ pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
     intersects
         .iter()
         .filter(|i| i.t_value >= 0.0)
-        .fold(None, |least, x| {
-            nearer_intersect(least, x)
-        })
+        .fold(None, |least, x| nearer_intersect(least, x))
         .cloned()
 }
 
-fn nearer_intersect<'a>(nearest: Option<&'a Intersection>, x: &'a Intersection) -> Option<&'a Intersection> {
+fn nearer_intersect<'a>(
+    nearest: Option<&'a Intersection>,
+    x: &'a Intersection,
+) -> Option<&'a Intersection> {
     match nearest {
         None => Some(x),
         Some(c) => {
@@ -368,7 +370,6 @@ impl RadialLightSource {
         self.intensity
     }
 }
-
 
 pub fn reflect(v: Tuple4, norm: Tuple4) -> Tuple4 {
     v - norm.scale(2.0).scale(v.dot(norm))
@@ -467,9 +468,8 @@ pub fn lighting(
     normalv: Tuple4,
     obj: &Object,
     eyev: Tuple4,
-    in_shadow: bool
+    in_shadow: bool,
 ) -> RGB {
-
     let mat = obj.material;
     let matrl_colr: Tuple4 = obj.material_colour_at(pos).into();
     let light_intens: Tuple4 = light.intensity().into();
@@ -514,7 +514,10 @@ pub struct World {
 
 impl World {
     pub fn empty() -> World {
-        World { objects: vec![], lights: vec![] }
+        World {
+            objects: vec![],
+            lights: vec![],
+        }
     }
 
     pub fn default() -> World {
@@ -530,11 +533,14 @@ impl World {
 
         inner.set_object_to_world_spc(scaling(0.5, 0.5, 0.5));
 
-        World {objects: vec![outer, inner], lights: vec![light]}
+        World {
+            objects: vec![outer, inner],
+            lights: vec![light],
+        }
     }
 
     pub fn with(lights: Vec<RadialLightSource>, objects: Vec<Object>) -> World {
-        World {objects, lights}
+        World { objects, lights }
     }
 
     pub fn light_sources(self: &Self) -> Vec<RadialLightSource> {
@@ -588,7 +594,7 @@ impl World {
         let h = hit(self.intersect(&r));
         match h {
             Some(i) => i.t_value < mag,
-            _ => false
+            _ => false,
         }
     }
 
@@ -600,12 +606,11 @@ impl World {
             RGB::black()
         } else {
             let reflected_ray = ray(comps.over_point, comps.reflectv);
-            let c : Tuple4 = self.colour_at_intersect(&reflected_ray, rlimit - 1).into();
+            let c: Tuple4 = self.colour_at_intersect(&reflected_ray, rlimit - 1).into();
             RGB::from(c.scale(comps.object.material.reflective))
         }
     }
 }
-
 
 #[derive(Debug)]
 struct Precomputed {
@@ -624,11 +629,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     let n = i.intersected.normal_at(pos);
     let e = -(r.direction);
     let inside = n.dot(e) < 0.0;
-    let norm = if inside {
-        -n
-    } else {
-        n
-    };
+    let norm = if inside { -n } else { n };
     let r = reflect(r.direction, norm);
     Precomputed {
         t_value: i.t_value,
@@ -652,7 +653,7 @@ fn shade_hit(world: &World, comps: &Precomputed, rlimit: u32) -> RGB {
             &comps.object,
             comps.eyev,
             world.in_shadow(comps.over_point, light),
-            );
+        );
         let r = world.reflected_colour(&comps, rlimit);
         c = c + l + r;
     }
@@ -663,10 +664,12 @@ pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
     let forward = (to - from).normalize();
     let left = forward.cross(up.normalize());
     let trueup = left.cross(forward);
-    let m = matrix((    left.x(),     left.y(),     left.z(), 0.0),
-                   (  trueup.x(),   trueup.y(),   trueup.z(), 0.0),
-                   (-forward.x(), -forward.y(), -forward.z(), 0.0),
-                   (         0.0,          0.0,          0.0, 1.0));
+    let m = matrix(
+        (    left.x(),     left.y(),     left.z(), 0.0),
+        (  trueup.x(),   trueup.y(),   trueup.z(), 0.0),
+        (-forward.x(), -forward.y(), -forward.z(), 0.0),
+        (         0.0,          0.0,          0.0, 1.0),
+    );
     m * translation(-from.x(), -from.y(), -from.z())
 }
 
@@ -775,14 +778,13 @@ impl Camera {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-#[derive(Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 pub enum Pattern {
     Solid(RGB),
-    Stripes {a: RGB, b: RGB},
-    Gradient { from: RGB, to: RGB},
-    Ring {a: RGB, b: RGB},
-    Checkers {a: RGB, b: RGB},
+    Stripes { a: RGB, b: RGB },
+    Gradient { from: RGB, to: RGB },
+    Ring { a: RGB, b: RGB },
+    Checkers { a: RGB, b: RGB },
 }
 
 impl Pattern {
@@ -790,7 +792,7 @@ impl Pattern {
         Pattern::Solid(c)
     }
     pub fn stripes(c1: RGB, c2: RGB) -> Pattern {
-        Pattern::Stripes {a: c1, b: c2}
+        Pattern::Stripes { a: c1, b: c2 }
     }
     pub fn gradient(a: RGB, b: RGB) -> Pattern {
         Pattern::Gradient { from: a, to: b }
@@ -805,28 +807,20 @@ impl Pattern {
     pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
         match *self {
             Pattern::Solid(c) => c,
-            Pattern::Stripes {a, b} =>
-                stripe_colour(a, b, pattern_space_pos),
-            Pattern::Gradient {from, to} =>
-                gradient_colour(from, to, pattern_space_pos),
-            Pattern::Ring {a, b} =>
-                ring_colour(a, b, pattern_space_pos),
-            Pattern::Checkers {a, b} =>
-                checkers_colour(a, b, pattern_space_pos),
+            Pattern::Stripes { a, b } => stripe_colour(a, b, pattern_space_pos),
+            Pattern::Gradient { from, to } => gradient_colour(from, to, pattern_space_pos),
+            Pattern::Ring { a, b } => ring_colour(a, b, pattern_space_pos),
+            Pattern::Checkers { a, b } => checkers_colour(a, b, pattern_space_pos),
         }
     }
 }
 
-fn gradient_colour(
-    RGB {inner: a}: RGB,
-    RGB {inner: b}: RGB,
-    pos: Tuple4)
-    -> RGB {
+fn gradient_colour(RGB { inner: a }: RGB, RGB { inner: b }: RGB, pos: Tuple4) -> RGB {
     // the x component of pos is expected to be int the range [0,1]
     let distance = b - a;
     let frac = if pos.x() >= 1.0 {
         1.0
-    } else if pos.x() < 0.0{
+    } else if pos.x() < 0.0 {
         0.0
     } else {
         pos.x() - pos.x().floor()
@@ -880,7 +874,6 @@ fn rem_euclid(x: f64, y: f64) -> f64 {
 #[cfg(test)]
 mod internal_shading {
     use crate::*;
-
 
     #[test]
     fn intersect_a_world_with_a_ray() {
@@ -1070,7 +1063,10 @@ mod reflection {
         let obj: Object = w.objects[1];
         let i = intersection(1.0, &obj);
 
-        assert_eq!(w.reflected_colour(&precompute(&i, &r), RECURSION_LIMIT), RGB::black());
+        assert_eq!(
+            w.reflected_colour(&precompute(&i, &r), RECURSION_LIMIT),
+            RGB::black()
+        );
     }
 
     #[test]
@@ -1103,10 +1099,6 @@ mod reflection {
         assert_eq!(rgb, colour(0.87675, 0.92434, 0.82918));
     }
 
-    fn almost_eq(x1: f64, x2: f64) -> bool {
-        f64::abs(x1 - x2) < EPSILON
-    }
-
     #[test]
     fn colour_at_max_recursion_depth() {
         let mut w = World::default();
@@ -1122,5 +1114,3 @@ mod reflection {
         assert_eq!(rgb, RGB::black());
     }
 }
-
-

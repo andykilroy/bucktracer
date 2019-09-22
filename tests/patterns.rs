@@ -19,7 +19,6 @@ fn blue() -> RGB {
     colour(0.0, 0.0, 1.0)
 }
 
-
 #[test]
 fn patterns_are_equal() {
     let wht = RGB::white();
@@ -75,23 +74,23 @@ fn patterns_not_equal() {
 fn a_solid_pattern_is_the_same_everywhere() {
     let c = colour(0.8, 0.5, 0.9);
     let p = Pattern::solid(c);
-    assert_eq!(p.colour_at(point(0.0,-2.0, 0.0)), c);
-    assert_eq!(p.colour_at(point(0.0,-1.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, -2.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, -1.0, 0.0)), c);
     assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), c);
     assert_eq!(p.colour_at(point(0.0, 1.0, 0.0)), c);
     assert_eq!(p.colour_at(point(0.0, 2.0, 0.0)), c);
 
-    assert_eq!(p.colour_at(point(0.0, 0.0,-2.0)), c);
-    assert_eq!(p.colour_at(point(0.0, 0.0,-1.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, -2.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, -1.0)), c);
     assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), c);
     assert_eq!(p.colour_at(point(0.0, 0.0, 1.0)), c);
     assert_eq!(p.colour_at(point(0.0, 0.0, 2.0)), c);
 
     assert_eq!(p.colour_at(point(-2.0, 0.0, 0.0)), c);
     assert_eq!(p.colour_at(point(-1.0, 0.0, 0.0)), c);
-    assert_eq!(p.colour_at(point( 0.0, 0.0, 0.0)), c);
-    assert_eq!(p.colour_at(point( 1.0, 0.0, 0.0)), c);
-    assert_eq!(p.colour_at(point( 2.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(1.0, 0.0, 0.0)), c);
+    assert_eq!(p.colour_at(point(2.0, 0.0, 0.0)), c);
 }
 
 #[test]
@@ -121,13 +120,13 @@ fn a_stripe_pattern_alternates_in_x() {
     assert_eq!(stripe_at(p, point(-1.0, 0.0, 0.0)), black());
 
     assert_eq!(stripe_at(p, point(-0.1, 0.0, 0.0)), black());
-    assert_eq!(stripe_at(p, point( 0.0, 0.0, 0.0)), white());
+    assert_eq!(stripe_at(p, point(0.0, 0.0, 0.0)), white());
 
-    assert_eq!(stripe_at(p, point( 0.9, 0.0, 0.0)), white());
-    assert_eq!(stripe_at(p, point( 1.0, 0.0, 0.0)), black());
+    assert_eq!(stripe_at(p, point(0.9, 0.0, 0.0)), white());
+    assert_eq!(stripe_at(p, point(1.0, 0.0, 0.0)), black());
 
-    assert_eq!(stripe_at(p, point( 1.9, 0.0, 0.0)), black());
-    assert_eq!(stripe_at(p, point( 2.0, 0.0, 0.0)), white());
+    assert_eq!(stripe_at(p, point(1.9, 0.0, 0.0)), black());
+    assert_eq!(stripe_at(p, point(2.0, 0.0, 0.0)), white());
 }
 
 #[test]
@@ -151,7 +150,6 @@ fn lighting_with_a_pattern_applied() {
     assert_eq!(c2, RGB::black());
 }
 
-
 fn test_mat(p: Pattern, t: Matrix) -> Material {
     Material::default()
         .set_pattern(p)
@@ -165,7 +163,7 @@ fn stripes_with_an_object_transform() {
     s.set_object_to_world_spc(scaling(2.0, 2.0, 2.0));
     s.set_material(test_mat(
         stripe_pattern(RGB::white(), RGB::black()),
-        identity()
+        identity(),
     ));
 
     let c1 = s.material_colour_at(point(1.5, 0.0, 0.0));
@@ -179,7 +177,7 @@ fn stripes_with_a_pattern_transform() {
     let mut s = unit_sphere();
     s.set_material(test_mat(
         stripe_pattern(RGB::white(), RGB::black()),
-        scaling(2.0, 2.0, 2.0)
+        scaling(2.0, 2.0, 2.0),
     ));
 
     let c1 = s.material_colour_at(point(1.5, 0.0, 0.0));
@@ -194,7 +192,7 @@ fn stripes_with_an_object_and_pattern_transform() {
     s.set_object_to_world_spc(scaling(2.0, 2.0, 2.0));
     s.set_material(test_mat(
         stripe_pattern(RGB::white(), RGB::black()),
-        translation(0.5, 0.0, 0.0)
+        translation(0.5, 0.0, 0.0),
     ));
 
     let c1 = s.material_colour_at(point(2.5, 0.0, 0.0));
@@ -207,29 +205,44 @@ fn stripes_with_an_object_and_pattern_transform() {
 fn gradient_x_within_0_and_1() {
     let mut s = unit_sphere();
     s.set_object_to_world_spc(identity());
-    s.set_material(test_mat(
-        Pattern::gradient(green(), blue()),
-        identity()
-    ));
+    s.set_material(test_mat(Pattern::gradient(green(), blue()), identity()));
 
-    assert_eq!(s.material_colour_at(point(0.0, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
-    assert_eq!(s.material_colour_at(point(0.5, 0.0, 0.0)), colour(0.0, 0.5, 0.5));
-    assert_eq!(s.material_colour_at(point(1.0, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
+    assert_eq!(
+        s.material_colour_at(point(0.0, 0.0, 0.0)),
+        colour(0.0, 1.0, 0.0)
+    );
+    assert_eq!(
+        s.material_colour_at(point(0.5, 0.0, 0.0)),
+        colour(0.0, 0.5, 0.5)
+    );
+    assert_eq!(
+        s.material_colour_at(point(1.0, 0.0, 0.0)),
+        colour(0.0, 0.0, 1.0)
+    );
 }
 
 #[test]
 fn gradient_x_out_of_bounds() {
     let mut s = unit_sphere();
     s.set_object_to_world_spc(identity());
-    s.set_material(test_mat(
-        Pattern::gradient(green(), blue()),
-        identity()
-    ));
+    s.set_material(test_mat(Pattern::gradient(green(), blue()), identity()));
 
-    assert_eq!(s.material_colour_at(point(-1.0, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
-    assert_eq!(s.material_colour_at(point(-0.5, 0.0, 0.0)), colour(0.0, 1.0, 0.0));
-    assert_eq!(s.material_colour_at(point(1.5, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
-    assert_eq!(s.material_colour_at(point(2.0, 0.0, 0.0)), colour(0.0, 0.0, 1.0));
+    assert_eq!(
+        s.material_colour_at(point(-1.0, 0.0, 0.0)),
+        colour(0.0, 1.0, 0.0)
+    );
+    assert_eq!(
+        s.material_colour_at(point(-0.5, 0.0, 0.0)),
+        colour(0.0, 1.0, 0.0)
+    );
+    assert_eq!(
+        s.material_colour_at(point(1.5, 0.0, 0.0)),
+        colour(0.0, 0.0, 1.0)
+    );
+    assert_eq!(
+        s.material_colour_at(point(2.0, 0.0, 0.0)),
+        colour(0.0, 0.0, 1.0)
+    );
 }
 
 #[test]
@@ -249,12 +262,12 @@ fn checkers_pattern_alternates_with_x() {
     assert_eq!(p.colour_at(point(-1.9, 0.0, 0.0)), blue());
     assert_eq!(p.colour_at(point(-1.0, 0.0, 0.0)), green());
     assert_eq!(p.colour_at(point(-0.9, 0.0, 0.0)), green());
-    assert_eq!(p.colour_at(point( 0.0, 0.0, 0.0)), blue());
-    assert_eq!(p.colour_at(point( 0.1, 0.0, 0.0)), blue());
-    assert_eq!(p.colour_at(point( 1.0, 0.0, 0.0)), green());
-    assert_eq!(p.colour_at(point( 1.1, 0.0, 0.0)), green());
-    assert_eq!(p.colour_at(point( 2.0, 0.0, 0.0)), blue());
-    assert_eq!(p.colour_at(point( 2.1, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.1, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(1.0, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(1.1, 0.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(2.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(2.1, 0.0, 0.0)), blue());
 }
 
 #[test]
@@ -264,12 +277,12 @@ fn checkers_pattern_alternates_with_y() {
     assert_eq!(p.colour_at(point(0.0, -1.9, 0.0)), blue());
     assert_eq!(p.colour_at(point(0.0, -1.0, 0.0)), green());
     assert_eq!(p.colour_at(point(0.0, -0.9, 0.0)), green());
-    assert_eq!(p.colour_at(point(0.0,  0.0, 0.0)), blue());
-    assert_eq!(p.colour_at(point(0.0,  0.1, 0.0)), blue());
-    assert_eq!(p.colour_at(point(0.0,  1.0, 0.0)), green());
-    assert_eq!(p.colour_at(point(0.0,  1.1, 0.0)), green());
-    assert_eq!(p.colour_at(point(0.0,  2.0, 0.0)), blue());
-    assert_eq!(p.colour_at(point(0.0,  2.1, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.1, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 1.0, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 1.1, 0.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 2.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 2.1, 0.0)), blue());
 }
 
 #[test]
@@ -279,12 +292,12 @@ fn checkers_pattern_alternates_with_z() {
     assert_eq!(p.colour_at(point(0.0, 0.0, -1.9)), blue());
     assert_eq!(p.colour_at(point(0.0, 0.0, -1.0)), green());
     assert_eq!(p.colour_at(point(0.0, 0.0, -0.9)), green());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  0.0)), blue());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  0.1)), blue());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  1.0)), green());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  1.1)), green());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  2.0)), blue());
-    assert_eq!(p.colour_at(point(0.0, 0.0,  2.1)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 0.1)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 1.0)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 1.1)), green());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 2.0)), blue());
+    assert_eq!(p.colour_at(point(0.0, 0.0, 2.1)), blue());
 }
 
 #[test]

@@ -1,9 +1,8 @@
 use bucktracer::*;
-use std::io::{Result, stdout};
 use std::f64::consts::FRAC_PI_2;
+use std::io::{stdout, Result};
 
 fn main() -> Result<()> {
-
     let mut materl = Material::default();
     materl.set_pattern(Pattern::solid(colour(1.0, 0.2, 1.0)));
 
@@ -17,13 +16,10 @@ fn main() -> Result<()> {
     cam.set_view_transform(view_transform(
         point(30.0, 30.0, 0.0),
         point(30.0, 30.0, 20.0),
-        vector(0.0, 1.0, 0.0)));
+        vector(0.0, 1.0, 0.0),
+    ));
     let canv = cam.render(&world);
 
     let mut stdout = stdout();
     encode_ppm(&canv, &mut stdout)
 }
-
-
-
-

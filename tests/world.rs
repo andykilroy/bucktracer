@@ -23,7 +23,6 @@ fn properties_of_default_world() {
     assert_eq!(s1.material().specular(), 0.2);
 
     assert_eq!(s2.object_to_world_spc(), scaling(0.5, 0.5, 0.5));
-
 }
 
 #[test]
@@ -99,7 +98,7 @@ fn render_world_with_camera() {
     let t = view_transform(
         point(0.0, 0.0, -5.0),
         point(0.0, 0.0, 0.0),
-        vector(0.0, 1.0, 0.0)
+        vector(0.0, 1.0, 0.0),
     );
     c.set_view_transform(t);
     let image = c.render(&w);

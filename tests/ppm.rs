@@ -1,6 +1,6 @@
 use bucktracer::*;
-use std::string::*;
 use std::io::Result as IOResult;
+use std::string::*;
 
 #[test]
 fn print_ppm_header_for_empty_canvas() -> IOResult<()> {
@@ -9,12 +9,13 @@ fn print_ppm_header_for_empty_canvas() -> IOResult<()> {
     encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
-    assert_eq!(s,
-r##"P3
+    assert_eq!(
+        s,
+        r##"P3
 0 0
 255
 "##
-        );
+    );
 
     Ok(())
 }
@@ -29,15 +30,16 @@ fn print_ppm_output_without_clamping() -> IOResult<()> {
     encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
-    assert_eq!(s,
-r##"P3
+    assert_eq!(
+        s,
+        r##"P3
 5 3
 255
 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 
 "##
-        );
+    );
 
     Ok(())
 }
@@ -52,22 +54,22 @@ fn print_ppm_output_with_clamping() -> IOResult<()> {
     encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
-    assert_eq!(s,
-r##"P3
+    assert_eq!(
+        s,
+        r##"P3
 5 3
 255
 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 
 "##
-        );
+    );
 
     Ok(())
 }
 
 #[test]
 fn print_ppm_output_max_70_chars_per_line() -> IOResult<()> {
-
     let mut cvs = canvas(10, 2);
 
     for col in 0..(cvs.width) {
@@ -79,8 +81,9 @@ fn print_ppm_output_max_70_chars_per_line() -> IOResult<()> {
     encode_ppm(&cvs, &mut bytes)?;
 
     let s = String::from_utf8_lossy(&bytes);
-    assert_eq!(s,
-r##"P3
+    assert_eq!(
+        s,
+        r##"P3
 10 2
 255
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 
@@ -88,7 +91,7 @@ r##"P3
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 
 "##
-        );
+    );
 
     Ok(())
 }

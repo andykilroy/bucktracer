@@ -4,12 +4,12 @@ use std::io::Result;
 fn main() -> Result<()> {
     let stone = Projectile {
         position: point(0.0, 1.0, 0.0),
-        velocity: vector(1.0, 1.1, 0.0)
+        velocity: vector(1.0, 1.1, 0.0),
     };
 
     let env = Environment {
         gravity: vector(0.0, -0.1, 0.0),
-        wind: vector(0.0, 0.0, 0.0)
+        wind: vector(0.0, 0.0, 0.0),
     };
 
     let path = trace_path(&env, &stone);
@@ -23,17 +23,17 @@ fn main() -> Result<()> {
 #[derive(Debug, Clone)]
 struct Projectile {
     position: Tuple4, // point
-    velocity: Tuple4  //vector
+    velocity: Tuple4, // vector
 }
 
 struct Environment {
-    gravity: Tuple4,  //vector
-    wind: Tuple4
+    gravity: Tuple4, // vector
+    wind: Tuple4,
 }
 
 fn trace_path(env: &Environment, start: &Projectile) -> Vec<Projectile> {
     let mut v: Vec<Projectile> = vec![];
-    
+
     let mut current: Projectile = start.clone();
     while current.position.y() > 0.0 {
         v.push(current.clone());
@@ -47,7 +47,7 @@ fn tick(env: &Environment, current: &Projectile) -> Projectile {
     let vel = current.velocity + env.gravity + env.wind;
     Projectile {
         position: current.position + vel,
-        velocity: vel
+        velocity: vel,
     }
 }
 
@@ -71,6 +71,8 @@ fn asf64(x: usize) -> f64 {
 
 fn asusize(x: f64) -> usize {
     let s = format!("{:.0}", x);
-    if x < 0.0 {panic!("uh-oh, can't convert negative number to usize");}
+    if x < 0.0 {
+        panic!("uh-oh, can't convert negative number to usize");
+    }
     usize::from_str_radix(&s, 10).expect("should be parseable to usize")
 }

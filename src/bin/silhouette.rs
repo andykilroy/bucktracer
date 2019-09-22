@@ -1,14 +1,14 @@
 use bucktracer::*;
-use std::io::{Result, stdout};
 use std::f64::consts::FRAC_PI_2;
+use std::io::{stdout, Result};
 
 fn main() -> Result<()> {
-
     let mut cam = Camera::new(300, 300, FRAC_PI_2);
     cam.set_view_transform(view_transform(
         point(30.0, 30.0, 0.0),
         point(30.0, 30.0, 20.0),
-        vector(0.0, 1.0, 0.0)));
+        vector(0.0, 1.0, 0.0),
+    ));
     let light = point_light(point(30.0, 30.0, 40.0), RGB::white());
     let mut s = unit_sphere();
     s.set_object_to_world_spc(translation(30.0, 30.0, 20.0) * scaling(7.5, 7.5, 7.5));
@@ -29,13 +29,10 @@ fn raytrace(cam: &Camera, world: &World) -> Canvas {
             let intersects = world.intersect(&r);
             let col = match hit(intersects) {
                 Some(_hit) => red,
-                None => black
+                None => black,
             };
             canv.set_colour_at(x as usize, y as usize, col);
         }
     }
     canv
 }
-
-
-

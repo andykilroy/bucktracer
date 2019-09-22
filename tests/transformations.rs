@@ -62,31 +62,39 @@ fn reflection_is_scaling_by_a_negative_value() {
 #[test]
 fn rotate_around_x_axis() {
     let p = point(0.0, 1.0, 0.0);
-    let eighth_turn = rotation_x(FRAC_PI_4);  // pi / 4
-    let quarter_turn = rotation_x(FRAC_PI_2);  // pi / 2
+    let eighth_turn = rotation_x(FRAC_PI_4); // pi / 4
+    let quarter_turn = rotation_x(FRAC_PI_2); // pi / 2
 
-    assert_eq!(eighth_turn.mult(p) , point(0.0, FRAC_1_SQRT_2, FRAC_1_SQRT_2));
+    assert_eq!(
+        eighth_turn.mult(p),
+        point(0.0, FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+    );
     assert_eq!(quarter_turn.mult(p), point(0.0, 0.0, 1.0));
 }
-
 
 #[test]
 fn rotate_around_y_axis() {
     let p = point(0.0, 0.0, 1.0);
-    let eighth_turn = rotation_y(FRAC_PI_4);  // pi / 4
-    let quarter_turn = rotation_y(FRAC_PI_2);  // pi / 2
+    let eighth_turn = rotation_y(FRAC_PI_4); // pi / 4
+    let quarter_turn = rotation_y(FRAC_PI_2); // pi / 2
 
-    assert_eq!(eighth_turn.mult(p) , point(FRAC_1_SQRT_2, 0.0, FRAC_1_SQRT_2));
+    assert_eq!(
+        eighth_turn.mult(p),
+        point(FRAC_1_SQRT_2, 0.0, FRAC_1_SQRT_2)
+    );
     assert_eq!(quarter_turn.mult(p), point(1.0, 0.0, 0.0));
 }
 
 #[test]
 fn rotate_around_z_axis() {
     let p = point(1.0, 0.0, 0.0);
-    let eighth_turn = rotation_z(FRAC_PI_4);  // pi / 4
-    let quarter_turn = rotation_z(FRAC_PI_2);  // pi / 2
+    let eighth_turn = rotation_z(FRAC_PI_4); // pi / 4
+    let quarter_turn = rotation_z(FRAC_PI_2); // pi / 2
 
-    assert_eq!(eighth_turn.mult(p) , point(FRAC_1_SQRT_2, FRAC_1_SQRT_2, 0.0));
+    assert_eq!(
+        eighth_turn.mult(p),
+        point(FRAC_1_SQRT_2, FRAC_1_SQRT_2, 0.0)
+    );
     assert_eq!(quarter_turn.mult(p), point(0.0, 1.0, 0.0));
 }
 
@@ -101,12 +109,11 @@ fn compose_transforms() {
     assert_eq!(t.mult(p), point(15.0, 0.0, 7.0));
 }
 
-
 #[test]
 fn transformation_matrix_for_default_orientation() {
     let from = point(0.0, 0.0, 0.0);
-    let to   = point(0.0, 0.0, -1.0);
-    let up   = vector(0.0, 1.0, 0.0);
+    let to = point(0.0, 0.0, -1.0);
+    let up = vector(0.0, 1.0, 0.0);
     let t = view_transform(from, to, up);
     assert_eq!(t, identity());
 }
@@ -114,8 +121,8 @@ fn transformation_matrix_for_default_orientation() {
 #[test]
 fn a_view_towards_the_positive_z_direction() {
     let from = point(0.0, 0.0, 0.0);
-    let to   = point(0.0, 0.0, 1.0);
-    let up   = vector(0.0, 1.0, 0.0);
+    let to = point(0.0, 0.0, 1.0);
+    let up = vector(0.0, 1.0, 0.0);
     let t = view_transform(from, to, up);
     assert_eq!(t, scaling(-1.0, 1.0, -1.0));
 }
@@ -123,8 +130,8 @@ fn a_view_towards_the_positive_z_direction() {
 #[test]
 fn view_transform_moves_the_world() {
     let from = point(0.0, 0.0, 8.0);
-    let to   = point(0.0, 0.0, 0.0);
-    let up   = vector(0.0, 1.0, 0.0);
+    let to = point(0.0, 0.0, 0.0);
+    let up = vector(0.0, 1.0, 0.0);
     let t = view_transform(from, to, up);
     assert_eq!(t, translation(0.0, 0.0, -8.0));
 }
@@ -132,14 +139,18 @@ fn view_transform_moves_the_world() {
 #[test]
 fn arbitrary_view_transform() {
     let from = point(1.0, 3.0, 2.0);
-    let to   = point(4.0, -2.0, 8.0);
-    let up   = vector(1.0, 1.0, 0.0);
+    let to = point(4.0, -2.0, 8.0);
+    let up = vector(1.0, 1.0, 0.0);
     let t = view_transform(from, to, up);
-    assert_eq!(t, matrix((-0.50709,  0.50709,  0.67612, -2.36643),
-                         ( 0.76772,  0.60609,  0.12122, -2.82843),
-                         (-0.35857,  0.59761, -0.71714,  0.00000),
-                         ( 0.00000,  0.00000,  0.00000,  1.00000)));
-
+    assert_eq!(
+        t,
+        matrix(
+            (-0.50709, 0.50709, 0.67612, -2.36643),
+            (0.76772, 0.60609, 0.12122, -2.82843),
+            (-0.35857, 0.59761, -0.71714, 0.00000),
+            (0.00000, 0.00000, 0.00000, 1.00000)
+        )
+    );
 }
 
 #[test]
@@ -153,7 +164,6 @@ fn construct_camera() {
     assert_eq!(c.field_of_view(), fov);
     assert_eq!(c.view_transform(), identity());
 }
-
 
 fn almost_eq(x1: f64, x2: f64) -> bool {
     f64::abs(x1 - x2) < 0.000001
@@ -193,5 +203,5 @@ fn ray_when_camera_transformed() {
     c.set_view_transform(rotation_y(FRAC_PI_4) * translation(0.0, -2.0, 5.0));
     let r = c.ray_for_pixel(100, 50);
     assert_eq!(r.origin, point(0.0, 2.0, -5.0));
-    assert_eq!(r.direction, vector(SQRT_2/2.0, 0.0, -SQRT_2/2.0));
+    assert_eq!(r.direction, vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0));
 }
