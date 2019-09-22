@@ -13,10 +13,10 @@ fn calc_position() {
     let v = vector(1.0, 0.0, 0.0);
     let r = ray(p, v);
 
-    assert_eq!(position(r.clone(), 0.0), point(2.0, 3.0, 4.0));
-    assert_eq!(position(r.clone(), 1.0), point(3.0, 3.0, 4.0));
-    assert_eq!(position(r.clone(), -1.0), point(1.0, 3.0, 4.0));
-    assert_eq!(position(r.clone(), 2.5), point(4.5, 3.0, 4.0));
+    assert_eq!(r.position(0.0), point(2.0, 3.0, 4.0));
+    assert_eq!(r.position(1.0), point(3.0, 3.0, 4.0));
+    assert_eq!(r.position(-1.0), point(1.0, 3.0, 4.0));
+    assert_eq!(r.position(2.5), point(4.5, 3.0, 4.0));
 }
 
 #[test]
@@ -118,7 +118,7 @@ fn finding_hits_always_the_lowest_non_negative_t() {
 fn translating_a_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
     let m = translation(3.0, 4.0, 5.0);
-    let r2 = transform(&r, &m);
+    let r2 = r.transform(&m);
 
     assert_eq!(r2.origin, point(4.0, 6.0, 8.0));
     assert_eq!(r2.direction, vector(0.0, 1.0, 0.0));
@@ -128,7 +128,7 @@ fn translating_a_ray() {
 fn scaling_a_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
     let m = scaling(2.0, 3.0, 4.0);
-    let r2 = transform(&r, &m);
+    let r2 = r.transform(&m);
 
     assert_eq!(r2.origin, point(2.0, 6.0, 12.0));
     assert_eq!(r2.direction, vector(0.0, 3.0, 0.0));

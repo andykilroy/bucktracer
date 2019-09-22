@@ -158,12 +158,14 @@ pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
     }
 }
 
-pub fn position(ray: Ray, t: f64) -> Tuple4 {
-    ray.origin + (ray.direction.scale(t))
-}
+impl Ray {
+    pub fn position(&self, t: f64) -> Tuple4 {
+        self.origin + (self.direction.scale(t))
+    }
 
-pub fn transform(r: &Ray, m: &Matrix) -> Ray {
-    ray(m.mult(r.origin), m.mult(r.direction))
+    pub fn transform(&self, m: &Matrix) -> Ray {
+        ray(m.mult(self.origin), m.mult(self.direction))
+    }
 }
 
 pub fn unit_sphere() -> Object {
@@ -281,7 +283,7 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
 
 pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let to_object_space = s.world_to_object_spc();
-    let r = transform(orig, &to_object_space);
+    let r = orig.transform(&to_object_space);
     let shape = s.shape;
     match shape {
         Shape::Sphere => {
@@ -625,7 +627,7 @@ struct Precomputed {
 }
 
 fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
-    let pos = position(r.clone(), i.t_value);
+    let pos = r.position(i.t_value);
     let n = i.intersected.normal_at(pos);
     let e = -(r.direction);
     let inside = n.dot(e) < 0.0;
