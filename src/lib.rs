@@ -571,11 +571,11 @@ impl World {
         v
     }
 
-    pub fn colour_at_intersect(self: &Self, r: &Ray) -> RGB {
+    pub fn colour_at_intersect(self: &Self, r: &Ray, rlimit: u32) -> RGB {
         let ints = self.intersect(r);
         let poss_hit = hit(ints).and_then(|h| {
             let precomputed = precompute(&h, r);
-            Some(shade_hit(self, &precomputed))
+            Some(shade_hit(self, &precomputed, rlimit))
         });
         poss_hit.unwrap_or(RGB::black())
     }
@@ -592,12 +592,15 @@ impl World {
         }
     }
 
-    fn reflected_colour(self: &Self, comps: &Precomputed) -> RGB {
+    fn reflected_colour(self: &Self, comps: &Precomputed, rlimit: u32) -> RGB {
+        if rlimit == 0 {
+            return RGB::black();
+        }
         if comps.object.material.reflective == 0.0 {
             RGB::black()
         } else {
             let reflected_ray = ray(comps.over_point, comps.reflectv);
-            let c : Tuple4 = self.colour_at_intersect(&reflected_ray).into();
+            let c : Tuple4 = self.colour_at_intersect(&reflected_ray, rlimit - 1).into();
             RGB::from(c.scale(comps.object.material.reflective))
         }
     }
@@ -639,7 +642,7 @@ fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
     }
 }
 
-fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
+fn shade_hit(world: &World, comps: &Precomputed, rlimit: u32) -> RGB {
     let mut c = colour(0.0, 0.0, 0.0);
     for light in world.lights.iter() {
         let l = lighting(
@@ -650,7 +653,7 @@ fn shade_hit(world: &World, comps: &Precomputed) -> RGB {
             comps.eyev,
             world.in_shadow(comps.over_point, light),
             );
-        let r = world.reflected_colour(&comps);
+        let r = world.reflected_colour(&comps, rlimit);
         c = c + l + r;
     }
     c
@@ -690,6 +693,8 @@ pub struct Camera {
     pixel_size: f64,
     inverse_view_t: Matrix,
 }
+
+const RECURSION_LIMIT: u32 = 5;
 
 impl Camera {
     pub fn new(hsize: u32, vsize: u32, fov: f64) -> Camera {
@@ -762,7 +767,7 @@ impl Camera {
         for y in 0..self.vsize {
             for x in 0..self.hsize {
                 let r = self.ray_for_pixel(x, y);
-                let c = w.colour_at_intersect(&r);
+                let c = w.colour_at_intersect(&r, RECURSION_LIMIT);
                 canv.set_colour_at(x as usize, y as usize, c);
             }
         }
@@ -933,7 +938,7 @@ mod internal_shading {
         let shape = w.objects()[0];
         let i = intersection(4.0, &shape);
         let comps = precompute(&i, &r);
-        let c = shade_hit(&w, &comps);
+        let c = shade_hit(&w, &comps, RECURSION_LIMIT);
         assert_eq!(c, colour(0.38066, 0.47583, 0.2855));
     }
 
@@ -946,7 +951,7 @@ mod internal_shading {
         let i = intersection(0.5, &shape);
 
         let comps = precompute(&i, &r);
-        let c = shade_hit(&w, &comps);
+        let c = shade_hit(&w, &comps, RECURSION_LIMIT);
         assert_eq!(c, colour(0.90498, 0.90498, 0.90498));
     }
 }
@@ -966,7 +971,7 @@ mod shadows {
         let w = World::with(vec![l], objects);
         let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
         let i = intersection(4.0, &s2);
-        let c = shade_hit(&w, &precompute(&i, &r));
+        let c = shade_hit(&w, &precompute(&i, &r), RECURSION_LIMIT);
         assert_eq!(c, colour(0.1, 0.1, 0.1));
     }
 
@@ -1065,7 +1070,7 @@ mod reflection {
         let obj: Object = w.objects[1];
         let i = intersection(1.0, &obj);
 
-        assert_eq!(w.reflected_colour(&precompute(&i, &r)), RGB::black());
+        assert_eq!(w.reflected_colour(&precompute(&i, &r), RECURSION_LIMIT), RGB::black());
     }
 
     #[test]
@@ -1078,7 +1083,7 @@ mod reflection {
 
         let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
         let i = intersection(SQRT_2, &p);
-        let rgb = w.reflected_colour(&precompute(&i, &r));
+        let rgb = w.reflected_colour(&precompute(&i, &r), RECURSION_LIMIT);
 
         assert_eq!(rgb, colour(0.19033, 0.23791, 0.14274));
     }
@@ -1093,13 +1098,28 @@ mod reflection {
 
         let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
         let i = intersection(SQRT_2, &p);
-        let rgb = shade_hit(&w, &precompute(&i, &r));
+        let rgb = shade_hit(&w, &precompute(&i, &r), RECURSION_LIMIT);
 
         assert_eq!(rgb, colour(0.87675, 0.92434, 0.82918));
     }
 
     fn almost_eq(x1: f64, x2: f64) -> bool {
         f64::abs(x1 - x2) < EPSILON
+    }
+
+    #[test]
+    fn colour_at_max_recursion_depth() {
+        let mut w = World::default();
+        let mut p = plane();
+        p.material.reflective = 0.5;
+        p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
+        w.objects.push(p);
+
+        let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+        let i = intersection(SQRT_2, &p);
+        let rgb = w.reflected_colour(&precompute(&i, &r), 0);
+
+        assert_eq!(rgb, RGB::black());
     }
 }
 

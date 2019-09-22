@@ -30,7 +30,7 @@ fn properties_of_default_world() {
 fn colour_when_a_ray_misses() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
-    let c = w.colour_at_intersect(&r);
+    let c = w.colour_at_intersect(&r, 5);
     assert_eq!(c, colour(0.0, 0.0, 0.0));
 }
 
@@ -38,7 +38,7 @@ fn colour_when_a_ray_misses() {
 fn colour_when_a_ray_hits() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-    let c = w.colour_at_intersect(&r);
+    let c = w.colour_at_intersect(&r, 5);
     assert_eq!(c, colour(0.38066, 0.47583, 0.2855));
 }
 
@@ -56,7 +56,7 @@ fn colour_with_an_intersection_behind_the_ray() {
     w.set_objects(vec![outer, inner]);
 
     let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
-    let c = w.colour_at_intersect(&r);
+    let c = w.colour_at_intersect(&r, 5);
     assert_eq!(c, RGB::white());
 }
 
