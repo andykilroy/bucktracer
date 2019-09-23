@@ -176,6 +176,17 @@ pub fn unit_sphere() -> Object {
     }
 }
 
+pub fn glass_sphere() -> Object {
+    let mut glass = Material::default();
+    glass.set_transparency(1.0);
+    glass.set_refractive_index(1.5);
+    Object {
+        world_to_object_spc: identity(),
+        material: glass,
+        shape: Shape::Sphere,
+    }
+}
+
 pub fn plane() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -390,6 +401,8 @@ pub struct Material {
     specular: f64,
     shininess: f64,
     reflective: f64,
+    transparency: f64,
+    refractive_index: f64,
 }
 
 impl Material {
@@ -402,6 +415,8 @@ impl Material {
             specular: 0.9,
             shininess: 200.0,
             reflective: 0.0,
+            transparency: 0.0,
+            refractive_index: 1.0,
         }
     }
 
@@ -461,6 +476,22 @@ impl Material {
     }
     pub fn set_reflective(&mut self, r: f64) -> &mut Self {
         self.reflective = r;
+        self
+    }
+
+    pub fn transparency(&self) -> f64 {
+        self.transparency
+    }
+    pub fn set_transparency(&mut self, t: f64) -> &mut Self {
+        self.transparency = t;
+        self
+    }
+
+    pub fn refractive_index(&self) -> f64 {
+        self.refractive_index
+    }
+    pub fn set_refractive_index(&mut self, ri: f64) -> &mut Self {
+        self.refractive_index = ri;
         self
     }
 }

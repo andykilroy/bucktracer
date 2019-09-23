@@ -14,3 +14,11 @@ fn change_a_spheres_transform() {
 
     assert_eq!(t, s.object_to_world_spc());
 }
+
+#[test]
+fn create_glass_sphere() {
+    let s: Object = glass_sphere();
+    assert_eq!(s.object_to_world_spc(), identity());
+    assert_eq!(s.material().transparency(), 1.0);
+    assert_eq!(s.material().refractive_index(), 1.5);
+}
