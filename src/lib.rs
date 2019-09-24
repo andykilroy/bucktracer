@@ -264,6 +264,10 @@ impl Object {
         self
     }
 
+    pub fn mut_material(&mut self) -> &mut Material {
+        &mut self.material
+    }
+
     pub fn normal_at(self: &Self, world_point: Tuple4) -> Tuple4 {
         let inversion_mat = self.world_to_object_spc();
         let object_point = inversion_mat.mult(world_point);
@@ -656,25 +660,97 @@ struct Precomputed {
     inside: bool,
     over_point: Tuple4,
     reflectv: Tuple4,
+    n1: f64,
+    n2: f64,
 }
 
-fn precompute(i: &Intersection, r: &Ray) -> Precomputed {
-    let pos = r.position(i.t_value);
-    let n = i.intersected.normal_at(pos);
+fn precompute(hit: &Intersection, r: &Ray) -> Precomputed {
+    let pos = r.position(hit.t_value);
+    let n = hit.intersected.normal_at(pos);
     let e = -(r.direction);
     let is_inside = n.dot(e) < 0.0;
     let norm = if is_inside { -n } else { n };
     let r = reflect(r.direction, norm);
+    let n1 = 1.0;
+    let n2 = hit.intersected.material.refractive_index;
     Precomputed {
-        t_value: i.t_value,
-        object: i.intersected,
+        t_value: hit.t_value,
+        object: hit.intersected,
         point: pos,
         eyev: e,
         normalv: norm,
         inside: is_inside,
         over_point: pos + (norm.scale(1e-5)),
         reflectv: r,
+        n1,
+        n2,
     }
+}
+
+fn precompute2(r: &Ray, index: usize, intersects: &[Intersection]) -> Precomputed {
+    let hit: &Intersection = &intersects[index];
+    let pos = r.position(hit.t_value);
+    let n = hit.intersected.normal_at(pos);
+    let e = -(r.direction);
+    let is_inside = n.dot(e) < 0.0;
+    let norm = if is_inside { -n } else { n };
+    let r = reflect(r.direction, norm);
+    let (n1, n2) = refractive_indices(index, intersects);
+
+    Precomputed {
+        t_value: hit.t_value,
+        object: hit.intersected,
+        point: pos,
+        eyev: e,
+        normalv: norm,
+        inside: is_inside,
+        over_point: pos + (norm.scale(1e-5)),
+        reflectv: r,
+        n1,
+        n2,
+    }
+}
+
+fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f64) {
+    let mut containers: Vec<Object> = Vec::with_capacity(intersects.len());
+    let mut n1 = 1.0;
+    let mut n2 = 1.0;
+    for i in 0..intersects.len() {
+        if i == hit_index {
+            if !containers.is_empty() {
+                n1 = containers.last().unwrap().material.refractive_index;
+            }
+        }
+        let object: Object = intersects[i].intersected;
+
+        match find(&containers, object) {
+            Some(obj_index) => containers.remove(obj_index),
+            None => {
+                containers.push(object);
+                object
+            }
+        };
+
+        if i == hit_index {
+            if !containers.is_empty() {
+                n2 = containers.last().unwrap().material.refractive_index;
+            }
+            break;
+        }
+    }
+
+    (n1, n2)
+}
+
+fn find(objects: &[Object], obj: Object) -> Option<usize> {
+    let mut i = 0;
+    for item in objects {
+        if *item == obj {
+            return Some(i)
+        }
+        i += 1;
+    }
+    None
 }
 
 fn shade_hit(world: &World, comps: &Precomputed, rlimit: u32) -> RGB {
@@ -919,3 +995,6 @@ mod test_euclid;
 
 #[cfg(test)]
 mod test_reflection;
+
+#[cfg(test)]
+mod test_refraction;
