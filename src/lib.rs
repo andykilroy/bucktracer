@@ -342,21 +342,29 @@ fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
 }
 
 pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
+    let opt = index_of_hit(&intersects);
+    match opt {
+        None => None,
+        Some(u) => Some(intersects[u])
+    }
+}
+
+pub fn index_of_hit(intersects: &[Intersection]) -> Option<usize> {
     intersects
-        .iter()
-        .filter(|i| i.t_value >= 0.0)
+        .iter().enumerate()
+        .filter(|(ind, i)| i.t_value >= 0.0)
         .fold(None, |least, x| nearer_intersect(least, x))
-        .cloned()
+        .map(|(ind, _)| {ind})
 }
 
 fn nearer_intersect<'a>(
-    nearest: Option<&'a Intersection>,
-    x: &'a Intersection,
-) -> Option<&'a Intersection> {
+    nearest: Option<(usize, &'a Intersection)>,
+    x: (usize, &'a Intersection),
+) -> Option<(usize, &'a Intersection)> {
     match nearest {
         None => Some(x),
-        Some(c) => {
-            if x.t_value < c.t_value {
+        Some((_, c)) => {
+            if x.1.t_value < c.t_value {
                 Some(x)
             } else {
                 nearest
@@ -617,8 +625,8 @@ impl World {
 
     pub fn colour_at_intersect(self: &Self, r: &Ray, rlimit: u32) -> RGB {
         let ints = self.intersect(r);
-        let poss_hit = hit(ints).and_then(|h| {
-            let precomputed = precompute(&h, r);
+        let poss_hit = index_of_hit(&ints).and_then(|hit_index| {
+            let precomputed = precompute2(r, hit_index, &ints);
             Some(shade_hit(self, &precomputed, rlimit))
         });
         poss_hit.unwrap_or_else(RGB::black)
