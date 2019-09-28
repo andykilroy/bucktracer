@@ -31,7 +31,7 @@ fn scenario_refractive_indices(index: usize, n1: f64, n2: f64) {
         intersection(6.00, &a),
     ];
 
-    let comps = precompute2(&r, index, &xs);
+    let comps = hit_data(&r, index, &xs);
     assert_eq!(comps.n1, n1);
     assert_eq!(comps.n2, n2);
 }

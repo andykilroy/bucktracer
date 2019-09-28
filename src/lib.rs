@@ -626,7 +626,7 @@ impl World {
     pub fn colour_at_intersect(self: &Self, r: &Ray, rlimit: u32) -> RGB {
         let ints = self.intersect(r);
         let poss_hit = index_of_hit(&ints).and_then(|hit_index| {
-            let precomputed = precompute2(r, hit_index, &ints);
+            let precomputed = hit_data(r, hit_index, &ints);
             Some(shade_hit(self, &precomputed, rlimit))
         });
         poss_hit.unwrap_or_else(RGB::black)
@@ -644,7 +644,7 @@ impl World {
         }
     }
 
-    fn reflected_colour(self: &Self, comps: &Precomputed, rlimit: u32) -> RGB {
+    fn reflected_colour(self: &Self, comps: &HitCalculations, rlimit: u32) -> RGB {
         if rlimit == 0 {
             return RGB::black();
         }
@@ -659,7 +659,7 @@ impl World {
 }
 
 #[derive(Debug)]
-struct Precomputed {
+struct HitCalculations {
     t_value: f64,
     object: Object,
     point: Tuple4,
@@ -672,22 +672,22 @@ struct Precomputed {
     n2: f64,
 }
 
-fn precompute(hit: &Intersection, r: &Ray) -> Precomputed {
+fn precompute(hit: &Intersection, r: &Ray) -> HitCalculations {
     let singleton = [*hit; 1];
-    precompute2(r, 0, &singleton)
+    hit_data(r, 0, &singleton)
 }
 
-fn precompute2(r: &Ray, index: usize, intersects: &[Intersection]) -> Precomputed {
-    let hit: &Intersection = &intersects[index];
+fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalculations {
+    let hit: &Intersection = &intersects[hit_index];
     let pos = r.position(hit.t_value);
     let n = hit.intersected.normal_at(pos);
     let e = -(r.direction);
     let is_inside = n.dot(e) < 0.0;
     let norm = if is_inside { -n } else { n };
     let r = reflect(r.direction, norm);
-    let (n1, n2) = refractive_indices(index, intersects);
+    let (n1, n2) = refractive_indices(hit_index, intersects);
 
-    Precomputed {
+    HitCalculations {
         t_value: hit.t_value,
         object: hit.intersected,
         point: pos,
@@ -743,7 +743,7 @@ fn find(objects: &[Object], obj: Object) -> Option<usize> {
     None
 }
 
-fn shade_hit(world: &World, comps: &Precomputed, rlimit: u32) -> RGB {
+fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
     let mut c = colour(0.0, 0.0, 0.0);
     for light in world.lights.iter() {
         let l = lighting(
