@@ -672,7 +672,7 @@ struct HitCalculations {
     n2: f64,
 }
 
-fn precompute(hit: &Intersection, r: &Ray) -> HitCalculations {
+fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
     let singleton = [*hit; 1];
     hit_data(r, 0, &singleton)
 }
