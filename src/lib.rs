@@ -673,26 +673,8 @@ struct Precomputed {
 }
 
 fn precompute(hit: &Intersection, r: &Ray) -> Precomputed {
-    let pos = r.position(hit.t_value);
-    let n = hit.intersected.normal_at(pos);
-    let e = -(r.direction);
-    let is_inside = n.dot(e) < 0.0;
-    let norm = if is_inside { -n } else { n };
-    let r = reflect(r.direction, norm);
-    let n1 = 1.0;
-    let n2 = hit.intersected.material.refractive_index;
-    Precomputed {
-        t_value: hit.t_value,
-        object: hit.intersected,
-        point: pos,
-        eyev: e,
-        normalv: norm,
-        inside: is_inside,
-        over_point: pos + (norm.scale(1e-5)),
-        reflectv: r,
-        n1,
-        n2,
-    }
+    let singleton = [*hit; 1];
+    precompute2(r, 0, &singleton)
 }
 
 fn precompute2(r: &Ray, index: usize, intersects: &[Intersection]) -> Precomputed {
