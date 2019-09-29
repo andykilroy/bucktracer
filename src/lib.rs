@@ -352,7 +352,7 @@ pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
 pub fn index_of_hit(intersects: &[Intersection]) -> Option<usize> {
     intersects
         .iter().enumerate()
-        .filter(|(ind, i)| i.t_value >= 0.0)
+        .filter(|(_, i)| i.t_value >= 0.0)
         .fold(None, |least, x| nearer_intersect(least, x))
         .map(|(ind, _)| {ind})
 }
@@ -667,6 +667,7 @@ struct HitCalculations {
     normalv: Tuple4,
     inside: bool,
     over_point: Tuple4,
+    under_point: Tuple4,
     reflectv: Tuple4,
     n1: f64,
     n2: f64,
@@ -695,6 +696,7 @@ fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalcul
         normalv: norm,
         inside: is_inside,
         over_point: pos + (norm.scale(1e-5)),
+        under_point: pos - (norm.scale(1e-5)),
         reflectv: r,
         n1,
         n2,

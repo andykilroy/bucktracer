@@ -35,3 +35,14 @@ fn scenario_refractive_indices(index: usize, n1: f64, n2: f64) {
     assert_eq!(comps.n1, n1);
     assert_eq!(comps.n2, n2);
 }
+
+#[test]
+fn under_point_is_below_the_surface() {
+    let mut shape = glass_sphere();
+    shape.set_object_to_world_spc(translation(0.0, 0.0, 1.0));
+    let i = intersection(5.0, &shape);
+    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
+    let comps = singleton_hit_data(&r, &i);
+    assert_eq!(comps.under_point.z() > (EPSILON / 2.0), true);
+    assert_eq!(comps.point.z() < comps.under_point.z(), true);
+}
