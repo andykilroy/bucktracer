@@ -669,7 +669,7 @@ impl World {
             let sin2_t = ratio.powi(2) * (1.0 - cos_i.powi(2));
 
             if sin2_t > 1.0 {
-                // total internal reflection therefore no
+                // total internal reflection occurs therefore no
                 // colour contributes.
                 RGB::black()
             } else {
@@ -685,7 +685,8 @@ impl World {
                 let cos_t = (1.0 - sin2_t).sqrt();
                 let direction = comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
                 let refract_ray = ray(comps.under_point, direction);
-                self.colour_at_intersect(&refract_ray, rlimit - 1)
+                let c: Tuple4 = self.colour_at_intersect(&refract_ray, rlimit - 1).into();
+                RGB::from(c.scale(comps.object.material.transparency))
             }
         }
     }
@@ -779,8 +780,7 @@ fn find(objects: &[Object], obj: Object) -> Option<usize> {
 }
 
 fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
-    let mut c = colour(0.0, 0.0, 0.0);
-    for light in world.lights.iter() {
+    world.lights.iter().fold(RGB::black(), |prev_colour, light| {
         let l = lighting(
             light,
             comps.over_point,
@@ -790,9 +790,9 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
             world.in_shadow(comps.over_point, light),
         );
         let r = world.reflected_colour(&comps, rlimit);
-        c = c + l + r;
-    }
-    c
+        let t = world.refracted_colour(&comps, rlimit);
+        prev_colour + l + r + t
+    })
 }
 
 pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {

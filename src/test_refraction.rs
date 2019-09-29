@@ -71,8 +71,6 @@ fn refracted_colour_at_max_recursive_depth_is_black() {
     assert_eq!(w.refracted_colour(&comps, 0), RGB::black());
 }
 
-const ROOT2_BY_2: f64 = SQRT_2 / 2.0;
-
 #[test]
 fn refracted_colour_not_at_max_recursive_depth_is_not_black() {
     let mut w = World::default();
@@ -85,17 +83,18 @@ fn refracted_colour_not_at_max_recursive_depth_is_not_black() {
     assert_ne!(w.refracted_colour(&comps, 5), RGB::black());
 }
 
+const ROOT2_BY_2: f64 = SQRT_2 / 2.0;
+
 #[test]
 fn refracted_colour_under_total_internal_reflection_is_black() {
     let mut w = World::default();
-    let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape: &mut Object = &mut w.objects[0];
     shape.mut_material().set_transparency(1.0).set_refractive_index(1.5);
+    let r = ray(point(0.0, 0.0, ROOT2_BY_2), vector(0.0, 1.0, 0.0));
 
-    let xs = vec![intersection(4.0, &shape), intersection(6.0, &shape)];
-    let comps = hit_data(&r, 0, &xs);
-    assert_ne!(w.refracted_colour(&comps, 5), RGB::black());
-
+    let xs = vec![intersection(-ROOT2_BY_2, &shape), intersection(ROOT2_BY_2, &shape)];
+    let comps = hit_data(&r, 1, &xs);
+    assert_eq!(w.refracted_colour(&comps, 5), RGB::black());
 }
 
 #[test]
@@ -116,4 +115,25 @@ fn refracted_colour_is_due_to_colour_of_refracted_ray() {
 
     let comps = hit_data(&r, 2, &xs);
     assert_eq!(w.refracted_colour(&comps, 5), colour(0.0, 0.99888, 0.04722));
+}
+
+#[test]
+fn shade_hit_transparent_material() {
+    let mut w = World::default();
+
+    let mut floor = plane();
+    floor.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
+    floor.mut_material().set_transparency(0.5).set_refractive_index(1.5);
+    w.objects.push(floor);
+
+    let mut ball = unit_sphere();
+    ball.set_object_to_world_spc(translation(0.0, -3.5, -0.5));
+    ball.mut_material().set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0))).set_ambient(0.5);
+    w.objects.push(ball);
+
+    let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+    let xs = vec![intersection(SQRT_2, &floor)];
+    let comps = hit_data(&r, 0, &xs);
+    let c = shade_hit(&w, &comps, 5);
+    assert_eq!(c, colour(0.93642, 0.68642, 0.68642))
 }
