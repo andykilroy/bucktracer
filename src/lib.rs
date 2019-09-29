@@ -656,6 +656,39 @@ impl World {
             RGB::from(c.scale(comps.object.material.reflective))
         }
     }
+
+    fn refracted_colour(&self, comps: &HitCalculations, rlimit: u32) -> RGB {
+        if rlimit == 0 {
+            return RGB::black();
+        }
+        if comps.object.material.transparency == 0.0 {
+            RGB::black()
+        } else {
+            let ratio = comps.n1 / comps.n2;
+            let cos_i = comps.eyev.dot(comps.normalv);
+            let sin2_t = ratio.powi(2) * (1.0 - cos_i.powi(2));
+
+            if sin2_t > 1.0 {
+                // total internal reflection therefore no
+                // colour contributes.
+                RGB::black()
+            } else {
+
+                // Snell's law: for incoming ray i and refracted ray t,
+                // and angles theta_i and theta_t of i and t made respectively
+                // with the normal of the surface, the following relationship holds:
+                //
+                //    sin(theta_i)     n2
+                //    ------------  =  --
+                //    sin(theta_t)     n1
+
+                let cos_t = (1.0 - sin2_t).sqrt();
+                let direction = comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
+                let refract_ray = ray(comps.under_point, direction);
+                self.colour_at_intersect(&refract_ray, rlimit - 1)
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -888,6 +921,7 @@ pub enum Pattern {
     Gradient { from: RGB, to: RGB },
     Ring { a: RGB, b: RGB },
     Checkers { a: RGB, b: RGB },
+    Test
 }
 
 impl Pattern {
@@ -906,6 +940,9 @@ impl Pattern {
     pub fn checkers(a: RGB, b: RGB) -> Pattern {
         Pattern::Checkers { a, b }
     }
+    pub fn tester() -> Pattern {
+        Pattern::Test
+    }
 
     pub fn colour_at(self: &Self, pattern_space_pos: Tuple4) -> RGB {
         match *self {
@@ -914,8 +951,14 @@ impl Pattern {
             Pattern::Gradient { from, to } => gradient_colour(from, to, pattern_space_pos),
             Pattern::Ring { a, b } => ring_colour(a, b, pattern_space_pos),
             Pattern::Checkers { a, b } => checkers_colour(a, b, pattern_space_pos),
+            Pattern::Test => no_op_colour(pattern_space_pos)
         }
     }
+
+}
+
+fn no_op_colour(pattern_space_pos: Tuple4) -> RGB {
+    RGB::from(pattern_space_pos)
 }
 
 fn gradient_colour(RGB { inner: a }: RGB, RGB { inner: b }: RGB, pos: Tuple4) -> RGB {
@@ -931,6 +974,7 @@ fn gradient_colour(RGB { inner: a }: RGB, RGB { inner: b }: RGB, pos: Tuple4) ->
 
     RGB::from(a + (distance.scale(frac)))
 }
+
 fn stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
