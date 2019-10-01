@@ -529,6 +529,8 @@ pub fn lighting(
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let ambient = effective_colour.scale(mat.ambient());
 
+    // TODO consider replacing with the transparency of the
+    // material.  Here, the check would be transparency == 0.0
     if in_shadow {
         return RGB::from(ambient);
     }
@@ -644,6 +646,9 @@ impl World {
         let mag = point_to_light.magnitude();
         let r = ray(point, point_to_light.normalize());
 
+        // TODO return a transparency value
+        // need to consider all intersections along the ray
+        // and accumulate the transparency value
         let h = hit(self.intersect(&r));
         match h {
             Some(i) => i.t_value < mag,
