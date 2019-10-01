@@ -640,9 +640,9 @@ impl World {
     }
 
     pub fn in_shadow(self: &Self, point: Tuple4, light: &RadialLightSource) -> bool {
-        let lgt_to_point = light.position() - point;
-        let mag = lgt_to_point.magnitude();
-        let r = ray(point, lgt_to_point.normalize());
+        let point_to_light = light.position() - point;
+        let mag = point_to_light.magnitude();
+        let r = ray(point, point_to_light.normalize());
 
         let h = hit(self.intersect(&r));
         match h {
