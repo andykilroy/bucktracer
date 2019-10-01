@@ -8,7 +8,7 @@ use serde::Deserialize;
 mod math;
 
 pub use crate::math::*;
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
 const EPSILON: f64 = 1e-5;
 
@@ -69,6 +69,13 @@ impl Add for RGB {
         RGB {
             inner: (self.inner + rhs.inner),
         }
+    }
+}
+impl Mul<f64> for RGB {
+    type Output = RGB;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        RGB::from(self.inner.scale(rhs))
     }
 }
 
@@ -652,8 +659,8 @@ impl World {
             RGB::black()
         } else {
             let reflected_ray = ray(comps.over_point, comps.reflectv);
-            let c: Tuple4 = self.colour_at_intersect(&reflected_ray, rlimit - 1).into();
-            RGB::from(c.scale(comps.object.material.reflective))
+            let c = self.colour_at_intersect(&reflected_ray, rlimit - 1);
+            c * comps.object.material.reflective
         }
     }
 
@@ -685,8 +692,8 @@ impl World {
                 let cos_t = (1.0 - sin2_t).sqrt();
                 let direction = comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
                 let refract_ray = ray(comps.under_point, direction);
-                let c: Tuple4 = self.colour_at_intersect(&refract_ray, rlimit - 1).into();
-                RGB::from(c.scale(comps.object.material.transparency))
+                let c = self.colour_at_intersect(&refract_ray, rlimit - 1);
+                c * comps.object.material.transparency
             }
         }
     }
@@ -781,7 +788,7 @@ fn find(objects: &[Object], obj: Object) -> Option<usize> {
 
 fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
     world.lights.iter().fold(RGB::black(), |prev_colour, light| {
-        let l = lighting(
+        let surface = lighting(
             light,
             comps.over_point,
             comps.normalv,
@@ -789,11 +796,41 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
             comps.eyev,
             world.in_shadow(comps.over_point, light),
         );
-        let r = world.reflected_colour(&comps, rlimit);
-        let t = world.refracted_colour(&comps, rlimit);
-        prev_colour + l + r + t
+        let reflected = world.reflected_colour(&comps, rlimit);
+        let refracted = world.refracted_colour(&comps, rlimit);
+
+        let c = if comps.object.material.reflective > 0.0 && comps.object.material.transparency > 0.0 {
+            let reflectance = schlick(comps);
+            surface + (reflected * reflectance) + (refracted * (1.0 - reflectance))
+        } else {
+            surface + reflected + refracted
+        };
+        prev_colour + c
     })
 }
+
+fn schlick(comps: &HitCalculations) -> f64 {
+
+    fn calc(comps: &HitCalculations, cos: f64) -> f64 {
+        let r0 = ((comps.n1 - comps.n2) / (comps.n1 + comps.n2)).powi(2);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
+    }
+
+    let cos = comps.eyev.dot(comps.normalv);
+    if comps.n1 > comps.n2 {
+        let n = comps.n1 / comps.n2;
+        let sin2_t = n.powi(2) * (1.0 - cos.powi(2));
+        if sin2_t > 1.0 {
+            1.0
+        } else {
+            let cos_t = (1.0 - sin2_t).sqrt();
+            calc(comps, cos_t)
+        }
+    } else {
+        calc(comps, cos)
+    }
+}
+
 
 pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
     let forward = (to - from).normalize();

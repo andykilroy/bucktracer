@@ -50,7 +50,7 @@ fn under_point_is_below_the_surface() {
 
 #[test]
 fn refracted_colour_of_opaque_surface_is_black() {
-    let mut w = World::default();
+    let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape = w.objects[0];
     let xs = vec![intersection(4.0, &shape), intersection(6.0, &shape)];
@@ -136,4 +136,59 @@ fn shade_hit_transparent_material() {
     let comps = hit_data(&r, 0, &xs);
     let c = shade_hit(&w, &comps, 5);
     assert_eq!(c, colour(0.93642, 0.68642, 0.68642))
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn schlick_approx_with_a_perpendicular_viewing_angle() {
+    let shape = glass_sphere();
+    let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+    let xs = vec![
+        intersection(-1.0, &shape),
+        intersection( 1.0, &shape),
+    ];
+    let comps = hit_data(&r, 1, &xs);
+
+    assert_eq!(almost_eq(schlick(&comps), 0.04), true);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn schlick_approximation_with_small_angle_n2_gt_n1() {
+    let shape = glass_sphere();
+    let r = ray(point(0.0, 0.99, -2.0), vector(0.0, 0.0, 1.0));
+    let xs = vec![
+        intersection(1.8589, &shape),
+    ];
+    let comps = hit_data(&r, 0, &xs);
+    assert_eq!(almost_eq(schlick(&comps), 0.48873), true);
+}
+
+fn almost_eq(x1: f64, x2: f64) -> bool {
+    f64::abs(x1 - x2) < 0.000001
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn shade_hit_with_reflective_transparent_material() {
+    let mut w = World::default();
+    let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
+    let mut floor = plane();
+    floor.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
+    floor.mut_material()
+        .set_reflective(0.5)
+        .set_transparency(0.5)
+        .set_refractive_index(1.5);
+    let mut ball = unit_sphere();
+    ball.mut_material()
+        .set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0)))
+        .set_ambient(0.5);
+    ball.set_object_to_world_spc(translation(0.0, -3.5, -0.5));
+
+    w.objects.push(floor);
+    w.objects.push(ball);
+
+    let xs = vec![intersection(SQRT_2, &floor)];
+    let comps = hit_data(&r, 0, &xs);
+    assert_eq!(shade_hit(&w, &comps, 5), colour(0.93391, 0.69643, 0.69243));
 }
