@@ -706,17 +706,11 @@ impl World {
         let mag = point_to_light.magnitude();
         let r = ray(point, point_to_light.normalize());
 
-        let h = hit(self.intersect(&r));
-        match h {
-            Some(i) => {
-                if i.t_value < mag {
-                    0.0
-                } else {
-                    1.0
-                }
-            },
-            _ => 1.0,
-        }
+        let accumulatd : f64 = self.intersect(&r).iter()
+            .filter(|i| i.t_value >= 0.0 && i.t_value < mag)
+            .map(|h| h.intersected.material.transparency)
+            .fold(1.0, |x, y| x * y);
+        accumulatd
     }
 }
 
