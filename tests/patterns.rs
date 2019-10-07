@@ -143,8 +143,8 @@ fn lighting_with_a_pattern_applied() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let c1 = lighting(&light, point(0.9, 0.0, 0.0), normalv, &s, eyev, false);
-    let c2 = lighting(&light, point(1.1, 0.0, 0.0), normalv, &s, eyev, false);
+    let c1 = lighting(&light, point(0.9, 0.0, 0.0), normalv, &s, eyev, 1.0);
+    let c2 = lighting(&light, point(1.1, 0.0, 0.0), normalv, &s, eyev, 1.0);
 
     assert_eq!(c1, RGB::white());
     assert_eq!(c2, RGB::black());

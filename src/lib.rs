@@ -521,7 +521,7 @@ pub fn lighting(
     normalv: Tuple4,
     obj: &Object,
     eyev: Tuple4,
-    in_shadow: bool,
+    light_allowance: f64,
 ) -> RGB {
     let mat = obj.material;
     let matrl_colr: Tuple4 = obj.material_colour_at(pos).into();
@@ -529,9 +529,7 @@ pub fn lighting(
     let effective_colour: Tuple4 = matrl_colr.mult_pairwise(light_intens);
     let ambient = effective_colour.scale(mat.ambient());
 
-    // TODO consider replacing with the transparency of the
-    // material.  Here, the check would be transparency == 0.0
-    if in_shadow {
+    if light_allowance == 0.0 {
         return RGB::from(ambient);
     }
 
@@ -702,6 +700,24 @@ impl World {
             }
         }
     }
+
+    pub fn light_factor(&self, point: Tuple4, light: &RadialLightSource) -> f64 {
+        let point_to_light = light.position() - point;
+        let mag = point_to_light.magnitude();
+        let r = ray(point, point_to_light.normalize());
+
+        let h = hit(self.intersect(&r));
+        match h {
+            Some(i) => {
+                if i.t_value < mag {
+                    0.0
+                } else {
+                    1.0
+                }
+            },
+            _ => 1.0,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -799,7 +815,7 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
             comps.normalv,
             &comps.object,
             comps.eyev,
-            world.in_shadow(comps.over_point, light),
+            world.light_factor(comps.over_point, light),
         );
         let reflected = world.reflected_colour(&comps, rlimit);
         let refracted = world.refracted_colour(&comps, rlimit);

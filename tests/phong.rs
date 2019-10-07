@@ -77,7 +77,7 @@ fn lighting_with_eye_between_light_and_the_surface() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &s, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, 1.0);
     assert_eq!(result, colour(1.9, 1.9, 1.9));
 }
 
@@ -88,9 +88,8 @@ fn lighting_with_the_surface_in_shadow() {
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
-    let in_shade = true;
 
-    let result = lighting(&light, pos, normalv, &s, eyev, in_shade);
+    let result = lighting(&light, pos, normalv, &s, eyev, 0.0);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
 
@@ -103,7 +102,7 @@ fn lighting_with_eye_between_light_and_the_surface_at_45_angle() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &s, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, 1.0);
     assert_eq!(result, colour(1.0, 1.0, 1.0));
 }
 
@@ -115,7 +114,7 @@ fn lighting_with_eye_opposite_surface_light_offset_45_angle() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 10.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &s, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, 1.0);
     assert_eq!(result, colour(0.7364, 0.7364, 0.7364));
 }
 
@@ -128,7 +127,7 @@ fn lighting_with_eye_in_path_of_reflection_vector() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 10.0, -10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &s, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, 1.0);
     assert_eq!(result, colour(1.6364, 1.6364, 1.6364));
 }
 
@@ -140,7 +139,7 @@ fn lighting_with_light_behind_the_surface() {
     let normalv = vector(0.0, 0.0, -1.0);
     let light = point_light(point(0.0, 0.0, 10.0), RGB::white());
 
-    let result = lighting(&light, pos, normalv, &s, eyev, false);
+    let result = lighting(&light, pos, normalv, &s, eyev, 1.0);
     assert_eq!(result, colour(0.1, 0.1, 0.1));
 }
 
