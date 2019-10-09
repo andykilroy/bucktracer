@@ -5,13 +5,16 @@ use std::io::stdout;
 
 fn main() -> Result<(), ExitFailure> {
     let water = *Material::default()
-        .set_pattern(Pattern::solid(colour(0.90, 0.95, 1.00)))
+        .set_pattern(Pattern::solid(colour(0.20, 0.20, 0.50)))
+        .set_reflective(0.5)
         .set_transparency(0.5)
         .set_refractive_index(1.2);
     let red_matrl = *Material::default()
         .set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0)));
     let green_matrl = *Material::default()
         .set_pattern(Pattern::solid(colour(0.0, 1.0, 0.0)));
+    let orange_matrl = *Material::default()
+        .set_pattern(Pattern::solid(colour(1.0, 0.5, 0.0)));
 
     let mut floor = plane();
     floor.set_material(*Material::default()
@@ -31,13 +34,19 @@ fn main() -> Result<(), ExitFailure> {
     let mut below = above.clone();
     below.set_material(green_matrl);
     below.set_object_to_world_spc(
-        translation(1.0, -1.0, 0.0)
+        translation(1.0, -0.75, 0.0)
+    );
+
+    let mut sun = unit_sphere();
+    sun.set_material(orange_matrl);
+    sun.set_object_to_world_spc(
+        translation(0.0, 0.0, 4000.0) * scaling(400.0, 400.0, 400.0)
     );
 
     let light = point_light(point(-10.0, 10.0, -10.0), RGB::white());
     let world = World::with(
         vec![light],
-        vec![floor, above, below, water_surface],
+        vec![floor, above, below, water_surface, sun],
     );
     let mut cam = Camera::new(2560, 1600, FRAC_PI_2);
     cam.set_view_transform(view_transform(
