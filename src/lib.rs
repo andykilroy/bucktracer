@@ -554,7 +554,8 @@ pub fn lighting(
         }
     };
 
-    RGB::from(ambient + diffuse + specular)
+    let l: Tuple4 = (diffuse + specular).scale(light_allowance);
+    RGB::from(ambient + l)
 }
 
 /// Represents a scene to be rendered.  Contains lights and

@@ -6,7 +6,7 @@ use std::io::stdout;
 fn main() -> Result<(), ExitFailure> {
     let water = *Material::default()
         .set_pattern(Pattern::solid(colour(0.90, 0.95, 1.00)))
-        .set_transparency(0.8)
+        .set_transparency(0.5)
         .set_refractive_index(1.2);
     let red_matrl = *Material::default()
         .set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0)));
