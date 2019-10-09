@@ -5,22 +5,30 @@ use std::io::stdout;
 
 fn main() -> Result<(), ExitFailure> {
     let water = *Material::default()
-        .set_pattern(Pattern::solid(colour(0.20, 0.20, 0.50)))
-        .set_reflective(0.5)
-        .set_transparency(0.5)
-        .set_refractive_index(1.2);
+        .set_pattern(Pattern::solid(colour(0.1, 0.1, 0.1)))
+        .set_reflective(0.55)
+        .set_transparency(0.4)
+        .set_refractive_index(1.33);
     let red_matrl = *Material::default()
         .set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0)));
     let green_matrl = *Material::default()
         .set_pattern(Pattern::solid(colour(0.0, 1.0, 0.0)));
     let orange_matrl = *Material::default()
-        .set_pattern(Pattern::solid(colour(1.0, 0.5, 0.0)));
+        .set_pattern(Pattern::solid(colour(1.0, 0.5, 0.0)))
+        .set_ambient(1.0)
+        .set_specular(0.0);
 
     let mut floor = plane();
     floor.set_material(*Material::default()
         .set_pattern(Pattern::checkers(RGB::white(), RGB::black()))
     );
     floor.set_object_to_world_spc(translation(0.0, -10.0, 0.0));
+
+    let mut sky = plane();
+    sky.set_material(*Material::default()
+        .set_pattern(Pattern::solid(colour(0.4726, 0.8281, 1.0)))
+    );
+    sky.set_object_to_world_spc(translation(0.0, 0.0, 5000.0) * rotation_x(FRAC_PI_2));
 
     let mut water_surface = plane();
     water_surface.set_material(water);
@@ -40,13 +48,13 @@ fn main() -> Result<(), ExitFailure> {
     let mut sun = unit_sphere();
     sun.set_material(orange_matrl);
     sun.set_object_to_world_spc(
-        translation(0.0, 0.0, 4000.0) * scaling(400.0, 400.0, 400.0)
+        translation(0.0, 300.0, 4000.0) * scaling(400.0, 400.0, 400.0)
     );
 
     let light = point_light(point(-10.0, 10.0, -10.0), RGB::white());
     let world = World::with(
         vec![light],
-        vec![floor, above, below, water_surface, sun],
+        vec![floor, above, below, water_surface, sun, sky],
     );
     let mut cam = Camera::new(2560, 1600, FRAC_PI_2);
     cam.set_view_transform(view_transform(
