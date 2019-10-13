@@ -203,7 +203,7 @@ pub fn index_of_hit(intersects: &[Intersection]) -> Option<usize> {
     intersects
         .iter().enumerate()
         .filter(|(_, i)| i.t_value >= 0.0)
-        .fold(None, |least, x| nearer_intersect(least, x))
+        .fold(None, nearer_intersect)
         .map(|(ind, _)| {ind})
 }
 
@@ -607,13 +607,13 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
     let mut containers: Vec<Object> = Vec::with_capacity(intersects.len());
     let mut n1 = 1.0;
     let mut n2 = 1.0;
-    for i in 0..intersects.len() {
+    for (i, current) in intersects.iter().enumerate() {
         if i == hit_index {
             if !containers.is_empty() {
                 n1 = containers.last().unwrap().material().refractive_index();
             }
         }
-        let object: Object = intersects[i].intersected;
+        let object: Object = current.intersected;
 
         match find(&containers, object) {
             Some(obj_index) => containers.remove(obj_index),
@@ -635,12 +635,10 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
 }
 
 fn find(objects: &[Object], obj: Object) -> Option<usize> {
-    let mut i = 0;
-    for item in objects {
+    for (i, item) in objects.iter().enumerate() {
         if *item == obj {
             return Some(i)
         }
-        i += 1;
     }
     None
 }
