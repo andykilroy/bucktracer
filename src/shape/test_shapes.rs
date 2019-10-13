@@ -51,3 +51,24 @@ fn scenario_ray_intersects_cube(_s: &str, pos: Tuple4, dir: Tuple4, t1: f64, t2:
     assert_eq!(t1, xs[0].t_value);
     assert_eq!(t2, xs[1].t_value);
 }
+
+fn scenario_ray_misses_cube(pos: Tuple4, dir: Tuple4) {
+    let c = cube();
+    let r = ray(pos, dir);
+    let mut xs: Vec<Intersection> = vec![];
+    append_intersects(&r, &c, &mut xs);
+    assert_eq!(0, xs.len());
+}
+
+
+#[allow(non_snake_case)]
+#[test]
+fn ray_misses_a_cube() {
+    scenario_ray_misses_cube(point(-2.0, 0.0, 0.0), vector(0.2673, 0.5345, 0.8018));
+    scenario_ray_misses_cube(point( 0.0, -2.0, 0.0), vector(0.8018, 0.2673, 0.5345));
+    scenario_ray_misses_cube(point( 0.0, 0.0, -2.0), vector(0.5345, 0.8018, 0.2673));
+    scenario_ray_misses_cube(point( 2.0, 0.0, 2.0), vector(0.0, 0.0, -1.0));
+    scenario_ray_misses_cube(point( 0.0, 2.0, 2.0), vector(0.0, -1.0, 0.0));
+    scenario_ray_misses_cube(point( 2.0, 2.0, 0.0), vector(-1.0, 0.0, 0.0));
+}
+

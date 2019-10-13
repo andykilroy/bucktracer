@@ -154,7 +154,11 @@ fn intersect_cube(r: &Ray, obj: &Object) -> Option<(Intersection, Intersection)>
     let tmin = [x_tmin, y_tmin, z_tmin].iter().cloned().fold(std::f64::MIN, f64::max);
     let tmax = [x_tmax, y_tmax, z_tmax].iter().cloned().fold(std::f64::MAX, f64::min);
 
-    Some((intersection(tmin, obj), intersection(tmax, obj)))
+    if tmin > tmax {
+        None
+    } else {
+        Some((intersection(tmin, obj), intersection(tmax, obj)))
+    }
 }
 
 fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
