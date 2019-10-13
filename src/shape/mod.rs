@@ -58,8 +58,26 @@ impl Shape {
                 position - point(0.0, 0.0, 0.0)
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
-            Shape::Cube => unimplemented!(),
+            Shape::Cube => normal_of_cube(position),
         }
+    }
+}
+
+fn normal_of_cube(pos: Tuple4) -> Tuple4 {
+
+    let mut maxindex = 0;
+    let mut prev = pos.x().abs();
+    for (i, item) in [pos.y().abs(), pos.z().abs()].iter().enumerate() {
+        if *item > prev {
+            prev = *item;
+            maxindex = i + 1;
+        }
+    }
+
+    match maxindex {
+        0 => vector(pos.x(), 0.0, 0.0),
+        1 => vector(0.0, pos.y(), 0.0),
+        _ => vector(0.0, 0.0, pos.z()),
     }
 }
 

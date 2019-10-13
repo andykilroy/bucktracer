@@ -72,3 +72,23 @@ fn ray_misses_a_cube() {
     scenario_ray_misses_cube(point( 2.0, 2.0, 0.0), vector(-1.0, 0.0, 0.0));
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn normal_on_a_cube() {
+    scenario_normal_of_a_cube(point(1.0, 0.5, -0.8), vector(1.0, 0.0, 0.0));
+    scenario_normal_of_a_cube(point(-1.0, -0.2, 0.9), vector(-1.0, 0.0, 0.0));
+    scenario_normal_of_a_cube(point(-0.4, 1.0, -0.1), vector(0.0, 1.0, 0.0));
+    scenario_normal_of_a_cube(point(0.3, -1.0, -0.7), vector(0.0, -1.0, 0.0));
+    scenario_normal_of_a_cube(point(-0.6, 0.3, 1.0), vector(0.0, 0.0, 1.0));
+    scenario_normal_of_a_cube(point(0.4, 0.4, -1.0), vector(0.0, 0.0, -1.0));
+    scenario_normal_of_a_cube(point(1.0, 1.0, 1.0), vector(1.0, 0.0, 0.0));
+    scenario_normal_of_a_cube(point(-1.0, -1.0, -1.0), vector(-1.0, 0.0, 0.0));
+}
+
+fn scenario_normal_of_a_cube(pos: Tuple4, normal: Tuple4)
+{
+    let c = cube();
+    let n = c.normal_at(pos);
+    assert_eq!(normal, n);
+}
+
