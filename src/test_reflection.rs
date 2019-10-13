@@ -16,8 +16,8 @@ fn compute_reflective_vector() {
 #[test]
 fn reflected_colour_for_non_reflective_material_is_black() {
     let mut w = World::default();
-    w.objects[1].material.set_reflective(0.0);
-    w.objects[1].material.set_ambient(1.0);
+    w.objects[1].mut_material().set_reflective(0.0);
+    w.objects[1].mut_material().set_ambient(1.0);
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
     let obj: Object = w.objects[1];
     let i = intersection(1.0, &obj);
@@ -32,7 +32,7 @@ fn reflected_colour_for_non_reflective_material_is_black() {
 fn reflected_colour_for_reflective_material() {
     let mut w = World::default();
     let mut p = plane();
-    p.material.reflective = 0.5;
+    p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
     w.objects.push(p);
 
@@ -47,7 +47,7 @@ fn reflected_colour_for_reflective_material() {
 fn shade_hit_for_reflective_material() {
     let mut w = World::default();
     let mut p = plane();
-    p.material.reflective = 0.5;
+    p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
     w.objects.push(p);
 
@@ -62,7 +62,7 @@ fn shade_hit_for_reflective_material() {
 fn colour_at_max_recursion_depth() {
     let mut w = World::default();
     let mut p = plane();
-    p.material.reflective = 0.5;
+    p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
     w.objects.push(p);
 

@@ -1,8 +1,9 @@
 use crate::*;
 use std::f64::consts::FRAC_PI_2;
 
+#[allow(non_snake_case)]
 #[test]
-fn normal_of_a_plane_is_up() {
+fn shape___local_normal_of_a_plane_is_up() {
     let p: Shape = Shape::Plane;
     let n1 = p.local_normal_at(point(0.0, 0.0, 0.0));
     let n2 = p.local_normal_at(point(10.0, 0.0, -10.0));
@@ -13,8 +14,9 @@ fn normal_of_a_plane_is_up() {
     assert_eq!(n3, vector(0.0, 1.0, 0.0));
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn normal_of_a_plane_object_is_constant_everywhere() {
+fn object___normal_of_a_plane_is_constant_everywhere() {
     let mut p: Object = plane();
     p.set_object_to_world_spc(rotation_z(FRAC_PI_2));
     let n1 = p.normal_at(point(0.0, 0.0, 0.0));
