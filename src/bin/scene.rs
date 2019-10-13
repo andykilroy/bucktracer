@@ -60,6 +60,7 @@ fn to_object(conf: &ObjectConfig) -> Object {
     let mut s = match conf.shape {
         Shape::Sphere => unit_sphere(),
         Shape::Plane => plane(),
+        Shape::Cube => cube(),
     };
 
     s.set_object_to_world_spc(transform_matrix(conf.transforms.clone()));

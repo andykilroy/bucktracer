@@ -1,4 +1,5 @@
 use crate::*;
+use std::f64::INFINITY;
 
 pub fn unit_sphere() -> Object {
     Object {
@@ -27,6 +28,14 @@ pub fn plane() -> Object {
     }
 }
 
+pub fn cube() -> Object {
+    Object {
+        world_to_object_spc: identity(),
+        material: Material::default(),
+        shape: Shape::Cube,
+    }
+}
+
 /// Determines what shape an object has.
 ///
 /// Influences the calculation of surface normals and intersections.
@@ -34,6 +43,7 @@ pub fn plane() -> Object {
 pub enum Shape {
     Sphere,
     Plane,
+    Cube,
 }
 
 impl Shape {
@@ -48,6 +58,7 @@ impl Shape {
                 position - point(0.0, 0.0, 0.0)
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
+            Shape::Cube => unimplemented!(),
         }
     }
 }
@@ -134,6 +145,35 @@ fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersect
     }
 }
 
+fn intersect_cube(r: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {
+
+    let (x_tmin, x_tmax) = check_axis(r.origin.x(), r.direction.x());
+    let (y_tmin, y_tmax) = check_axis(r.origin.y(), r.direction.y());
+    let (z_tmin, z_tmax) = check_axis(r.origin.z(), r.direction.z());
+
+    let tmin = [x_tmin, y_tmin, z_tmin].iter().cloned().fold(std::f64::MIN, f64::max);
+    let tmax = [x_tmax, y_tmax, z_tmax].iter().cloned().fold(std::f64::MAX, f64::min);
+
+    Some((intersection(tmin, obj), intersection(tmax, obj)))
+}
+
+fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
+    let tmin_numerator = -1.0 - origin;
+    let tmax_numerator = 1.0 - origin;
+
+    let (tmin, tmax) = if direction.abs() >= EPSILON {
+        (tmin_numerator / direction,
+         tmax_numerator / direction)
+    } else {
+        (tmin_numerator * INFINITY,
+         tmax_numerator * INFINITY)
+    };
+
+    if tmin > tmax { (tmax, tmin) }
+    else {(tmin, tmax)}
+}
+
+
 fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
     if r.direction.y().abs() < EPSILON {
         None
@@ -156,6 +196,12 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Plane => {
             if let Some(a) = intersect_plane(&r, s) {
                 vec.push(a);
+            }
+        }
+        Shape::Cube => {
+            if let Some((a, b)) = intersect_cube(&r, s) {
+                vec.push(a);
+                vec.push(b);
             }
         }
     }
