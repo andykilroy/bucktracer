@@ -3,11 +3,12 @@ use std::f64::consts::FRAC_PI_2;
 
 #[allow(non_snake_case)]
 #[test]
-fn shape___local_normal_of_a_plane_is_up() {
-    let p: Shape = Shape::Plane;
-    let n1 = p.local_normal_at(point(0.0, 0.0, 0.0));
-    let n2 = p.local_normal_at(point(10.0, 0.0, -10.0));
-    let n3 = p.local_normal_at(point(-5.0, 0.0, 150.0));
+fn normal_of_untransformed_plane___is_up() {
+    let mut p: Object = plane();
+    p.set_object_to_world_spc(identity());
+    let n1 = p.normal_at(point(0.0, 0.0, 0.0));
+    let n2 = p.normal_at(point(10.0, 0.0, -10.0));
+    let n3 = p.normal_at(point(-5.0, 0.0, 150.0));
 
     assert_eq!(n1, vector(0.0, 1.0, 0.0));
     assert_eq!(n2, vector(0.0, 1.0, 0.0));
@@ -16,7 +17,7 @@ fn shape___local_normal_of_a_plane_is_up() {
 
 #[allow(non_snake_case)]
 #[test]
-fn object___normal_of_a_plane_is_constant_everywhere() {
+fn after_transformation___normal_of_a_plane_is_constant_everywhere() {
     let mut p: Object = plane();
     p.set_object_to_world_spc(rotation_z(FRAC_PI_2));
     let n1 = p.normal_at(point(0.0, 0.0, 0.0));
@@ -30,7 +31,7 @@ fn object___normal_of_a_plane_is_constant_everywhere() {
 
 #[allow(non_snake_case)]
 #[test]
-fn ray_intersects_a_cube() {
+fn ray_intersects_unit_cube___at_faces_1_unit_away_from_origin() {
     scenario_ray_intersects_cube("+x", point(5.0, 0.5, 0.0), vector(-1.0, 0.0, 0.0), 4.0, 6.0);
     scenario_ray_intersects_cube("+y", point(0.5, 5.0, 0.0), vector(0.0, -1.0, 0.0), 4.0, 6.0);
     scenario_ray_intersects_cube("+z", point(0.5, 0.0, 5.0), vector(0.0, 0.0, -1.0), 4.0, 6.0);
@@ -63,7 +64,7 @@ fn scenario_ray_misses_cube(pos: Tuple4, dir: Tuple4) {
 
 #[allow(non_snake_case)]
 #[test]
-fn ray_misses_a_cube() {
+fn when_rays_miss_a_cube___return_no_intersections() {
     scenario_ray_misses_cube(point(-2.0, 0.0, 0.0), vector(0.2673, 0.5345, 0.8018));
     scenario_ray_misses_cube(point( 0.0, -2.0, 0.0), vector(0.8018, 0.2673, 0.5345));
     scenario_ray_misses_cube(point( 0.0, 0.0, -2.0), vector(0.5345, 0.8018, 0.2673));
