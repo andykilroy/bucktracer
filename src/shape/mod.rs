@@ -36,6 +36,14 @@ pub fn cube() -> Object {
     }
 }
 
+pub fn cylinder() -> Object {
+    Object {
+        world_to_object_spc: identity(),
+        material: Material::default(),
+        shape: Shape::Cylinder,
+    }
+}
+
 /// Determines what shape an object has.
 ///
 /// Influences the calculation of surface normals and intersections.
@@ -44,6 +52,7 @@ pub enum Shape {
     Sphere,
     Plane,
     Cube,
+    Cylinder,
 }
 
 impl Shape {
@@ -59,6 +68,7 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
+            Shape::Cylinder => unimplemented!(),
         }
     }
 }
@@ -135,7 +145,7 @@ impl Object {
         let object_normal = self.shape.local_normal_at(object_point);
         let tmp = inversion_mat.transpose().mult(object_normal);
 
-        tuple(tmp.x(), tmp.y(), tmp.z(), 0.0).normalize()
+        vector(tmp.x(), tmp.y(), tmp.z()).normalize()
     }
 
     pub fn material_colour_at(self: &Self, world_point: Tuple4) -> RGB {
@@ -145,6 +155,37 @@ impl Object {
     }
 }
 
+
+pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
+    let to_object_space = s.world_to_object_spc();
+    let r = orig.transform(&to_object_space);
+    let shape = s.shape;
+    match shape {
+        Shape::Sphere => {
+            if let Some((a, b)) = intersect_sphere(&r, s) {
+                vec.push(a);
+                vec.push(b);
+            }
+        }
+        Shape::Plane => {
+            if let Some(a) = intersect_plane(&r, s) {
+                vec.push(a);
+            }
+        }
+        Shape::Cube => {
+            if let Some((a, b)) = intersect_cube(&r, s) {
+                vec.push(a);
+                vec.push(b);
+            }
+        }
+        Shape::Cylinder => {
+            if let Some((a, b)) = intersect_cylinder(&r, s) {
+                vec.push(a);
+                vec.push(b);
+            }
+        }
+    }
+}
 
 fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {
     // presume the sphere is centred at (0,0,0)
@@ -204,29 +245,22 @@ fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
     }
 }
 
-pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
-    let to_object_space = s.world_to_object_spc();
-    let r = orig.transform(&to_object_space);
-    let shape = s.shape;
-    match shape {
-        Shape::Sphere => {
-            if let Some((a, b)) = intersect_sphere(&r, s) {
-                vec.push(a);
-                vec.push(b);
-            }
-        }
-        Shape::Plane => {
-            if let Some(a) = intersect_plane(&r, s) {
-                vec.push(a);
-            }
-        }
-        Shape::Cube => {
-            if let Some((a, b)) = intersect_cube(&r, s) {
-                vec.push(a);
-                vec.push(b);
-            }
-        }
-    }
+fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {
+    let a = ray.direction.x().powi(2) + ray.direction.z().powi(2);
+
+    if almost_eq(a, 0.0) { return None; }
+
+    let b =
+        (2.0 * ray.origin.x() * ray.direction.x()) +
+        (2.0 * ray.origin.z() * ray.direction.z());
+
+    let c = ray.origin.x().powi(2) + ray.origin.z().powi(2) - 1.0;
+
+    let disc = b.powi(2) - (4.0 * a * c);
+
+    if disc < 0.0 { return None ; }
+
+    return Some((intersection(1.0, obj), intersection(1.0, obj)));
 }
 
 #[cfg(test)]

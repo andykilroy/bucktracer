@@ -15,6 +15,11 @@ pub use crate::shape::*;
 
 const EPSILON: f64 = 1e-5;
 
+fn almost_eq(x1: f64, x2: f64) -> bool {
+    f64::abs(x1 - x2) < EPSILON
+}
+
+
 /// A structure representing a colour in red, green, and blue components.
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 #[serde(from = "(f64, f64, f64)")]

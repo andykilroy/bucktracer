@@ -1,6 +1,7 @@
 use std::ops::{Add, Index, Mul, Neg, Sub};
 
 use super::EPSILON;
+use super::almost_eq;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Tuple4(f64, f64, f64, f64);
@@ -31,10 +32,6 @@ impl PartialEq for Tuple4 {
         let Tuple4(a1, a2, a3, a4) = self;
         almost_eq(*a1, *b1) && almost_eq(*a2, *b2) && almost_eq(*a3, *b3) && almost_eq(*a4, *b4)
     }
-}
-
-fn almost_eq(x1: f64, x2: f64) -> bool {
-    f64::abs(x1 - x2) < EPSILON
 }
 
 impl Add for Tuple4 {

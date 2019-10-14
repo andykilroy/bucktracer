@@ -85,10 +85,24 @@ fn normal_on_a_cube() {
     scenario_normal_of_a_cube(point(-1.0, -1.0, -1.0), vector(-1.0, 0.0, 0.0));
 }
 
-fn scenario_normal_of_a_cube(pos: Tuple4, normal: Tuple4)
-{
+fn scenario_normal_of_a_cube(pos: Tuple4, normal: Tuple4) {
     let c = cube();
     let n = c.normal_at(pos);
     assert_eq!(normal, n);
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn rays_miss_a_cylinder() {
+    scenario_rays_miss_a_cylinder(point(1.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+    scenario_rays_miss_a_cylinder(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+    scenario_rays_miss_a_cylinder(point(0.0, 0.0, -5.0), vector(1.0, 1.0, 1.0));
+}
+
+fn scenario_rays_miss_a_cylinder(origin: Tuple4, direction: Tuple4) {
+    let c = cylinder();
+    let r = ray(origin, direction.normalize());
+    let mut v = vec![];
+    append_intersects(&r, &c, &mut v);
+    assert_eq!(0, v.len());
+}

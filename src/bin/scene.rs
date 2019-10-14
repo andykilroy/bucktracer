@@ -61,6 +61,7 @@ fn to_object(conf: &ObjectConfig) -> Object {
         Shape::Sphere => unit_sphere(),
         Shape::Plane => plane(),
         Shape::Cube => cube(),
+        Shape::Cylinder => cylinder(),
     };
 
     s.set_object_to_world_spc(transform_matrix(conf.transforms.clone()));
