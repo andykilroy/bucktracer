@@ -255,12 +255,12 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
         (2.0 * ray.origin.z() * ray.direction.z());
 
     let c = ray.origin.x().powi(2) + ray.origin.z().powi(2) - 1.0;
-
     let disc = b.powi(2) - (4.0 * a * c);
-
     if disc < 0.0 { return None ; }
 
-    return Some((intersection(1.0, obj), intersection(1.0, obj)));
+    let t0 = ( -b - disc.sqrt()) / (2.0*a);
+    let t1 = ( -b + disc.sqrt()) / (2.0*a);
+    return Some((intersection(t0, obj), intersection(t1, obj)));
 }
 
 #[cfg(test)]

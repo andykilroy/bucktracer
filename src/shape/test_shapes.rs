@@ -107,3 +107,21 @@ fn scenario_rays_miss_a_cylinder(origin: Tuple4, direction: Tuple4) {
     append_intersects(&r, &c, &mut v);
     assert_eq!(0, v.len());
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn ray_hits_a_cylinder() {
+    scenario_ray_hits_a_cylinder(point(1.0, 0.0, -5.0), vector(0.0, 0.0, 1.0), 5.0, 5.0);
+    scenario_ray_hits_a_cylinder(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0), 4.0, 6.0);
+    scenario_ray_hits_a_cylinder(point(0.5, 0.0, -5.0), vector(0.1, 1.0, 1.0), 6.80798, 7.08872);
+}
+
+fn scenario_ray_hits_a_cylinder(origin: Tuple4, direction: Tuple4, t0: f64, t1:f64) {
+    let c = cylinder();
+    let r = ray(origin, direction.normalize());
+    let mut v = vec![];
+    append_intersects(&r, &c, &mut v);
+    assert_eq!(2, v.len());
+    assert_eq!(true, almost_eq(t0, v[0].t_value));
+    assert_eq!(true, almost_eq(t1, v[1].t_value));
+}
