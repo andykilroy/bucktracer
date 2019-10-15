@@ -68,9 +68,13 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder => unimplemented!(),
+            Shape::Cylinder => normal_of_cylinder(position),
         }
     }
+}
+
+fn normal_of_cylinder(pos: Tuple4) -> Tuple4 {
+    vector(pos.x(), 0.0, pos.z())
 }
 
 fn normal_of_cube(pos: Tuple4) -> Tuple4 {
