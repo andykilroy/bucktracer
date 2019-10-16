@@ -1,6 +1,7 @@
 use crate::*;
 use std::f64::INFINITY;
 
+/// A sphere of radius 1 centred at the origin.
 pub fn unit_sphere() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -9,6 +10,7 @@ pub fn unit_sphere() -> Object {
     }
 }
 
+/// A transparent sphere of radius 1 centred at the origin.
 pub fn glass_sphere() -> Object {
     let mut glass = Material::default();
     glass.set_transparency(1.0);
@@ -20,6 +22,7 @@ pub fn glass_sphere() -> Object {
     }
 }
 
+/// The x-z plane intersecting y=0.
 pub fn plane() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -28,6 +31,11 @@ pub fn plane() -> Object {
     }
 }
 
+/// A cube centred on the origin whose vertices are
+/// 1 unit away from the nearest point on the x,y,z axis.
+///
+/// The length of each edge is 2.  The distance from the origin
+/// to any vertex is sqrt(2).
 pub fn cube() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -36,6 +44,10 @@ pub fn cube() -> Object {
     }
 }
 
+/// A cylinder oriented along the y-axis, with radius 1.
+///
+/// Imagine a circle of radius 1, centred at the origin
+/// in the x-z plane, extruded along the y-axis.
 pub fn cylinder() -> Object {
     Object {
         world_to_object_spc: identity(),
