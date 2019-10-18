@@ -44,15 +44,20 @@ pub fn cube() -> Object {
     }
 }
 
-/// A cylinder oriented along the y-axis, with radius 1.
+/// An infinitely long cylinder whose length extends along the y-axis,
+/// with radius 1.
 ///
 /// Imagine a circle of radius 1, centred at the origin
 /// in the x-z plane, extruded along the y-axis.
-pub fn cylinder() -> Object {
+pub fn inf_cylinder() -> Object {
+    cylinder(std::f64::NEG_INFINITY, std::f64::INFINITY)
+}
+
+pub fn cylinder(min_extent: f64, max_extent: f64) -> Object {
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
-        shape: Shape::Cylinder,
+        shape: Shape::Cylinder (min_extent, max_extent),
     }
 }
 
@@ -64,7 +69,7 @@ pub enum Shape {
     Sphere,
     Plane,
     Cube,
-    Cylinder,
+    Cylinder (f64, f64),
 }
 
 impl Shape {
@@ -80,7 +85,7 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder => normal_of_cylinder(position),
+            Shape::Cylinder(_, _) => normal_of_cylinder(position),
         }
     }
 }
@@ -194,11 +199,22 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
                 vec.push(b);
             }
         }
-        Shape::Cylinder => {
-            if let Some((a, b)) = intersect_cylinder(&r, s) {
-                vec.push(a);
-                vec.push(b);
-            }
+        Shape::Cylinder (lower, upper) => {
+            append_cyl_intersects(&r, s, vec, lower, upper)
+        }
+    }
+}
+
+fn append_cyl_intersects(r: &Ray, cyl: &Object, vec: &mut Vec<Intersection>, lower: f64, upper: f64) -> () {
+    if let Some((a, b)) = intersect_cylinder(&r, cyl) {
+        let ya = (r.origin + (r.direction.scale(a.t_value))).y();
+        let yb = (r.origin + (r.direction.scale(b.t_value))).y();
+
+        if lower < ya && ya < upper {
+            vec.push(a);
+        }
+        if lower < yb && yb < upper {
+            vec.push(b);
         }
     }
 }

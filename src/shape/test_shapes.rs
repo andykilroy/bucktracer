@@ -1,5 +1,6 @@
 use crate::*;
 use std::f64::consts::FRAC_PI_2;
+use std::f64::{INFINITY, NEG_INFINITY};
 
 #[allow(non_snake_case)]
 #[test]
@@ -101,7 +102,7 @@ fn rays_miss_a_cylinder() {
 }
 
 fn scenario_rays_miss_a_cylinder(origin: Tuple4, direction: Tuple4) {
-    let c = cylinder();
+    let c = inf_cylinder();
     let r = ray(origin, direction.normalize());
     let mut v = vec![];
     append_intersects(&r, &c, &mut v);
@@ -117,7 +118,7 @@ fn ray_hits_a_cylinder() {
 }
 
 fn scenario_ray_hits_a_cylinder(origin: Tuple4, direction: Tuple4, t0: f64, t1:f64) {
-    let c = cylinder();
+    let c = inf_cylinder();
     let r = ray(origin, direction.normalize());
     let mut v = vec![];
     append_intersects(&r, &c, &mut v);
@@ -136,7 +137,54 @@ fn normal_on_a_cylinder() {
 }
 
 fn scenario_normal_on_a_cylinder(origin: Tuple4, normal: Tuple4) {
-    let c = cylinder();
+    let c = inf_cylinder();
     let n = c.normal_at(origin);
     assert_eq!(normal, n);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___default_extents_are_infinite() {
+    assert_eq!(inf_cylinder(), cylinder(NEG_INFINITY, INFINITY));
+    assert_ne!(inf_cylinder(), cylinder(NEG_INFINITY, 6.0));
+    assert_ne!(inf_cylinder(), cylinder(-1.0, INFINITY));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___with_same_limits___compare_equal() {
+    let ninf = NEG_INFINITY;
+    let inf = INFINITY;
+    assert_eq!(cylinder(ninf, inf), cylinder(ninf, inf));
+    assert_eq!(cylinder( 6.0, 7.0), cylinder( 6.0, 7.0));
+    assert_eq!(cylinder( 6.0, inf), cylinder( 6.0, inf));
+    assert_eq!(cylinder(-9.0, 1.0), cylinder(-9.0, 1.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___with_different_limits___are_not_equal() {
+    assert_ne!(cylinder(6.0, 7.0), cylinder(6.0, 8.0));
+    assert_ne!(cylinder(6.0, 7.0), cylinder(-10.0, 1.0));
+    assert_ne!(cylinder(6.0, 7.0), cylinder(0.0, 7.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___when_ray_hits_between_limits___is_intersected() {
+    count_intersects(point(0.0, 1.5, 0.0), vector(0.1, 1.0, 0.0), 0);
+    count_intersects(point(0.0, 3.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(point(0.0, 1.5, -2.0), vector(0.0, 0.0, 1.0), 2);
+}
+
+fn count_intersects(pos: Tuple4, direction: Tuple4, count: usize) {
+    let c = cylinder(1.0, 2.0);
+    let dir = direction.normalize();
+    let r = ray(pos, dir);
+    let mut xs = vec![];
+    append_intersects(&r, &c, &mut xs);
+    assert_eq!(count, xs.len())
 }
