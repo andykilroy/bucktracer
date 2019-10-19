@@ -145,9 +145,15 @@ fn scenario_normal_on_a_cylinder(origin: Tuple4, normal: Tuple4) {
 #[allow(non_snake_case)]
 #[test]
 fn cylinder___default_extents_are_infinite() {
-    assert_eq!(inf_cylinder(), cylinder(NEG_INFINITY, INFINITY));
-    assert_ne!(inf_cylinder(), cylinder(NEG_INFINITY, 6.0));
-    assert_ne!(inf_cylinder(), cylinder(-1.0, INFINITY));
+    assert_eq!(inf_cylinder(), cylinder(false, NEG_INFINITY, INFINITY));
+    assert_ne!(inf_cylinder(), cylinder(false, NEG_INFINITY, 6.0));
+    assert_ne!(inf_cylinder(), cylinder(false, -1.0, INFINITY));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___infinite_cylinders_are_not_closed() {
+    assert_ne!(inf_cylinder(), cylinder(true, NEG_INFINITY, INFINITY));
 }
 
 #[allow(non_snake_case)]
@@ -155,18 +161,29 @@ fn cylinder___default_extents_are_infinite() {
 fn cylinder___with_same_limits___compare_equal() {
     let ninf = NEG_INFINITY;
     let inf = INFINITY;
-    assert_eq!(cylinder(ninf, inf), cylinder(ninf, inf));
-    assert_eq!(cylinder( 6.0, 7.0), cylinder( 6.0, 7.0));
-    assert_eq!(cylinder( 6.0, inf), cylinder( 6.0, inf));
-    assert_eq!(cylinder(-9.0, 1.0), cylinder(-9.0, 1.0));
+    assert_eq!(cylinder(false, ninf, inf), cylinder(false, ninf, inf));
+    assert_eq!(cylinder(false,  6.0, 7.0), cylinder(false,  6.0, 7.0));
+    assert_eq!(cylinder(false,  6.0, inf), cylinder(false,  6.0, inf));
+    assert_eq!(cylinder(false, -9.0, 1.0), cylinder(false, -9.0, 1.0));
+
+    assert_eq!(cylinder(true, ninf, inf), cylinder(true, ninf, inf));
+    assert_eq!(cylinder(true,  6.0, 7.0), cylinder(true,  6.0, 7.0));
+    assert_eq!(cylinder(true,  6.0, inf), cylinder(true,  6.0, inf));
+    assert_eq!(cylinder(true, -9.0, 1.0), cylinder(true, -9.0, 1.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___differ_only_by_closed_are_not_equal() {
+    assert_ne!(cylinder(false,  6.0, 7.0), cylinder(true,  6.0, 7.0));
 }
 
 #[allow(non_snake_case)]
 #[test]
 fn cylinder___with_different_limits___are_not_equal() {
-    assert_ne!(cylinder(6.0, 7.0), cylinder(6.0, 8.0));
-    assert_ne!(cylinder(6.0, 7.0), cylinder(-10.0, 1.0));
-    assert_ne!(cylinder(6.0, 7.0), cylinder(0.0, 7.0));
+    assert_ne!(cylinder(false, 6.0, 7.0), cylinder(false, 6.0, 8.0));
+    assert_ne!(cylinder(false, 6.0, 7.0), cylinder(false, -10.0, 1.0));
+    assert_ne!(cylinder(false, 6.0, 7.0), cylinder(false, 0.0, 7.0));
 }
 
 #[allow(non_snake_case)]
@@ -181,7 +198,7 @@ fn cylinder___when_ray_hits_between_limits___is_intersected() {
 }
 
 fn count_intersects(pos: Tuple4, direction: Tuple4, count: usize) {
-    let c = cylinder(1.0, 2.0);
+    let c = cylinder(false, 1.0, 2.0);
     let dir = direction.normalize();
     let r = ray(pos, dir);
     let mut xs = vec![];

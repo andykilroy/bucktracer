@@ -50,14 +50,14 @@ pub fn cube() -> Object {
 /// Imagine a circle of radius 1, centred at the origin
 /// in the x-z plane, extruded along the y-axis.
 pub fn inf_cylinder() -> Object {
-    cylinder(std::f64::NEG_INFINITY, std::f64::INFINITY)
+    cylinder(false, std::f64::NEG_INFINITY, std::f64::INFINITY)
 }
 
-pub fn cylinder(min_extent: f64, max_extent: f64) -> Object {
+pub fn cylinder(closed: bool, lbound: f64, ubound: f64) -> Object {
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
-        shape: Shape::Cylinder (min_extent, max_extent),
+        shape: Shape::Cylinder { closed, lbound, ubound },
     }
 }
 
@@ -69,7 +69,7 @@ pub enum Shape {
     Sphere,
     Plane,
     Cube,
-    Cylinder (f64, f64),
+    Cylinder { closed: bool, lbound: f64, ubound: f64 },
 }
 
 impl Shape {
@@ -85,7 +85,9 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder(_, _) => normal_of_cylinder(position),
+            Shape::Cylinder { closed, lbound, ubound } => {
+                normal_of_cylinder(position)
+            },
         }
     }
 }
@@ -199,8 +201,8 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
                 vec.push(b);
             }
         }
-        Shape::Cylinder (lower, upper) => {
-            append_cyl_intersects(&r, s, vec, lower, upper)
+        Shape::Cylinder {closed, lbound, ubound} => {
+            append_cyl_intersects(&r, s, vec, lbound, ubound)
         }
     }
 }
