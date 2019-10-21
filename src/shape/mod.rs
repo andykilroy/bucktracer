@@ -202,24 +202,11 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
             }
         }
         Shape::Cylinder {closed, lbound, ubound} => {
-            append_cyl_intersects(&r, s, vec, lbound, ubound)
+            append_cyl_intersects(&r, s, vec, closed, lbound, ubound)
         }
     }
 }
 
-fn append_cyl_intersects(r: &Ray, cyl: &Object, vec: &mut Vec<Intersection>, lower: f64, upper: f64) -> () {
-    if let Some((a, b)) = intersect_cylinder(&r, cyl) {
-        let ya = (r.origin + (r.direction.scale(a.t_value))).y();
-        let yb = (r.origin + (r.direction.scale(b.t_value))).y();
-
-        if lower < ya && ya < upper {
-            vec.push(a);
-        }
-        if lower < yb && yb < upper {
-            vec.push(b);
-        }
-    }
-}
 
 fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {
     // presume the sphere is centred at (0,0,0)
@@ -277,6 +264,56 @@ fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
     } else {
         Some(intersection(-r.origin.y() / r.direction.y(), s))
     }
+}
+
+fn append_cyl_intersects(
+    r: &Ray,
+    cyl: &Object,
+    vec: &mut Vec<Intersection>,
+    closed: bool,
+    lower: f64,
+    upper: f64) -> ()
+{
+    if let Some((a, b)) = intersect_cylinder(&r, cyl) {
+        let ya = (r.origin + (r.direction.scale(a.t_value))).y();
+        let yb = (r.origin + (r.direction.scale(b.t_value))).y();
+
+        if lower < ya && ya < upper {
+            vec.push(a);
+        }
+
+        if lower < yb && yb < upper {
+            vec.push(b);
+        }
+    }
+
+    intersect_caps(cyl, r, vec);
+}
+
+fn intersect_caps(cyl: &Object, r: &Ray, vec: &mut Vec<Intersection>) {
+
+    if let Shape::Cylinder {closed, lbound, ubound } = cyl.shape {
+        if (!closed) || almost_eq(r.direction.y().abs(), 0.0) {
+            return;
+        }
+
+        let t0 = (lbound - r.origin.y()) / r.direction.y() ;
+        let t1 = (ubound - r.origin.y()) / r.direction.y() ;
+
+        if check_cap(r, t0) {
+            vec.push(intersection(t0, cyl))
+        }
+
+        if check_cap(r, t1) {
+            vec.push(intersection(t1, cyl))
+        }
+    }
+}
+
+fn check_cap(ray: &Ray, t: f64) -> bool {
+    let x = ray.origin.x() + (t * ray.direction.x());
+    let z = ray.origin.z() + (t * ray.direction.z());
+    x.powi(2) + z.powi(2) <= 1.0
 }
 
 fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {

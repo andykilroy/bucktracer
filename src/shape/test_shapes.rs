@@ -189,19 +189,29 @@ fn cylinder___with_different_limits___are_not_equal() {
 #[allow(non_snake_case)]
 #[test]
 fn cylinder___when_ray_hits_between_limits___is_intersected() {
-    count_intersects(point(0.0, 1.5, 0.0), vector(0.1, 1.0, 0.0), 0);
-    count_intersects(point(0.0, 3.0, -5.0), vector(0.0, 0.0, 1.0), 0);
-    count_intersects(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0), 0);
-    count_intersects(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0), 0);
-    count_intersects(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0), 0);
-    count_intersects(point(0.0, 1.5, -2.0), vector(0.0, 0.0, 1.0), 2);
+    count_intersects(false, point(0.0, 1.5, 0.0),  vector(0.1, 1.0, 0.0), 0);
+    count_intersects(false, point(0.0, 3.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(false, point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(false, point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(false, point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0), 0);
+    count_intersects(false, point(0.0, 1.5, -2.0), vector(0.0, 0.0, 1.0), 2);
 }
 
-fn count_intersects(pos: Tuple4, direction: Tuple4, count: usize) {
-    let c = cylinder(false, 1.0, 2.0);
+fn count_intersects(closed: bool, pos: Tuple4, direction: Tuple4, count: usize) {
+    let c = cylinder(closed, 1.0, 2.0);
     let dir = direction.normalize();
     let r = ray(pos, dir);
     let mut xs = vec![];
     append_intersects(&r, &c, &mut xs);
     assert_eq!(count, xs.len())
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn cylinder___intersect_end_caps() {
+    count_intersects(true, point(0.0, 3.0, 0.0), vector(0.0,-1.0, 0.0), 2);
+    count_intersects(true, point(0.0, 3.0,-2.0), vector(0.0,-1.0, 2.0), 2);
+    count_intersects(true, point(0.0, 4.0,-2.0), vector(0.0,-1.0, 1.0), 2);
+    count_intersects(true, point(0.0, 0.0,-2.0), vector(0.0, 1.0, 2.0), 2);
+    count_intersects(true, point(0.0,-1.0,-2.0), vector(0.0, 1.0, 1.0), 2);
 }
