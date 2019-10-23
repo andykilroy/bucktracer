@@ -1,6 +1,6 @@
 use bucktracer::*;
 use exitfailure::ExitFailure;
-use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
+use std::f64::consts::FRAC_PI_2;
 use std::io::stdout;
 
 fn main() -> Result<(), ExitFailure> {

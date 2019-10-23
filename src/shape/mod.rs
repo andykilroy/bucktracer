@@ -93,15 +93,26 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder { kind, lbound, ubound } => {
-                normal_of_cylinder(position)
+            Shape::Cylinder { kind: _, lbound, ubound } => {
+                normal_of_cylinder(lbound, ubound, position)
             },
         }
     }
 }
 
-fn normal_of_cylinder(pos: Tuple4) -> Tuple4 {
-    vector(pos.x(), 0.0, pos.z())
+fn normal_of_cylinder(lbound: f64, ubound: f64, pos: Tuple4) -> Tuple4 {
+    let mag = pos.x().powi(2) + pos.z().powi(2);
+    if mag < 1.0 {
+        if pos.y() >= (ubound - crate::EPSILON) {
+            vector(0.0, 1.0, 0.0)
+        } else if pos.y() <= (lbound + crate::EPSILON) {
+            vector(0.0, -1.0, 0.0)
+        } else {
+            vector(pos.x(), 0.0, pos.z())
+        }
+    } else {
+        vector(pos.x(), 0.0, pos.z())
+    }
 }
 
 fn normal_of_cube(pos: Tuple4) -> Tuple4 {

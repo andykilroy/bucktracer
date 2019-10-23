@@ -1,6 +1,5 @@
 use std::ops::{Add, Index, Mul, Neg, Sub};
 
-use super::EPSILON;
 use super::almost_eq;
 
 #[derive(Debug, Copy, Clone)]
