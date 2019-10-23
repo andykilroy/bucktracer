@@ -61,8 +61,8 @@ fn to_object(conf: &ObjectConfig) -> Object {
         Shape::Sphere => unit_sphere(),
         Shape::Plane => plane(),
         Shape::Cube => cube(),
-        Shape::Cylinder { closed, lbound, ubound } => {
-            cylinder(false, lbound, ubound)
+        Shape::Cylinder { kind, lbound, ubound } => {
+            cylinder(kind, lbound, ubound)
         }
     };
 

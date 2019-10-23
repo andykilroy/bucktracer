@@ -55,7 +55,7 @@ fn main() -> Result<(), ExitFailure> {
         translation(0.0, 300.0, 4000.0) * scaling(400.0, 400.0, 400.0)
     );
 
-    let mut cyl = cylinder(true, -1.0, 1.0);
+    let mut cyl = cylinder(CylKind::Closed, -1.0, 1.0);
     cyl.set_material(silver);
     cyl.set_object_to_world_spc(
         translation(3.0, 0.0, 3.0)

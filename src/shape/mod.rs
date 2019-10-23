@@ -50,14 +50,14 @@ pub fn cube() -> Object {
 /// Imagine a circle of radius 1, centred at the origin
 /// in the x-z plane, extruded along the y-axis.
 pub fn inf_cylinder() -> Object {
-    cylinder(false, std::f64::NEG_INFINITY, std::f64::INFINITY)
+    cylinder(CylKind::Open, std::f64::NEG_INFINITY, std::f64::INFINITY)
 }
 
-pub fn cylinder(closed: bool, lbound: f64, ubound: f64) -> Object {
+pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
-        shape: Shape::Cylinder { closed, lbound, ubound },
+        shape: Shape::Cylinder { kind: kind, lbound, ubound },
     }
 }
 
@@ -69,7 +69,15 @@ pub enum Shape {
     Sphere,
     Plane,
     Cube,
-    Cylinder { closed: bool, lbound: f64, ubound: f64 },
+    Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
+}
+
+/// Used to dictate whether a cylinder is open ended
+/// or has closed ends.
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
+pub enum CylKind {
+    Open,
+    Closed,
 }
 
 impl Shape {
@@ -85,7 +93,7 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder { closed, lbound, ubound } => {
+            Shape::Cylinder { kind, lbound, ubound } => {
                 normal_of_cylinder(position)
             },
         }
@@ -201,8 +209,8 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
                 vec.push(b);
             }
         }
-        Shape::Cylinder {closed, lbound, ubound} => {
-            append_cyl_intersects(&r, s, vec, closed, lbound, ubound)
+        Shape::Cylinder { kind: _, lbound, ubound} => {
+            append_cyl_intersects(&r, s, vec, lbound, ubound)
         }
     }
 }
@@ -270,7 +278,6 @@ fn append_cyl_intersects(
     r: &Ray,
     cyl: &Object,
     vec: &mut Vec<Intersection>,
-    closed: bool,
     lower: f64,
     upper: f64) -> ()
 {
@@ -292,8 +299,8 @@ fn append_cyl_intersects(
 
 fn intersect_caps(cyl: &Object, r: &Ray, vec: &mut Vec<Intersection>) {
 
-    if let Shape::Cylinder {closed, lbound, ubound } = cyl.shape {
-        if (!closed) || almost_eq(r.direction.y().abs(), 0.0) {
+    if let Shape::Cylinder { kind, lbound, ubound } = cyl.shape {
+        if kind == CylKind::Open || almost_eq(r.direction.y().abs(), 0.0) {
             return;
         }
 

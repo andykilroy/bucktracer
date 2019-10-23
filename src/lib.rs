@@ -487,7 +487,7 @@ impl World {
         });
         poss_hit.unwrap_or_else(RGB::black)
     }
-    
+
     fn reflected_colour(self: &Self, comps: &HitCalculations, rlimit: u32) -> RGB {
         if rlimit == 0 {
             return RGB::black();
