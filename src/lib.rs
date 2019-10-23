@@ -487,22 +487,7 @@ impl World {
         });
         poss_hit.unwrap_or_else(RGB::black)
     }
-
-    pub fn in_shadow(self: &Self, point: Tuple4, light: &RadialLightSource) -> bool {
-        let point_to_light = light.position() - point;
-        let mag = point_to_light.magnitude();
-        let r = ray(point, point_to_light.normalize());
-
-        // TODO return a transparency value
-        // need to consider all intersections along the ray
-        // and accumulate the transparency value
-        let h = hit(self.intersect(&r));
-        match h {
-            Some(i) => i.t_value < mag,
-            _ => false,
-        }
-    }
-
+    
     fn reflected_colour(self: &Self, comps: &HitCalculations, rlimit: u32) -> RGB {
         if rlimit == 0 {
             return RGB::black();
