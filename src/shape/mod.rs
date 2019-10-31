@@ -61,6 +61,14 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     }
 }
 
+pub fn mesh(faces: Vec<usize>, vertices: Vec<Tuple4>) -> Object {
+    Object {
+        world_to_object_spc: identity(),
+        material: Material::default(),
+        shape: Shape::TriMesh { faces, vertices },
+    }
+}
+
 /// Determines what shape an object has.
 ///
 /// Influences the calculation of surface normals and intersections.
@@ -70,6 +78,7 @@ pub enum Shape {
     Plane,
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
+    TriMesh { faces: Vec<usize>, vertices: Vec<Tuple4> }
 }
 
 /// Used to dictate whether a cylinder is open ended
@@ -95,6 +104,9 @@ impl Shape {
             Shape::Cube => normal_of_cube(position),
             Shape::Cylinder { kind: _, lbound, ubound } => {
                 normal_of_cylinder(lbound, ubound, position)
+            },
+            Shape::TriMesh { faces, vertices } => {
+                vector(0.0, 0.0, 1.0)
             },
         }
     }
@@ -222,6 +234,9 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         }
         Shape::Cylinder { kind: _, lbound, ubound} => {
             append_cyl_intersects(&r, s, vec, lbound, ubound)
+        }
+        Shape::TriMesh { faces, vertices } => {
+            unimplemented!()
         }
     }
 }
