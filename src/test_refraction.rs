@@ -52,8 +52,8 @@ fn under_point_is_below_the_surface() {
 fn refracted_colour_of_opaque_surface_is_black() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-    let shape = w.objects[0];
-    let xs = vec![intersection(4.0, &shape), intersection(6.0, &shape)];
+    let shape = &w.objects[0];
+    let xs = vec![intersection(4.0, shape), intersection(6.0, shape)];
     let comps = hit_data(&r, 0, &xs);
 
     assert_eq!(w.refracted_colour(&comps, 5), RGB::black());
@@ -124,12 +124,12 @@ fn shade_hit_transparent_material() {
     let mut floor = plane();
     floor.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
     floor.mut_material().set_transparency(0.5).set_refractive_index(1.5);
-    w.objects.push(floor);
+    w.objects.push(floor.clone());
 
     let mut ball = unit_sphere();
     ball.set_object_to_world_spc(translation(0.0, -3.5, -0.5));
     ball.mut_material().set_pattern(Pattern::solid(colour(1.0, 0.0, 0.0))).set_ambient(0.5);
-    w.objects.push(ball);
+    w.objects.push(ball.clone());
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let xs = vec![intersection(SQRT_2, &floor)];
@@ -186,8 +186,8 @@ fn shade_hit_with_reflective_transparent_material() {
         .set_ambient(0.5);
     ball.set_object_to_world_spc(translation(0.0, -3.5, -0.5));
 
-    w.objects.push(floor);
-    w.objects.push(ball);
+    w.objects.push(floor.clone());
+    w.objects.push(ball.clone());
 
     let xs = vec![intersection(SQRT_2, &floor)];
     let comps = hit_data(&r, 0, &xs);

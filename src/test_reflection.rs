@@ -19,7 +19,7 @@ fn reflected_colour_for_non_reflective_material_is_black() {
     w.objects[1].mut_material().set_reflective(0.0);
     w.objects[1].mut_material().set_ambient(1.0);
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-    let obj: Object = w.objects[1];
+    let obj: Object = w.objects[1].clone();
     let i = intersection(1.0, &obj);
 
     assert_eq!(
@@ -34,7 +34,7 @@ fn reflected_colour_for_reflective_material() {
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
-    w.objects.push(p);
+    w.objects.push(p.clone());
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);
@@ -49,7 +49,7 @@ fn shade_hit_for_reflective_material() {
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
-    w.objects.push(p);
+    w.objects.push(p.clone());
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);
@@ -64,7 +64,7 @@ fn colour_at_max_recursion_depth() {
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
     p.set_object_to_world_spc(translation(0.0, -1.0, 0.0));
-    w.objects.push(p);
+    w.objects.push(p.clone());
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);

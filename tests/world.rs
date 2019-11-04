@@ -15,8 +15,8 @@ fn properties_of_default_world() {
     assert_eq!(light.position(), point(-10.0, 10.0, -10.0));
     assert_eq!(light.intensity(), colour(1.0, 1.0, 1.0));
 
-    let s1 = world.objects()[0];
-    let s2 = world.objects()[1];
+    let s1 = &world.objects()[0];
+    let s2 = &world.objects()[1];
     let p = Pattern::solid(colour(0.8, 1.0, 0.6));
     assert_eq!(s1.material().pattern(), p);
     assert_eq!(s1.material().diffuse(), 0.7);
@@ -44,8 +44,8 @@ fn colour_when_a_ray_hits() {
 #[test]
 fn colour_with_an_intersection_behind_the_ray() {
     let mut w = World::default();
-    let mut outer = w.objects()[0];
-    let mut inner = w.objects()[1];
+    let mut outer = w.objects()[0].clone();
+    let mut inner = w.objects()[1].clone();
 
     let mut outer_mat = outer.material();
     outer.set_material(outer_mat.set_ambient(1.0).clone());

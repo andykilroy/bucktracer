@@ -81,7 +81,7 @@ fn finding_hits_when_t_values_are_positive() {
     let s = unit_sphere();
     let i1 = intersection(1.0, &s);
     let i2 = intersection(2.0, &s);
-    let xs = vec![i1, i2];
+    let xs = vec![i1.clone(), i2.clone()];
     assert_eq!(Some(i1), hit(xs));
 }
 
@@ -90,7 +90,7 @@ fn finding_hits_when_some_intersections_have_negative_t() {
     let s = unit_sphere();
     let i1 = intersection(-1.0, &s);
     let i2 = intersection(1.0, &s);
-    let xs = vec![i1, i2];
+    let xs = vec![i1.clone(), i2.clone()];
     assert_eq!(Some(i2), hit(xs));
 }
 
@@ -110,7 +110,7 @@ fn finding_hits_always_the_lowest_non_negative_t() {
     let i2 = intersection(7.0, &s);
     let i3 = intersection(-3.0, &s);
     let i4 = intersection(2.0, &s);
-    let xs = vec![i1, i2, i3, i4];
+    let xs = vec![i1, i2, i3, i4.clone()];
     assert_eq!(Some(i4), hit(xs));
 }
 
