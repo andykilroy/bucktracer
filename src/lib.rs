@@ -183,7 +183,7 @@ impl Ray {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Intersection {
     pub t_value: f64,
     pub intersected: Object,
@@ -192,7 +192,7 @@ pub struct Intersection {
 pub fn intersection(t: f64, s: &Object) -> Intersection {
     Intersection {
         t_value: t,
-        intersected: *s,
+        intersected: s.clone(),
     }
 }
 
@@ -200,7 +200,7 @@ pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
     let opt = index_of_hit(&intersects);
     match opt {
         None => None,
-        Some(u) => Some(intersects[u])
+        Some(u) => Some(intersects[u].clone())
     }
 }
 
@@ -564,7 +564,7 @@ struct HitCalculations {
 }
 
 fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
-    let singleton = [*hit; 1];
+    let singleton = [hit.clone(); 1];
     hit_data(r, 0, &singleton)
 }
 
@@ -580,7 +580,7 @@ fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalcul
 
     HitCalculations {
         t_value: hit.t_value,
-        object: hit.intersected,
+        object: hit.intersected.clone(),
         point: pos,
         eyev: e,
         normalv: norm,
@@ -594,7 +594,7 @@ fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalcul
 }
 
 fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f64) {
-    let mut containers: Vec<Object> = Vec::with_capacity(intersects.len());
+    let mut containers: Vec<&Object> = Vec::with_capacity(intersects.len());
     let mut n1 = 1.0;
     let mut n2 = 1.0;
     for (i, current) in intersects.iter().enumerate() {
@@ -603,7 +603,8 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
                 n1 = containers.last().unwrap().material().refractive_index();
             }
         }
-        let object: Object = current.intersected;
+        let object: &Object = &current.intersected;
+
 
         match find(&containers, object) {
             Some(obj_index) => containers.remove(obj_index),
@@ -624,7 +625,7 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
     (n1, n2)
 }
 
-fn find(objects: &[Object], obj: Object) -> Option<usize> {
+fn find(objects: &[&Object], obj: &Object) -> Option<usize> {
     for (i, item) in objects.iter().enumerate() {
         if *item == obj {
             return Some(i)

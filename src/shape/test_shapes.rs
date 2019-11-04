@@ -242,9 +242,9 @@ fn triangle_mesh___create() {
         point(1.0, 0.0, 0.0),
         point(0.0, 1.0, 0.0),
     ];
-    let faces: Vec<usize> = vec![face(0, 1, 2)];
+    let faces: Vec<Face> = vec![face(0, 1, 2)];
 
-    let o = mesh(faces, &vertices);
+    let o = mesh(faces, vertices);
 
     assert_eq!(o.normal_at(point(0.0, 0.0, 0.0)), vector(0.0, 0.0, -1.0));
 }

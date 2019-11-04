@@ -61,7 +61,10 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     }
 }
 
-pub fn mesh(faces: Vec<usize>, vertices: Vec<Tuple4>) -> Object {
+#[derive(Debug, Clone, PartialEq)]
+pub struct Face (usize, usize, usize);
+
+pub fn mesh(faces: Vec<Face>, vertices: Vec<Tuple4>) -> Object {
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
@@ -69,21 +72,26 @@ pub fn mesh(faces: Vec<usize>, vertices: Vec<Tuple4>) -> Object {
     }
 }
 
+
+pub fn face(f1: usize, f2: usize, f3: usize) -> Face {
+    Face(f1, f2, f3)
+}
+
 /// Determines what shape an object has.
 ///
 /// Influences the calculation of surface normals and intersections.
-#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Shape {
     Sphere,
     Plane,
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
-    TriMesh { faces: Vec<usize>, vertices: Vec<Tuple4> }
+    TriMesh { faces: Vec<Face>, vertices: Vec<Tuple4> }
 }
 
 /// Used to dictate whether a cylinder is open ended
 /// or has closed ends.
-#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum CylKind {
     Open,
     Closed,
@@ -94,7 +102,7 @@ impl Shape {
     /// specified position.  The position is always in object
     /// co-ordinates.  The returned normal vector is also in
     /// object space.
-    fn local_normal_at(self, position: Tuple4) -> Tuple4 {
+    fn local_normal_at(&self, position: Tuple4) -> Tuple4 {
         match self {
             Shape::Sphere => {
                 // presume the sphere is centred at (0, 0, 0)
@@ -103,7 +111,7 @@ impl Shape {
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
             Shape::Cylinder { kind: _, lbound, ubound } => {
-                normal_of_cylinder(lbound, ubound, position)
+                normal_of_cylinder(*lbound, *ubound, position)
             },
             Shape::TriMesh { faces, vertices } => {
                 vector(0.0, 0.0, 1.0)
@@ -151,7 +159,7 @@ fn normal_of_cube(pos: Tuple4) -> Tuple4 {
 /// the world, and also whether it is scaled or rotated in any way.
 /// It also is associated with material dictating its surface
 /// properties.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Object {
     world_to_object_spc: Matrix,
     material: Material,
@@ -213,7 +221,7 @@ impl Object {
 pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let to_object_space = s.world_to_object_spc();
     let r = orig.transform(&to_object_space);
-    let shape = s.shape;
+    let shape = &s.shape;
     match shape {
         Shape::Sphere => {
             if let Some((a, b)) = intersect_sphere(&r, s) {
@@ -233,7 +241,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
             }
         }
         Shape::Cylinder { kind: _, lbound, ubound} => {
-            append_cyl_intersects(&r, s, vec, lbound, ubound)
+            append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         }
         Shape::TriMesh { faces, vertices } => {
             unimplemented!()
