@@ -57,7 +57,7 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
-        shape: Shape::Cylinder { kind: kind, lbound, ubound },
+        shape: Shape::Cylinder { kind, lbound, ubound },
     }
 }
 
@@ -110,7 +110,7 @@ impl Shape {
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
             Shape::Cube => normal_of_cube(position),
-            Shape::Cylinder { kind: _, lbound, ubound } => {
+            Shape::Cylinder { lbound, ubound, ..} => {
                 normal_of_cylinder(*lbound, *ubound, position)
             },
             Shape::TriMesh { faces, vertices } => {
@@ -240,7 +240,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
                 vec.push(b);
             }
         }
-        Shape::Cylinder { kind: _, lbound, ubound} => {
+        Shape::Cylinder { lbound, ubound, .. } => {
             append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         }
         Shape::TriMesh { faces, vertices } => {
@@ -313,7 +313,7 @@ fn append_cyl_intersects(
     cyl: &Object,
     vec: &mut Vec<Intersection>,
     lower: f64,
-    upper: f64) -> ()
+    upper: f64)
 {
     if let Some((a, b)) = intersect_cylinder(&r, cyl) {
         let ya = (r.origin + (r.direction.scale(a.t_value))).y();
@@ -372,7 +372,8 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
 
     let t0 = ( -b - disc.sqrt()) / (2.0*a);
     let t1 = ( -b + disc.sqrt()) / (2.0*a);
-    return Some((intersection(t0, obj), intersection(t1, obj)));
+
+    Some((intersection(t0, obj), intersection(t1, obj)))
 }
 
 #[cfg(test)]
