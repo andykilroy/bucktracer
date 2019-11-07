@@ -61,11 +61,12 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     }
 }
 
-pub fn group() -> Object {
+pub fn group(children: Vec<Object>) -> Object {
+    let grp = Shape::Group { children };
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
-        shape: Shape::Group,
+        shape: grp,
     }
 }
 
@@ -78,7 +79,7 @@ pub enum Shape {
     Plane,
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
-    Group
+    Group { children: Vec<Object> }
 }
 
 /// Used to dictate whether a cylinder is open ended
@@ -105,7 +106,7 @@ impl Shape {
             Shape::Cylinder { lbound, ubound, ..} => {
                 normal_of_cylinder(*lbound, *ubound, position)
             },
-            Shape::Group => {
+            Shape::Group { children } => {
                 unimplemented!()
             }
         }
@@ -207,6 +208,13 @@ impl Object {
         let p = to_pattern_space.mult(world_point);
         self.material().pattern().colour_at(p)
     }
+
+    pub fn children(&self) -> &[Object] {
+        match &self.shape {
+            Shape::Group { children } => &children,
+            _ => &[]
+        }
+    }
 }
 
 
@@ -235,7 +243,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Cylinder { lbound, ubound, .. } => {
             append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         },
-        Shape::Group => {
+        Shape::Group {children} => {
             unimplemented!()
         }
     }

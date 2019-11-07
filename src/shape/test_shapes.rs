@@ -237,6 +237,23 @@ fn cylinder___normal_on_end_caps() {
 #[allow(non_snake_case)]
 #[test]
 fn group___create() {
-    let grp = group();
+    let grp = group(vec![]);
     assert_eq!(identity(), grp.object_to_world_spc());
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn group___create_with_children() {
+    let shapes = vec![unit_sphere(), inf_cylinder()];
+    let grp = group(shapes.clone());
+    assert_eq!(shapes, grp.children().to_vec());
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn group___allow_nested_groups() {
+    let childgroup = group(vec![cube()]);
+    let shapes = vec![unit_sphere(), inf_cylinder(), childgroup];
+    let grp = group(shapes.clone());
+    assert_eq!(shapes, grp.children().to_vec());
 }
