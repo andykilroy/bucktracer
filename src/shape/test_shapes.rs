@@ -234,17 +234,3 @@ fn cylinder___normal_on_end_caps() {
     scenario_normal_on_a_closed_cylinder(point(0.0, 2.0, 0.5), vector(0.0, 1.0, 0.0));
 }
 
-#[allow(non_snake_case)]
-#[test]
-fn triangle_mesh___create() {
-    let vertices = vec![
-        point(0.0, 0.0, 0.0),
-        point(1.0, 0.0, 0.0),
-        point(0.0, 1.0, 0.0),
-    ];
-    let faces: Vec<Face> = vec![face(0, 1, 2)];
-
-    let o = mesh(faces, vertices);
-
-    assert_eq!(o.normal_at(point(0.0, 0.0, 0.0)), vector(0.0, 0.0, -1.0));
-}
