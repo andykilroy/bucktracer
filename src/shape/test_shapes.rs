@@ -290,3 +290,18 @@ fn group___intersect_with_non_empty_group___produces_some_intersections() {
     assert_eq!(result[2].intersected, s1);
     assert_eq!(result[3].intersected, s1);
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn group___intersect_transformed_group___produces_some_intersections() {
+    let mut s1 = unit_sphere();
+    s1.set_object_to_world_spc(translation(5.0, 0.0, 0.0));
+    let mut grp = group(vec![s1.clone()]);
+    grp.set_object_to_world_spc(scaling(2.0, 2.0, 2.0));
+
+    let r = ray(point(10.0, 0.0, -10.0), vector(0.0, 0.0, 1.0));
+    let w = World::with(vec![], vec![grp.clone()]);
+    let result = w.intersect(&r);
+
+    assert_eq!(2, result.len());
+}
