@@ -234,3 +234,9 @@ fn cylinder___normal_on_end_caps() {
     scenario_normal_on_a_closed_cylinder(point(0.0, 2.0, 0.5), vector(0.0, 1.0, 0.0));
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn group___create() {
+    let grp = group();
+    assert_eq!(identity(), grp.object_to_world_spc());
+}

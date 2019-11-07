@@ -61,6 +61,14 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     }
 }
 
+pub fn group() -> Object {
+    Object {
+        world_to_object_spc: identity(),
+        material: Material::default(),
+        shape: Shape::Group,
+    }
+}
+
 /// Determines what shape an object has.
 ///
 /// Influences the calculation of surface normals and intersections.
@@ -70,6 +78,7 @@ pub enum Shape {
     Plane,
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
+    Group
 }
 
 /// Used to dictate whether a cylinder is open ended
@@ -96,6 +105,9 @@ impl Shape {
             Shape::Cylinder { lbound, ubound, ..} => {
                 normal_of_cylinder(*lbound, *ubound, position)
             },
+            Shape::Group => {
+                unimplemented!()
+            }
         }
     }
 }
@@ -208,20 +220,23 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
                 vec.push(a);
                 vec.push(b);
             }
-        }
+        },
         Shape::Plane => {
             if let Some(a) = intersect_plane(&r, s) {
                 vec.push(a);
             }
-        }
+        },
         Shape::Cube => {
             if let Some((a, b)) = intersect_cube(&r, s) {
                 vec.push(a);
                 vec.push(b);
             }
-        }
+        },
         Shape::Cylinder { lbound, ubound, .. } => {
             append_cyl_intersects(&r, s, vec, *lbound, *ubound)
+        },
+        Shape::Group => {
+            unimplemented!()
         }
     }
 }
