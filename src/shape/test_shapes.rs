@@ -257,3 +257,36 @@ fn group___allow_nested_groups() {
     let grp = group(shapes.clone());
     assert_eq!(shapes, grp.children().to_vec());
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn group___intersect_with_empty_group___produces_no_intersections() {
+    let grp = group(vec![]);
+    let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+    let mut result: Vec<Intersection> = vec![];
+    let expected: Vec<Intersection>  = vec![];
+
+    append_intersects(&r, &grp, &mut result);
+    assert_eq!(expected, result);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn group___intersect_with_non_empty_group___produces_some_intersections() {
+    let mut s1 = unit_sphere();
+    let mut s2 = unit_sphere();
+    let mut s3 = unit_sphere();
+    s2.set_object_to_world_spc(translation(0.0, 0.0, -3.0));
+    s3.set_object_to_world_spc(translation(5.0, 0.0, 0.0));
+
+    let grp = group(vec![s1.clone(), s2.clone(), s3.clone()]);
+    let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
+
+    let w = World::with(vec![], vec![grp.clone()]);
+    let result = w.intersect(&r);
+
+    assert_eq!(result[0].intersected, s2);
+    assert_eq!(result[1].intersected, s2);
+    assert_eq!(result[2].intersected, s1);
+    assert_eq!(result[3].intersected, s1);
+}

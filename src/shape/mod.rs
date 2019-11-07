@@ -244,11 +244,18 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
             append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         },
         Shape::Group {children} => {
-            unimplemented!()
+            append_grp_intersects(&r, s, vec, &children)
         }
     }
 }
 
+fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
+
+    for obj in children {
+        append_intersects(r, obj, vec);
+    }
+
+}
 
 fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {
     // presume the sphere is centred at (0,0,0)
