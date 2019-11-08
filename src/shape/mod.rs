@@ -1,5 +1,6 @@
 use crate::*;
 use std::f64::INFINITY;
+use std::io::stderr;
 
 /// A sphere of radius 1 centred at the origin.
 pub fn unit_sphere() -> Object {
@@ -258,11 +259,8 @@ fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, chi
 
     let final_len = vec.len();
     for i in vec[initial..final_len].iter_mut() {
-        if let Some(m) = i.to_group_space() {
-            i.set_to_group_space(Some(m * grp.world_to_object_spc()));
-        } else {
-            i.set_to_group_space(Some(grp.world_to_object_spc()));
-        }
+        let m = i.to_group_space() * grp.world_to_object_spc();
+        i.set_to_group_space(m);
     }
 }
 
