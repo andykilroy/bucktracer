@@ -251,10 +251,19 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
 
 fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
 
+    let initial = vec.len();
     for obj in children {
         append_intersects(r, obj, vec);
     }
 
+    let final_len = vec.len();
+    for i in vec[initial..final_len].iter_mut() {
+        if let Some(m) = i.to_group_space() {
+            i.set_to_group_space(Some(m * grp.world_to_object_spc()));
+        } else {
+            i.set_to_group_space(Some(grp.world_to_object_spc()));
+        }
+    }
 }
 
 fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {

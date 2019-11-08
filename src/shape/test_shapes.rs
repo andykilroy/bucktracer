@@ -305,3 +305,28 @@ fn group___intersect_transformed_group___produces_some_intersections() {
 
     assert_eq!(2, result.len());
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn group___intersect_transforms_world_point_to_object_point() {
+    let mut sphere = unit_sphere();
+    sphere.set_object_to_world_spc(translation(5.0, 0.0, 0.0));
+    let mut g2 = group(vec![sphere.clone()]);
+    g2.set_object_to_world_spc(rotation_y(FRAC_PI_2));
+    let mut g1 = group(vec![g2]);
+    g1.set_object_to_world_spc(rotation_x(FRAC_PI_2));
+
+    let w = World::with(vec![], vec![g1]);
+    assert_eq!(0, w.intersect(&ray(point(-5.0, 0.0,  0.0), vector(1.0, 0.0, 0.0))).len());
+    assert_eq!(0, w.intersect(&ray(point(-5.0, 0.0, -5.0), vector(1.0, 0.0, 0.0))).len());
+    assert_eq!(2, w.intersect(&ray(point(-5.0, 5.0,  0.0), vector(1.0, 0.0, 0.0))).len());
+
+    // transform to object space must be S G2 G1 p where S, G2,G1 are world to object transforms
+    let intersections = w.intersect(&ray(point(-5.0, 5.0,  0.0), vector(1.0, 0.0, 0.0)));
+    let p = point(0.0, 6.5, 0.0);
+    assert_eq!(4.0, intersections[0].t_value);
+    assert_eq!(6.0, intersections[1].t_value);
+    assert_eq!(sphere, intersections[0].intersected());
+
+//    assert_eq!(vector(0.0, 1.0, 0.0), intersections[0].normal_at(p));
+}

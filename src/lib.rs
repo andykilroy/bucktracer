@@ -187,12 +187,39 @@ impl Ray {
 pub struct Intersection {
     pub t_value: f64,
     pub intersected: Object,
+    pub to_group_spc: Option<Matrix>,
+}
+
+impl Intersection {
+    pub fn intersected(&self) -> Object {
+        self.intersected.clone()
+    }
+
+    pub fn normal_at(&self, world_point: Tuple4) -> Tuple4 {
+        let p = if let Some(m) = self.to_group_spc {
+            m.mult(world_point)
+        } else {
+            world_point
+        };
+
+        self.intersected.normal_at(p)
+    }
+
+    fn to_group_space(&self) -> Option<Matrix> {
+        self.to_group_spc
+    }
+
+    fn set_to_group_space(&mut self, matr: Option<Matrix>) -> &mut Self {
+        self.to_group_spc = matr;
+        self
+    }
 }
 
 pub fn intersection(t: f64, s: &Object) -> Intersection {
     Intersection {
         t_value: t,
         intersected: s.clone(),
+        to_group_spc: None,
     }
 }
 
