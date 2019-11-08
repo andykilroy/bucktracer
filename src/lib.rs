@@ -594,7 +594,10 @@ fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
 fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalculations {
     let hit: &Intersection = &intersects[hit_index];
     let pos = r.position(hit.t_value);
-    let n = hit.intersected.normal_at(pos);
+
+    // TODO think of a test to assert that the hit's normal takes into
+    // account the group transformations.
+    let n = hit.normal_at(pos);
     let e = -(r.direction);
     let is_inside = n.dot(e) < 0.0;
     let norm = if is_inside { -n } else { n };
