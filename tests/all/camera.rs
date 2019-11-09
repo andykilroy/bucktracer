@@ -1,5 +1,6 @@
 use bucktracer::*;
 use std::f64::consts::*;
+use crate::almost_eq;
 
 #[test]
 fn construct_camera() {
@@ -50,6 +51,3 @@ fn ray_when_camera_transformed() {
     assert_eq!(r.direction, vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0));
 }
 
-fn almost_eq(x1: f64, x2: f64) -> bool {
-    f64::abs(x1 - x2) < 1e-5
-}
