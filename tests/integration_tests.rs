@@ -4,5 +4,5 @@ mod camera;
 mod phong;
 
 fn almost_eq(x1: f64, x2: f64) -> bool {
-    f64::abs(x1 - x2) < 1e-6
+    f64::abs(x1 - x2) < 1e-5
 }

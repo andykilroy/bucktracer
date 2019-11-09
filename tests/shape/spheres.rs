@@ -1,4 +1,5 @@
 use bucktracer::*;
+use std::f64::consts::PI;
 
 #[test]
 fn default_transformation_is_identity() {

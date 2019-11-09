@@ -174,3 +174,7 @@ fn when_object_between_light_and_point_is_transparent_object_has_some_colour() {
     run_scenario(vec![glass.clone()], 0.8);
     run_scenario(vec![glass.clone(), glass.clone()], 0.64);
 }
+
+fn almost_eq(x1: f64, x2: f64) -> bool {
+    f64::abs(x1 - x2) < 1e-5
+}
