@@ -3,7 +3,7 @@ mod shape;
 mod camera;
 mod canvas;
 mod patterns;
-mod phong;
+mod material;
 mod ppm;
 mod rays;
 mod world;

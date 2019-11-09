@@ -90,17 +90,3 @@ fn point_not_in_shadow_when_point_between_light_source_and_object() {
     let l = w.light_sources()[0];
     assert_eq!(w.light_factor(p, &l), 1.0);
 }
-
-#[test]
-fn render_world_with_camera() {
-    let w = World::default();
-    let mut c = Camera::new(11, 11, FRAC_PI_2);
-    let t = view_transform(
-        point(0.0, 0.0, -5.0),
-        point(0.0, 0.0, 0.0),
-        vector(0.0, 1.0, 0.0),
-    );
-    c.set_view_transform(t);
-    let image = c.render(&w);
-    assert_eq!(image.colour_at(5, 5), colour(0.38066, 0.47583, 0.2855))
-}
