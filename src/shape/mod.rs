@@ -390,5 +390,3 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
     Some((intersection(t0, obj), intersection(t1, obj)))
 }
 
-#[cfg(test)]
-mod test_shapes;

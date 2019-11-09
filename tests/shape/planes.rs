@@ -1,7 +1,5 @@
-use crate::*;
+use bucktracer::*;
 use std::f64::consts::FRAC_PI_2;
-use std::f64::{INFINITY, NEG_INFINITY};
-use crate::CylKind::{Open, Closed};
 
 #[allow(non_snake_case)]
 #[test]
