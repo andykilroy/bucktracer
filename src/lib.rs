@@ -587,7 +587,7 @@ struct HitCalculations {
 }
 
 fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
-    let singleton = [hit.clone(); 1];
+    let singleton = [hit.clone()];
     hit_data(r, 0, &singleton)
 }
 

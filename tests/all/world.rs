@@ -76,6 +76,20 @@ fn in_shadow_when_object_between_light_and_point() {
 }
 
 #[test]
+fn an_intersection_in_shadow_returns_ambient_colour() {
+    let l = point_light(point(0.0, 0.0, -10.0), RGB::white());
+    let s1 = unit_sphere();
+    let s2 = unit_sphere().set_object_to_world_spc(translation(0.0, 0.0, 10.0)).clone();
+
+    let objects = vec![s1.clone(), s2.clone()];
+    let w = World::with(vec![l], objects);
+    let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
+    let c = w.colour_at_intersect(&r, 5);
+    assert_eq!(c, colour(0.1, 0.1, 0.1));
+}
+
+
+#[test]
 fn point_not_in_shadow_when_light_source_between_point_and_object() {
     let w = World::default();
     let p = point(-20.0, 20.0, -20.0);
