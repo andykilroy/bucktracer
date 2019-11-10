@@ -890,7 +890,7 @@ fn gradient_colour(RGB { inner: a }: RGB, RGB { inner: b }: RGB, pos: Tuple4) ->
 fn stripe_colour(a: RGB, b: RGB, pos: Tuple4) -> RGB {
     // pos must be in object co-ordinates not world...
 
-    if rem_euclid(pos.x(), 2.0) >= 1.0 {
+    if pos.x().rem_euclid(2.0) >= 1.0 {
         b
     } else {
         a
@@ -908,24 +908,10 @@ fn ring_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
 
 fn checkers_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
     let s = p.x().floor() + p.y().floor() + p.z().floor();
-    if rem_euclid(s, 2.0) == 0.0 {
+    if s.rem_euclid(2.0) == 0.0 {
         a
     } else {
         b
-    }
-}
-
-fn rem_euclid(x: f64, y: f64) -> f64 {
-    let d = x / y;
-    let r = x % y;
-    if d < 0.0 {
-        if r == 0.0 {
-            r
-        } else {
-            y + r
-        }
-    } else {
-        r
     }
 }
 
@@ -934,9 +920,6 @@ mod test_shading;
 
 #[cfg(test)]
 mod test_shadows;
-
-#[cfg(test)]
-mod test_euclid;
 
 #[cfg(test)]
 mod test_reflection;
