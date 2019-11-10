@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::ppm;
 use std::f64::consts::FRAC_PI_2;
 use std::io::{stdout, Result};
 
@@ -21,5 +22,5 @@ fn main() -> Result<()> {
     let canv = cam.render(&world);
 
     let mut stdout = stdout();
-    encode_ppm(&canv, &mut stdout)
+    ppm::encode(&canv, &mut stdout)
 }

@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::ppm;
 use std::f64::consts::*;
 use std::io::Result;
 
@@ -17,7 +18,7 @@ fn main() -> Result<()> {
     //}
     let c = plot(canvas(200, 300), (-2.0, -2.0), (2.0, 4.0), hours);
 
-    encode_ppm(&c, &mut stdout)
+    ppm::encode(&c, &mut stdout)
 }
 
 fn plot(

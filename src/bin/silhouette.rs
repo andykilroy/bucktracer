@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::ppm;
 use std::f64::consts::FRAC_PI_2;
 use std::io::{stdout, Result};
 
@@ -15,7 +16,7 @@ fn main() -> Result<()> {
     let world = World::with(vec![light], vec![s]);
     let canvas = raytrace(&cam, &world);
     let mut stdout = stdout();
-    encode_ppm(&canvas, &mut stdout)
+    ppm::encode(&canvas, &mut stdout)
 }
 
 fn raytrace(cam: &Camera, world: &World) -> Canvas {

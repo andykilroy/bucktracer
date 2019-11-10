@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::ppm;
 use std::io::Result;
 
 fn main() -> Result<()> {
@@ -17,7 +18,7 @@ fn main() -> Result<()> {
 
     let mut stdout = std::io::stdout();
 
-    encode_ppm(&c, &mut stdout)
+    ppm::encode(&c, &mut stdout)
 }
 
 #[derive(Debug, Clone)]
