@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::io;
 use std::vec;
 use std::ops::{Add, Mul};
 
@@ -542,8 +541,7 @@ struct HitCalculations {
 }
 
 fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
-    let singleton = [hit.clone()];
-    hit_data(r, 0, &singleton)
+    hit_data(r, 0, &[hit.clone()])
 }
 
 fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalculations {

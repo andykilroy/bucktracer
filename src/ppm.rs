@@ -1,6 +1,8 @@
 use std::io;
 use crate::Canvas;
 
+/// Encode the canvas pixel information to the writer, according to the
+/// ppm format.
 pub fn encode(c: &Canvas, w: &mut dyn io::Write) -> io::Result<()> {
     writeln!(w, "P3")?;
     writeln!(w, "{} {}", c.width, c.height)?;

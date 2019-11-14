@@ -1,6 +1,5 @@
 use crate::*;
 use std::f64::INFINITY;
-use std::io::stderr;
 
 /// Creates a sphere of radius 1 centred at the origin.
 pub fn unit_sphere() -> Object {
@@ -56,7 +55,6 @@ pub fn inf_cylinder() -> Object {
 
 /// Creates an infinitely long open cylinder whose length extends along the y-axis,
 /// with radius 1.
-
 pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -65,6 +63,14 @@ pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     }
 }
 
+/// Creates a group of objects.
+///
+/// Intended to be used where a list of objects is to be treated as part of a whole.
+/// E.g. 4 cylinders and one (flattened) cube can be placed into a group to
+/// represent a table.
+///
+/// Groups can also be used to partition a scene, to help the ray tracer quickly
+/// discard large numbers of objects that don't intersect the ray.
 pub fn group(children: Vec<Object>) -> Object {
     let grp = Shape::Group { children };
     Object {
@@ -110,7 +116,7 @@ impl Shape {
             Shape::Cylinder { lbound, ubound, ..} => {
                 normal_of_cylinder(*lbound, *ubound, position)
             },
-            Shape::Group { children } => {
+            Shape::Group { children : _ } => {
                 unimplemented!()
             }
         }
