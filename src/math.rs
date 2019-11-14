@@ -6,22 +6,27 @@ use super::almost_eq;
 pub struct Tuple4(f64, f64, f64, f64);
 
 #[allow(clippy::float_cmp)]
+/// Detect if a Tuple4 represents a point in space
 pub fn is_point(Tuple4(_, _, _, w): Tuple4) -> bool {
     w == 1.0
 }
 
+/// Detect if a Tuple4 represents a vector, a direction in space.
 pub fn is_vector(v: Tuple4) -> bool {
     !is_point(v)
 }
 
+/// Create a 3D point.
 pub fn point(x: f64, y: f64, z: f64) -> Tuple4 {
     Tuple4(x, y, z, 1.0)
 }
 
+/// Create a 3D vector.
 pub fn vector(x: f64, y: f64, z: f64) -> Tuple4 {
     Tuple4(x, y, z, 0.0)
 }
 
+/// Create a 4D tuple.
 pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple4 {
     Tuple4(x, y, z, w)
 }
@@ -141,6 +146,8 @@ enum Dimensions {
     X4,
 }
 
+/// Specify the rows of a 4x4 matrix.  The first parameter is the first row,
+/// The second parameter the second row, etc.
 pub fn matrix(
     (x1, y1, z1, w1): (f64, f64, f64, f64),
     (x2, y2, z2, w2): (f64, f64, f64, f64),
@@ -179,6 +186,8 @@ fn matrix3(
         r4: Tuple4(0.0, 0.0, 0.0, 0.0),
     }
 }
+
+/// The identity matrix.
 pub fn identity() -> Matrix {
     matrix(
         (1.0, 0.0, 0.0, 0.0),
@@ -430,6 +439,7 @@ fn submatr_x4(x: &Matrix, row: usize, col: usize) -> Matrix {
     )
 }
 
+/// Create a translation matrix.
 pub fn translation(x: f64, y: f64, z: f64) -> Matrix {
     matrix(
         (1.0, 0.0, 0.0, x),
@@ -439,6 +449,7 @@ pub fn translation(x: f64, y: f64, z: f64) -> Matrix {
     )
 }
 
+/// Create a scaling matrix.
 pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
     matrix(
         (x, 0.0, 0.0, 0.0),
@@ -448,6 +459,8 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
     )
 }
 
+/// Create a matrix specifying a clockwise rotation around the x axis.
+/// The argument is specified in radians.
 pub fn rotation_x(r: f64) -> Matrix {
     matrix(
         (1.0, 0.0, 0.0, 0.0),
@@ -457,6 +470,8 @@ pub fn rotation_x(r: f64) -> Matrix {
     )
 }
 
+/// Create a matrix specifying a clockwise rotation around the y axis.
+/// The argument is specified in radians.
 pub fn rotation_y(r: f64) -> Matrix {
     matrix(
         ( cos(r), 0.0, sin(r), 0.0),
@@ -466,6 +481,8 @@ pub fn rotation_y(r: f64) -> Matrix {
     )
 }
 
+/// Create a matrix specifying a clockwise rotation around the z axis.
+/// The argument is specified in radians.
 pub fn rotation_z(r: f64) -> Matrix {
     matrix(
         (cos(r), -sin(r), 0.0, 0.0),

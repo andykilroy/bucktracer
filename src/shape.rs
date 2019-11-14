@@ -2,7 +2,7 @@ use crate::*;
 use std::f64::INFINITY;
 use std::io::stderr;
 
-/// A sphere of radius 1 centred at the origin.
+/// Creates a sphere of radius 1 centred at the origin.
 pub fn unit_sphere() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -11,7 +11,7 @@ pub fn unit_sphere() -> Object {
     }
 }
 
-/// A transparent sphere of radius 1 centred at the origin.
+/// Creates a transparent sphere of radius 1 centred at the origin.
 pub fn glass_sphere() -> Object {
     let mut glass = Material::default();
     glass.set_transparency(1.0);
@@ -23,7 +23,7 @@ pub fn glass_sphere() -> Object {
     }
 }
 
-/// The x-z plane intersecting y=0.
+/// Creates an x-z plane intersecting y=0.
 pub fn plane() -> Object {
     Object {
         world_to_object_spc: identity(),
@@ -32,7 +32,7 @@ pub fn plane() -> Object {
     }
 }
 
-/// A cube centred on the origin whose vertices are
+/// Creates a cube centred on the origin whose vertices are
 /// 1 unit away from the nearest point on the x,y,z axis.
 ///
 /// The length of each edge is 2.  The distance from the origin
@@ -45,7 +45,7 @@ pub fn cube() -> Object {
     }
 }
 
-/// An infinitely long cylinder whose length extends along the y-axis,
+/// Creates an infinitely long open cylinder whose length extends along the y-axis,
 /// with radius 1.
 ///
 /// Imagine a circle of radius 1, centred at the origin
@@ -53,6 +53,9 @@ pub fn cube() -> Object {
 pub fn inf_cylinder() -> Object {
     cylinder(CylKind::Open, std::f64::NEG_INFINITY, std::f64::INFINITY)
 }
+
+/// Creates an infinitely long open cylinder whose length extends along the y-axis,
+/// with radius 1.
 
 pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
     Object {
@@ -83,7 +86,7 @@ pub enum Shape {
     Group { children: Vec<Object> }
 }
 
-/// Used to dictate whether a cylinder is open ended
+/// Dictates whether a cylinder is open ended
 /// or has closed ends.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum CylKind {
@@ -147,7 +150,7 @@ fn normal_of_cube(pos: Tuple4) -> Tuple4 {
     }
 }
 
-/// An object to be placed in the world.
+/// An object to be placed in the world; something to be rendered.
 ///
 /// The object has a transform that dictates where it is placed in
 /// the world, and also whether it is scaled or rotated in any way.

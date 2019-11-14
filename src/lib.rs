@@ -27,9 +27,11 @@ pub struct RGB {
     inner: Tuple4,
 }
 
+/// Create a colour using red, green, and blue values, each a number in the range
+/// [0.0, 1.0]
 pub fn colour(red: f64, green: f64, blue: f64) -> RGB {
     RGB {
-        inner: tuple(red, green, blue, 0.0),
+        inner: vector(red, green, blue),
     }
 }
 
@@ -97,6 +99,8 @@ pub struct Canvas {
     pixels: Vec<RGB>,
 }
 
+/// Create a structure onto which an image will be rendered.
+/// Initially, every pixel is black.
 pub fn canvas(w: usize, h: usize) -> Canvas {
     let length = w * h;
     let arr = vec![colour(0.0, 0.0, 0.0); length];
@@ -124,10 +128,11 @@ pub struct Ray {
     pub direction: Tuple4,
 }
 
-pub fn ray(o: Tuple4, d: Tuple4) -> Ray {
+/// Create a ray pointing in a particular direction, rooted at a point.
+pub fn ray(root: Tuple4, direction: Tuple4) -> Ray {
     Ray {
-        origin: o,
-        direction: d,
+        origin: root,
+        direction,
     }
 }
 
