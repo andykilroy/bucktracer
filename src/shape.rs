@@ -222,6 +222,7 @@ impl Object {
 }
 
 
+// TODO this should be an internal function, not public.
 pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let to_object_space = s.world_to_object_spc();
     let r = orig.transform(&to_object_space);

@@ -1,5 +1,12 @@
 use bucktracer::*;
 
+fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
+    match index_of_hit(&intersects) {
+        None => None,
+        Some(u) => Some(intersects[u].clone())
+    }
+}
+
 #[test]
 fn create_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(4.0, 5.0, 6.0));

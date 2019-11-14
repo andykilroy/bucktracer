@@ -182,14 +182,6 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
     }
 }
 
-pub fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
-    let opt = index_of_hit(&intersects);
-    match opt {
-        None => None,
-        Some(u) => Some(intersects[u].clone())
-    }
-}
-
 pub fn index_of_hit(intersects: &[Intersection]) -> Option<usize> {
     intersects
         .iter().enumerate()
