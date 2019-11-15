@@ -121,6 +121,18 @@ impl Shape {
             }
         }
     }
+
+    fn bounds(&self) -> Bounds {
+        match *self {
+            Shape::Sphere => {
+                Bounds {
+                    min : point(-1.0, -1.0, -1.0),
+                    max : point( 1.0,  1.0,  1.0)
+                }
+            },
+            _ => unimplemented!()
+        }
+    }
 }
 
 fn normal_of_cylinder(lbound: f64, ubound: f64, pos: Tuple4) -> Tuple4 {
@@ -224,6 +236,10 @@ impl Object {
             Shape::Group { children } => &children,
             _ => &[]
         }
+    }
+
+    pub fn bounds(&self) -> Bounds {
+        self.shape.bounds()
     }
 }
 
@@ -400,3 +416,18 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
     Some((intersection(t0, obj), intersection(t1, obj)))
 }
 
+/// Describes an axis aligned bounding box
+#[derive(Debug, Clone)]
+pub struct Bounds {
+    min: Tuple4,
+    max: Tuple4,
+}
+
+impl Bounds {
+    pub fn min(&self) -> Tuple4 {
+        self.min
+    }
+    pub fn max(&self) -> Tuple4 {
+        self.max
+    }
+}
