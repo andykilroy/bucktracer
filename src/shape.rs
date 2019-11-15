@@ -127,9 +127,21 @@ impl Shape {
             Shape::Sphere => {
                 Bounds {
                     min : point(-1.0, -1.0, -1.0),
-                    max : point( 1.0,  1.0,  1.0)
+                    max : point( 1.0,  1.0,  1.0),
                 }
             },
+            Shape::Cube => {
+                Bounds {
+                    min : point(-1.0, -1.0, -1.0),
+                    max : point( 1.0,  1.0,  1.0),
+                }
+            },
+            Shape::Cylinder {lbound, ubound, ..} => {
+                Bounds {
+                    min: point(-1.0, lbound, -1.0),
+                    max: point( 1.0, ubound,  1.0),
+                }
+            }
             _ => unimplemented!()
         }
     }
