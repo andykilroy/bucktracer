@@ -1,5 +1,4 @@
 use bucktracer::*;
-use std::f64::consts::FRAC_PI_2;
 
 #[test]
 fn create_a_world() {

@@ -1,8 +1,6 @@
 use bucktracer::*;
 use std::f64::consts::FRAC_PI_2;
 
-
-
 #[allow(non_snake_case)]
 #[test]
 fn can_create_empty_group() {
@@ -42,7 +40,7 @@ fn when_intersecting_with_empty_group___produces_no_intersections() {
 #[allow(non_snake_case)]
 #[test]
 fn when_intersect_with_non_empty_group___can_produce_no_intersections() {
-    let mut s1 = unit_sphere();
+    let s1 = unit_sphere();
     let mut s2 = unit_sphere();
     let mut s3 = unit_sphere();
     s2.set_object_to_world_spc(translation(0.0, 0.0, -3.0));
@@ -65,7 +63,7 @@ fn assert_intersections(result: Vec<Intersection>, expected: Vec<Object>) {
 #[allow(non_snake_case)]
 #[test]
 fn when_intersect_with_non_empty_group___can_produce_intersections() {
-    let mut s1 = unit_sphere();
+    let s1 = unit_sphere();
     let mut s2 = unit_sphere();
     let mut s3 = unit_sphere();
     s2.set_object_to_world_spc(translation(0.0, 0.0, -3.0));
