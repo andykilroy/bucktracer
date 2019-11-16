@@ -123,7 +123,7 @@ impl Shape {
     }
 
     fn bounds(&self) -> Bounds {
-        match *self {
+        match self {
             Shape::Sphere => {
                 Bounds {
                     min : point(-1.0, -1.0, -1.0),
@@ -138,13 +138,46 @@ impl Shape {
             },
             Shape::Cylinder {lbound, ubound, ..} => {
                 Bounds {
-                    min: point(-1.0, lbound, -1.0),
-                    max: point( 1.0, ubound,  1.0),
+                    min : point(-1.0, *lbound, -1.0),
+                    max : point( 1.0, *ubound,  1.0),
                 }
-            }
-            _ => unimplemented!()
+            },
+            Shape::Plane => {
+                Bounds {
+                    min : point(std::f64::NEG_INFINITY, 0.0, std::f64::NEG_INFINITY),
+                    max : point(std::f64::    INFINITY, 0.0, std::f64::    INFINITY),
+                }
+            },
+            Shape::Group {children} => {
+                Bounds {
+                    min : min_point(children.as_slice()),
+                    max : max_point(children.as_slice()),
+                }
+            },
         }
     }
+}
+
+fn min_point(arr: &[Object]) -> Tuple4 {
+    fn minfunc(x:f64, y:f64) -> f64 {if x < y { x } else { y }};
+
+    let inf = std::f64::INFINITY;
+    let minx = arr.iter().map(|o| o.bounds().min().x()).fold(inf, minfunc);
+    let miny = arr.iter().map(|o| o.bounds().min().y()).fold(inf, minfunc);
+    let minz = arr.iter().map(|o| o.bounds().min().z()).fold(inf, minfunc);
+
+    point(minx, miny, minz)
+}
+
+fn max_point(arr: &[Object]) -> Tuple4 {
+    fn maxfunc(x:f64, y:f64) -> f64 {if x < y { y } else { x }};
+
+    let inf = std::f64::NEG_INFINITY;
+    let maxx = arr.iter().map(|o| o.bounds().max().x()).fold(inf, maxfunc);
+    let maxy = arr.iter().map(|o| o.bounds().max().y()).fold(inf, maxfunc);
+    let maxz = arr.iter().map(|o| o.bounds().max().z()).fold(inf, maxfunc);
+
+    point(maxx, maxy, maxz)
 }
 
 fn normal_of_cylinder(lbound: f64, ubound: f64, pos: Tuple4) -> Tuple4 {
