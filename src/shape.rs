@@ -322,7 +322,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
 }
 
 fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
-
+    // TODO test the ray with this group's bounds, can we short circuit?
     let initial = vec.len();
     for obj in children {
         append_intersects(r, obj, vec);

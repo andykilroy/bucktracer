@@ -153,6 +153,10 @@ pub struct Intersection {
 }
 
 impl Intersection {
+    pub fn t_value(&self) -> f64 {
+        self.t_value
+    }
+
     pub fn intersected(&self) -> Object {
         self.intersected.clone()
     }
