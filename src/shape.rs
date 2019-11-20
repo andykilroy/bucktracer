@@ -284,7 +284,33 @@ impl Object {
     }
 
     pub fn bounds(&self) -> Bounds {
-        self.shape.bounds()
+        let bnds = self.shape.bounds();
+        let combs = bnds.combinations();
+        let ninf = std::f64::NEG_INFINITY;
+        let pinf = std::f64::INFINITY;
+        let mut minx = if bnds.min.x() == ninf { ninf } else { pinf };
+        let mut miny = if bnds.min.y() == ninf { ninf } else { pinf };
+        let mut minz = if bnds.min.z() == ninf { ninf } else { pinf };
+
+        let to_world_spc = self.object_to_world_spc();
+        for vertex in &combs {
+            let p = to_world_spc.mult(*vertex);
+            if p.x() < minx { minx = p.x() };
+            if p.y() < miny { miny = p.y() };
+            if p.z() < minz { minz = p.z() };
+        }
+
+        let mut maxx = if bnds.max.x() == pinf { pinf } else { ninf };
+        let mut maxy = if bnds.max.y() == pinf { pinf } else { ninf };
+        let mut maxz = if bnds.max.z() == pinf { pinf } else { ninf };
+
+        for vertex in &combs {
+            let p = to_world_spc.mult(*vertex);
+            if p.x() > maxx { maxx = p.x() };
+            if p.y() > maxy { maxy = p.y() };
+            if p.z() > maxz { maxz = p.z() };
+        }
+        Bounds { min: point(minx, miny, minz), max: point(maxx, maxy, maxz) }
     }
 }
 
@@ -462,7 +488,7 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
 }
 
 /// Describes an axis aligned bounding box
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Bounds {
     min: Tuple4,
     max: Tuple4,
@@ -474,5 +500,17 @@ impl Bounds {
     }
     pub fn max(&self) -> Tuple4 {
         self.max
+    }
+    pub fn combinations(&self) -> [Tuple4 ; 8] {
+        [
+            point(self.min.x(), self.min.y(), self.min.z()),
+            point(self.min.x(), self.min.y(), self.max.z()),
+            point(self.min.x(), self.max.y(), self.min.z()),
+            point(self.min.x(), self.max.y(), self.max.z()),
+            point(self.max.x(), self.min.y(), self.min.z()),
+            point(self.max.x(), self.min.y(), self.max.z()),
+            point(self.max.x(), self.max.y(), self.min.z()),
+            point(self.max.x(), self.max.y(), self.max.z()),
+        ]
     }
 }

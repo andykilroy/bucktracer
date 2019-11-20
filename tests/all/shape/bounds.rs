@@ -16,6 +16,17 @@ fn cube_bounds() {
     assert_eq!(point(1.0, 1.0, 1.0), c.bounds().max());
 }
 
+
+#[allow(non_snake_case)]
+#[test]
+fn cube_bounds_determined_by_transformation() {
+    let root_2 = std::f64::consts::SQRT_2;
+    let c1 = cube().set_object_to_world_spc(rotation_z(std::f64::consts::FRAC_PI_4)).clone();
+    let b = c1.bounds();
+    assert_eq!(b.min(), point(-root_2, -root_2, -1.0));
+    assert_eq!(b.max(), point(root_2, root_2, 1.0));
+}
+
 #[allow(non_snake_case)]
 #[test]
 fn finite_cylinder_bounds() {
@@ -51,12 +62,12 @@ fn plane_bounds() {
     let pos_inf = std::f64::INFINITY;
 
     let p = plane();
-    assert_eq!(neg_inf, p.bounds().min().x());
-    assert_eq!(neg_inf, p.bounds().min().z());
-    assert_eq!(pos_inf, p.bounds().max().x());
-    assert_eq!(pos_inf, p.bounds().max().z());
-    assert_eq!(0.0, p.bounds().min().y());
-    assert_eq!(0.0, p.bounds().max().y());
+    assert_eq!(p.bounds().min().x(), neg_inf);
+    assert_eq!(p.bounds().min().z(), neg_inf);
+    assert_eq!(p.bounds().max().x(), pos_inf);
+    assert_eq!(p.bounds().max().z(), pos_inf);
+    assert_eq!(p.bounds().min().y(), 0.0    );
+    assert_eq!(p.bounds().max().y(), 0.0    );
 }
 
 #[allow(non_snake_case)]
@@ -67,7 +78,7 @@ fn group_bounds_is_origin_if_no_members() {
     let pos_inf = std::f64::INFINITY;
 
     assert_bounds(
-        g.clone(),
+        g.bounds(),
         (pos_inf, pos_inf, pos_inf),
         (neg_inf, neg_inf, neg_inf),
     );
@@ -77,25 +88,26 @@ fn group_bounds_is_origin_if_no_members() {
 #[test]
 fn group_minima_and_maxima_are_dictated_by_its_members_bounds() {
     assert_bounds(
-        group(vec![unit_sphere(), cylinder(CylKind::Open, -5.0, 2.0)]),
+        group(vec![unit_sphere(), cylinder(CylKind::Open, -5.0, 2.0)]).bounds(),
         (-1.0, -5.0, -1.0),
         (1.0, 2.0, 1.0),
     );
     assert_bounds(
-        group(vec![unit_sphere(), cube()]),
+        group(vec![unit_sphere(), cube()]).bounds(),
         (-1.0, -1.0, -1.0),
         (1.0, 1.0, 1.0),
     );
 }
 
-fn assert_bounds(obj: Object, min: (f64, f64, f64), max: (f64, f64, f64)) {
-    assert_eq!(min.0, obj.bounds().min().x());
-    assert_eq!(min.1, obj.bounds().min().y());
-    assert_eq!(min.2, obj.bounds().min().z());
+#[allow(non_snake_case)]
+#[test]
+fn bounds_in_group_space_determined_by_transformations() {
+    let root_2 = std::f64::consts::SQRT_2;
+    let c1 = cube().set_object_to_world_spc(rotation_z(std::f64::consts::FRAC_PI_4)).clone();
+    approx_bounds(c1.bounds(), (-root_2, -root_2, -1.0), (root_2, root_2, 1.0));
 
-    assert_eq!(max.0, obj.bounds().max().x());
-    assert_eq!(max.1, obj.bounds().max().y());
-    assert_eq!(max.2, obj.bounds().max().z());
+    let g2 = group(vec![c1.clone()]).set_object_to_world_spc(translation(0.0, 5.0, 0.0)).clone();
+    approx_bounds(g2.bounds(), (-root_2, -root_2 + 5.0, -1.0), (root_2, root_2 + 5.0, 1.0))
 }
 
 fn two_groups_and_intersect_them() {
@@ -114,4 +126,20 @@ fn two_groups_and_intersect_them() {
 
     assert_eq!(ints[1].t_value(), 4.0 + std::f64::consts::SQRT_2);
     assert_eq!(ints[1].intersected(), c1.clone());
+}
+
+
+fn assert_bounds(b: Bounds, min: (f64, f64, f64), max: (f64, f64, f64)) {
+    assert_eq!(b.min().x(), min.0);
+    assert_eq!(b.min().y(), min.1);
+    assert_eq!(b.min().z(), min.2);
+
+    assert_eq!(b.max().x(), max.0);
+    assert_eq!(b.max().y(), max.1);
+    assert_eq!(b.max().z(), max.2);
+}
+
+fn approx_bounds(b: Bounds, min: (f64, f64, f64), max: (f64, f64, f64)) {
+    assert_eq!(b.min(), point(min.0, min.1, min.2));
+    assert_eq!(b.max(), point(max.0, max.1, max.2));
 }
