@@ -63,11 +63,11 @@ fn plane_bounds() {
 
     let p = plane();
     assert_eq!(p.bounds().min().x(), neg_inf);
+    assert_eq!(p.bounds().min().y(), neg_inf);
     assert_eq!(p.bounds().min().z(), neg_inf);
     assert_eq!(p.bounds().max().x(), pos_inf);
+    assert_eq!(p.bounds().max().y(), pos_inf);
     assert_eq!(p.bounds().max().z(), pos_inf);
-    assert_eq!(p.bounds().min().y(), 0.0    );
-    assert_eq!(p.bounds().max().y(), 0.0    );
 }
 
 #[allow(non_snake_case)]

@@ -144,8 +144,8 @@ impl Shape {
             },
             Shape::Plane => {
                 Bounds {
-                    min : point(std::f64::NEG_INFINITY, 0.0, std::f64::NEG_INFINITY),
-                    max : point(std::f64::    INFINITY, 0.0, std::f64::    INFINITY),
+                    min : point(std::f64::NEG_INFINITY, std::f64::NEG_INFINITY, std::f64::NEG_INFINITY),
+                    max : point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
                 }
             },
             Shape::Group {children} => {
