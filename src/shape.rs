@@ -159,25 +159,17 @@ impl Shape {
 }
 
 fn min_point(arr: &[Object]) -> Tuple4 {
-    fn minfunc(x:f64, y:f64) -> f64 {if x < y { x } else { y }};
-
     let inf = std::f64::INFINITY;
-    let minx = arr.iter().map(|o| o.bounds().min().x()).fold(inf, minfunc);
-    let miny = arr.iter().map(|o| o.bounds().min().y()).fold(inf, minfunc);
-    let minz = arr.iter().map(|o| o.bounds().min().z()).fold(inf, minfunc);
-
-    point(minx, miny, minz)
+    let inf_t = tuple(inf, inf, inf, inf);
+    let p = arr.iter().map(|o| o.bounds().min()).fold(inf_t, Tuple4::min);
+    p
 }
 
 fn max_point(arr: &[Object]) -> Tuple4 {
-    fn maxfunc(x:f64, y:f64) -> f64 {if x < y { y } else { x }};
-
     let inf = std::f64::NEG_INFINITY;
-    let maxx = arr.iter().map(|o| o.bounds().max().x()).fold(inf, maxfunc);
-    let maxy = arr.iter().map(|o| o.bounds().max().y()).fold(inf, maxfunc);
-    let maxz = arr.iter().map(|o| o.bounds().max().z()).fold(inf, maxfunc);
-
-    point(maxx, maxy, maxz)
+    let inf_t = tuple(inf, inf, inf, inf);
+    let p = arr.iter().map(|o| o.bounds().max()).fold(inf_t, Tuple4::max);
+    p
 }
 
 fn normal_of_cylinder(lbound: f64, ubound: f64, pos: Tuple4) -> Tuple4 {
@@ -285,7 +277,7 @@ impl Object {
 
     pub fn bounds(&self) -> Bounds {
         let bnds = self.shape.bounds();
-        let combs = bnds.combinations();
+        let corners = bnds.all_corners();
         let ninf = std::f64::NEG_INFINITY;
         let pinf = std::f64::INFINITY;
         let mut minx = if bnds.min.x() == ninf { ninf } else { pinf };
@@ -293,7 +285,7 @@ impl Object {
         let mut minz = if bnds.min.z() == ninf { ninf } else { pinf };
 
         let to_world_spc = self.object_to_world_spc();
-        for vertex in &combs {
+        for vertex in &corners {
             let p = to_world_spc.mult(*vertex);
             if p.x() < minx { minx = p.x() };
             if p.y() < miny { miny = p.y() };
@@ -304,13 +296,24 @@ impl Object {
         let mut maxy = if bnds.max.y() == pinf { pinf } else { ninf };
         let mut maxz = if bnds.max.z() == pinf { pinf } else { ninf };
 
-        for vertex in &combs {
+        for vertex in &corners {
             let p = to_world_spc.mult(*vertex);
             if p.x() > maxx { maxx = p.x() };
             if p.y() > maxy { maxy = p.y() };
             if p.z() > maxz { maxz = p.z() };
         }
+
         Bounds { min: point(minx, miny, minz), max: point(maxx, maxy, maxz) }
+    }
+}
+
+fn shape_kind(s: &Shape) -> &'static str {
+    match s {
+        Shape::Cube =>            "Cube    ",
+        Shape::Sphere =>          "Sphere  ",
+        Shape::Group {..} =>      "Group   ",
+        Shape::Plane =>           "Plane   ",
+        Shape::Cylinder { .. } => "Cylinder",
     }
 }
 
@@ -501,7 +504,7 @@ impl Bounds {
     pub fn max(&self) -> Tuple4 {
         self.max
     }
-    pub fn combinations(&self) -> [Tuple4 ; 8] {
+    pub fn all_corners(&self) -> [Tuple4 ; 8] {
         [
             point(self.min.x(), self.min.y(), self.min.z()),
             point(self.min.x(), self.min.y(), self.max.z()),

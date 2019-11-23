@@ -103,11 +103,15 @@ fn group_minima_and_maxima_are_dictated_by_its_members_bounds() {
 #[test]
 fn bounds_in_group_space_determined_by_transformations() {
     let root_2 = std::f64::consts::SQRT_2;
-    let c1 = cube().set_object_to_world_spc(rotation_z(std::f64::consts::FRAC_PI_4)).clone();
-    approx_bounds(c1.bounds(), (-root_2, -root_2, -1.0), (root_2, root_2, 1.0));
-
+    let pi_4 = std::f64::consts::FRAC_PI_4;
+    let pi_2 = std::f64::consts::FRAC_PI_2;
+    let c1 = cube().set_object_to_world_spc(rotation_z(pi_4)).clone();
     let g2 = group(vec![c1.clone()]).set_object_to_world_spc(translation(0.0, 5.0, 0.0)).clone();
-    approx_bounds(g2.bounds(), (-root_2, -root_2 + 5.0, -1.0), (root_2, root_2 + 5.0, 1.0))
+    let g1 = group(vec![g2.clone()]).set_object_to_world_spc(rotation_z(pi_2)).clone();
+
+    approx_bounds(c1.bounds(), (-root_2, -root_2, -1.0), (root_2, root_2, 1.0));
+    approx_bounds(g2.bounds(), (-root_2, -root_2 + 5.0, -1.0), (root_2, root_2 + 5.0, 1.0));
+    approx_bounds(g1.bounds(), (-root_2 - 5.0, -root_2, -1.0), (root_2 - 5.0, root_2, 1.0));
 }
 
 fn two_groups_and_intersect_them() {

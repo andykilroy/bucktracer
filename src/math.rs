@@ -113,6 +113,14 @@ impl Tuple4 {
         let Tuple4(a1, a2, a3, a4) = self;
         Tuple4(a1 * b1, a2 * b2, a3 * b3, a4 * b4)
     }
+
+    pub fn min(a: Tuple4, b: Tuple4) -> Tuple4{
+        Tuple4(a.x().min(b.x()), a.y().min(b.y()), a.z().min(b.z()), a.w().min(b.w()))
+    }
+
+    pub fn max(a: Tuple4, b: Tuple4) -> Tuple4{
+        Tuple4(a.x().max(b.x()), a.y().max(b.y()), a.z().max(b.z()), a.w().max(b.w()))
+    }
 }
 
 impl Index<usize> for Tuple4 {
@@ -129,6 +137,7 @@ impl Index<usize> for Tuple4 {
         }
     }
 }
+
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix {
