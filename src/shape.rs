@@ -307,17 +307,6 @@ impl Object {
     }
 }
 
-fn shape_kind(s: &Shape) -> &'static str {
-    match s {
-        Shape::Cube =>            "Cube    ",
-        Shape::Sphere =>          "Sphere  ",
-        Shape::Group {..} =>      "Group   ",
-        Shape::Plane =>           "Plane   ",
-        Shape::Cylinder { .. } => "Cylinder",
-    }
-}
-
-
 // TODO this should be an internal function, not public.
 pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let to_object_space = s.world_to_object_spc();
@@ -351,7 +340,10 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
 }
 
 fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
-    // TODO test the ray with this group's bounds, can we short circuit?
+    if intersect_bounding_box(r, grp.shape.bounds()).is_none() {
+        return;
+    }
+
     let initial = vec.len();
     for obj in children {
         append_intersects(r, obj, vec);
@@ -382,10 +374,18 @@ fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersect
 }
 
 fn intersect_cube(r: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {
+    match intersect_bounding_box(r, unit_bounds()) {
+        Some((tmin, tmax)) => {
+            Some((intersection(tmin, obj), intersection(tmax, obj)))
+        },
+        _ => None,
+    }
+}
 
-    let (x_tmin, x_tmax) = check_axis(r.origin.x(), r.direction.x());
-    let (y_tmin, y_tmax) = check_axis(r.origin.y(), r.direction.y());
-    let (z_tmin, z_tmax) = check_axis(r.origin.z(), r.direction.z());
+fn intersect_bounding_box(r: &Ray, bbox: Bounds) -> Option<(f64, f64)> {
+    let (x_tmin, x_tmax) = check_axis(r.origin.x(), r.direction.x(), bbox.min.x(), bbox.max.x());
+    let (y_tmin, y_tmax) = check_axis(r.origin.y(), r.direction.y(), bbox.min.y(), bbox.max.y());
+    let (z_tmin, z_tmax) = check_axis(r.origin.z(), r.direction.z(), bbox.min.z(), bbox.max.z());
 
     let tmin = [x_tmin, y_tmin, z_tmin].iter().cloned().fold(std::f64::MIN, f64::max);
     let tmax = [x_tmax, y_tmax, z_tmax].iter().cloned().fold(std::f64::MAX, f64::min);
@@ -393,13 +393,13 @@ fn intersect_cube(r: &Ray, obj: &Object) -> Option<(Intersection, Intersection)>
     if tmin > tmax {
         None
     } else {
-        Some((intersection(tmin, obj), intersection(tmax, obj)))
+        Some((tmin, tmax))
     }
 }
 
-fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
-    let tmin_numerator = -1.0 - origin;
-    let tmax_numerator = 1.0 - origin;
+fn check_axis(origin: f64, direction: f64, bbox_min: f64, bbox_max: f64) -> (f64, f64) {
+    let tmin_numerator = bbox_min - origin;
+    let tmax_numerator = bbox_max - origin;
 
     let (tmin, tmax) = if direction.abs() >= EPSILON {
         (tmin_numerator / direction,
@@ -495,6 +495,10 @@ fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersec
 pub struct Bounds {
     min: Tuple4,
     max: Tuple4,
+}
+
+fn unit_bounds() -> Bounds {
+    Bounds { min: point(-1.0, -1.0, -1.0), max: point(1.0, 1.0, 1.0) }
 }
 
 impl Bounds {
