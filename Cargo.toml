@@ -6,6 +6,6 @@ edition = "2018"
 
 [dependencies]
 exitfailure = "0.5"
-structopt = "0.2"
+structopt = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.5"
