@@ -101,7 +101,23 @@ fn group_minima_and_maxima_are_dictated_by_its_members_bounds() {
 
 #[allow(non_snake_case)]
 #[test]
-fn bounds_in_group_space_determined_by_transformations() {
+fn group_bounds_encompasses_all_members() {
+    let mut all = vec![unit_sphere()];
+    assert_bounds(group(all.clone()).bounds(), (-1.0, -1.0, -1.0), (1.0, 1.0, 1.0));
+
+    all.push(cylinder(CylKind::Open, -5.0, 2.0));
+    assert_bounds(group(all.clone()).bounds(), (-1.0, -5.0, -1.0), (1.0, 2.0, 1.0));
+
+    all.push(cube().set_object_to_world_spc(scaling(8.0, 1.0, 1.0)).clone());
+    assert_bounds(group(all.clone()).bounds(), (-8.0, -5.0, -1.0), (8.0, 2.0, 1.0));
+
+    all.push(cube().set_object_to_world_spc(translation(0.0, 0.0, 200.0)).clone());
+    assert_bounds(group(all.clone()).bounds(), (-8.0, -5.0, -1.0), (8.0, 2.0, 201.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn bounds_in_group_affected_by_nested_group_transform() {
     let root_2 = std::f64::consts::SQRT_2;
     let pi_4 = std::f64::consts::FRAC_PI_4;
     let pi_2 = std::f64::consts::FRAC_PI_2;
