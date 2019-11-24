@@ -1,5 +1,14 @@
 use crate::*;
-use std::f64::INFINITY;
+
+mod cube;
+mod cylinder;
+mod bounds;
+
+pub use cube::cube;
+pub use cylinder::CylKind;
+pub use cylinder::cylinder;
+pub use cylinder::inf_cylinder;
+pub use bounds::Bounds;
 
 /// Creates a sphere of radius 1 centred at the origin.
 pub fn unit_sphere() -> Object {
@@ -31,37 +40,6 @@ pub fn plane() -> Object {
     }
 }
 
-/// Creates a cube centred on the origin whose vertices are
-/// 1 unit away from the nearest point on the x,y,z axis.
-///
-/// The length of each edge is 2.  The distance from the origin
-/// to any vertex is sqrt(2).
-pub fn cube() -> Object {
-    Object {
-        world_to_object_spc: identity(),
-        material: Material::default(),
-        shape: Shape::Cube,
-    }
-}
-
-/// Creates an infinitely long open cylinder whose length extends along the y-axis,
-/// with radius 1.
-///
-/// Imagine a circle of radius 1, centred at the origin
-/// in the x-z plane, extruded along the y-axis.
-pub fn inf_cylinder() -> Object {
-    cylinder(CylKind::Open, std::f64::NEG_INFINITY, std::f64::INFINITY)
-}
-
-/// Creates an infinitely long open cylinder whose length extends along the y-axis,
-/// with radius 1.
-pub fn cylinder(kind: CylKind, lbound: f64, ubound: f64) -> Object {
-    Object {
-        world_to_object_spc: identity(),
-        material: Material::default(),
-        shape: Shape::Cylinder { kind, lbound, ubound },
-    }
-}
 
 /// Creates a group of objects.
 ///
@@ -92,14 +70,6 @@ pub enum Shape {
     Group { children: Vec<Object> }
 }
 
-/// Dictates whether a cylinder is open ended
-/// or has closed ends.
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum CylKind {
-    Open,
-    Closed,
-}
-
 impl Shape {
     /// Calculates a normal appropriate for the object at the
     /// specified position.  The position is always in object
@@ -112,9 +82,9 @@ impl Shape {
                 position - point(0.0, 0.0, 0.0)
             }
             Shape::Plane => vector(0.0, 1.0, 0.0),
-            Shape::Cube => normal_of_cube(position),
+            Shape::Cube => cube::normal_of_cube(position),
             Shape::Cylinder { lbound, ubound, ..} => {
-                normal_of_cylinder(*lbound, *ubound, position)
+                cylinder::normal_of_cylinder(*lbound, *ubound, position)
             },
             Shape::Group { children : _ } => {
                 unimplemented!()
@@ -124,35 +94,18 @@ impl Shape {
 
     fn bounds(&self) -> Bounds {
         match self {
-            Shape::Sphere => {
-                Bounds {
-                    min : point(-1.0, -1.0, -1.0),
-                    max : point( 1.0,  1.0,  1.0),
-                }
-            },
-            Shape::Cube => {
-                Bounds {
-                    min : point(-1.0, -1.0, -1.0),
-                    max : point( 1.0,  1.0,  1.0),
-                }
-            },
-            Shape::Cylinder {lbound, ubound, ..} => {
-                Bounds {
-                    min : point(-1.0, *lbound, -1.0),
-                    max : point( 1.0, *ubound,  1.0),
-                }
-            },
+            Shape::Sphere => Bounds::new(point(-1.0, -1.0, -1.0), point(1.0, 1.0, 1.0)),
+            Shape::Cube => Bounds::new(point(-1.0, -1.0, -1.0), point(1.0, 1.0, 1.0)),
+            Shape::Cylinder {lbound, ubound, ..} =>
+                Bounds::new(point(-1.0, *lbound, -1.0), point(1.0, *ubound, 1.0)),
             Shape::Plane => {
-                Bounds {
-                    min : point(std::f64::NEG_INFINITY, std::f64::NEG_INFINITY, std::f64::NEG_INFINITY),
-                    max : point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
-                }
+                Bounds::new(
+                    point(std::f64::NEG_INFINITY, std::f64::NEG_INFINITY, std::f64::NEG_INFINITY),
+                    point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
+                )
             },
             Shape::Group {children} => {
-                Bounds {
-                    min : min_point(children.as_slice()),
-                    max : max_point(children.as_slice()),
-                }
+                Bounds::new(min_point(children.as_slice()), max_point(children.as_slice()))
             },
         }
     }
@@ -170,39 +123,6 @@ fn max_point(arr: &[Object]) -> Tuple4 {
     let inf_t = tuple(inf, inf, inf, inf);
     let p = arr.iter().map(|o| o.bounds().max()).fold(inf_t, Tuple4::max);
     p
-}
-
-fn normal_of_cylinder(lbound: f64, ubound: f64, pos: Tuple4) -> Tuple4 {
-    let mag = pos.x().powi(2) + pos.z().powi(2);
-    if mag < 1.0 {
-        if pos.y() >= (ubound - crate::EPSILON) {
-            vector(0.0, 1.0, 0.0)
-        } else if pos.y() <= (lbound + crate::EPSILON) {
-            vector(0.0, -1.0, 0.0)
-        } else {
-            vector(pos.x(), 0.0, pos.z())
-        }
-    } else {
-        vector(pos.x(), 0.0, pos.z())
-    }
-}
-
-fn normal_of_cube(pos: Tuple4) -> Tuple4 {
-
-    let mut maxindex = 0;
-    let mut prev = pos.x().abs();
-    for (i, item) in [pos.y().abs(), pos.z().abs()].iter().enumerate() {
-        if *item > prev {
-            prev = *item;
-            maxindex = i + 1;
-        }
-    }
-
-    match maxindex {
-        0 => vector(pos.x(), 0.0, 0.0),
-        1 => vector(0.0, pos.y(), 0.0),
-        _ => vector(0.0, 0.0, pos.z()),
-    }
 }
 
 /// An object to be placed in the world; something to be rendered.
@@ -280,9 +200,9 @@ impl Object {
         let corners = bnds.all_corners();
         let ninf = std::f64::NEG_INFINITY;
         let pinf = std::f64::INFINITY;
-        let mut minx = if bnds.min.x() == ninf { ninf } else { pinf };
-        let mut miny = if bnds.min.y() == ninf { ninf } else { pinf };
-        let mut minz = if bnds.min.z() == ninf { ninf } else { pinf };
+        let mut minx = if bnds.min().x() == ninf { ninf } else { pinf };
+        let mut miny = if bnds.min().y() == ninf { ninf } else { pinf };
+        let mut minz = if bnds.min().z() == ninf { ninf } else { pinf };
 
         let to_world_spc = self.object_to_world_spc();
         for vertex in &corners {
@@ -292,9 +212,9 @@ impl Object {
             if p.z() < minz { minz = p.z() };
         }
 
-        let mut maxx = if bnds.max.x() == pinf { pinf } else { ninf };
-        let mut maxy = if bnds.max.y() == pinf { pinf } else { ninf };
-        let mut maxz = if bnds.max.z() == pinf { pinf } else { ninf };
+        let mut maxx = if bnds.max().x() == pinf { pinf } else { ninf };
+        let mut maxy = if bnds.max().y() == pinf { pinf } else { ninf };
+        let mut maxz = if bnds.max().z() == pinf { pinf } else { ninf };
 
         for vertex in &corners {
             let p = to_world_spc.mult(*vertex);
@@ -303,7 +223,7 @@ impl Object {
             if p.z() > maxz { maxz = p.z() };
         }
 
-        Bounds { min: point(minx, miny, minz), max: point(maxx, maxy, maxz) }
+        Bounds::new(point(minx, miny, minz), point(maxx, maxy, maxz))
     }
 }
 
@@ -325,13 +245,13 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
             }
         },
         Shape::Cube => {
-            if let Some((a, b)) = intersect_cube(&r, s) {
+            if let Some((a, b)) = cube::intersect_cube(&r, s) {
                 vec.push(a);
                 vec.push(b);
             }
         },
         Shape::Cylinder { lbound, ubound, .. } => {
-            append_cyl_intersects(&r, s, vec, *lbound, *ubound)
+            cylinder::append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         },
         Shape::Group {children} => {
             append_grp_intersects(&r, s, vec, &children)
@@ -340,7 +260,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
 }
 
 fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
-    if intersect_bounding_box(r, grp.shape.bounds()).is_none() {
+    if bounds::intersect_bounding_box(r, grp.shape.bounds()).is_none() {
         return;
     }
 
@@ -373,151 +293,11 @@ fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersect
     }
 }
 
-fn intersect_cube(r: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {
-    match intersect_bounding_box(r, unit_bounds()) {
-        Some((tmin, tmax)) => {
-            Some((intersection(tmin, obj), intersection(tmax, obj)))
-        },
-        _ => None,
-    }
-}
-
-fn intersect_bounding_box(r: &Ray, bbox: Bounds) -> Option<(f64, f64)> {
-    let (x_tmin, x_tmax) = check_axis(r.origin.x(), r.direction.x(), bbox.min.x(), bbox.max.x());
-    let (y_tmin, y_tmax) = check_axis(r.origin.y(), r.direction.y(), bbox.min.y(), bbox.max.y());
-    let (z_tmin, z_tmax) = check_axis(r.origin.z(), r.direction.z(), bbox.min.z(), bbox.max.z());
-
-    let tmin = [x_tmin, y_tmin, z_tmin].iter().cloned().fold(std::f64::MIN, f64::max);
-    let tmax = [x_tmax, y_tmax, z_tmax].iter().cloned().fold(std::f64::MAX, f64::min);
-
-    if tmin > tmax {
-        None
-    } else {
-        Some((tmin, tmax))
-    }
-}
-
-fn check_axis(origin: f64, direction: f64, bbox_min: f64, bbox_max: f64) -> (f64, f64) {
-    let tmin_numerator = bbox_min - origin;
-    let tmax_numerator = bbox_max - origin;
-
-    let (tmin, tmax) = if direction.abs() >= EPSILON {
-        (tmin_numerator / direction,
-         tmax_numerator / direction)
-    } else {
-        (tmin_numerator * INFINITY,
-         tmax_numerator * INFINITY)
-    };
-
-    if tmin > tmax { (tmax, tmin) }
-    else {(tmin, tmax)}
-}
-
 
 fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
     if r.direction.y().abs() < EPSILON {
         None
     } else {
         Some(intersection(-r.origin.y() / r.direction.y(), s))
-    }
-}
-
-fn append_cyl_intersects(
-    r: &Ray,
-    cyl: &Object,
-    vec: &mut Vec<Intersection>,
-    lower: f64,
-    upper: f64)
-{
-    if let Some((a, b)) = intersect_cylinder(&r, cyl) {
-        let ya = (r.origin + (r.direction.scale(a.t_value))).y();
-        let yb = (r.origin + (r.direction.scale(b.t_value))).y();
-
-        if lower < ya && ya < upper {
-            vec.push(a);
-        }
-
-        if lower < yb && yb < upper {
-            vec.push(b);
-        }
-    }
-
-    intersect_caps(cyl, r, vec);
-}
-
-fn intersect_caps(cyl: &Object, r: &Ray, vec: &mut Vec<Intersection>) {
-
-    if let Shape::Cylinder { kind, lbound, ubound } = cyl.shape {
-        if kind == CylKind::Open || almost_eq(r.direction.y().abs(), 0.0) {
-            return;
-        }
-
-        let t0 = (lbound - r.origin.y()) / r.direction.y() ;
-        let t1 = (ubound - r.origin.y()) / r.direction.y() ;
-
-        if check_cap(r, t0) {
-            vec.push(intersection(t0, cyl))
-        }
-
-        if check_cap(r, t1) {
-            vec.push(intersection(t1, cyl))
-        }
-    }
-}
-
-fn check_cap(ray: &Ray, t: f64) -> bool {
-    let x = ray.origin.x() + (t * ray.direction.x());
-    let z = ray.origin.z() + (t * ray.direction.z());
-    x.powi(2) + z.powi(2) <= 1.0
-}
-
-fn intersect_cylinder(ray: &Ray, obj: &Object) -> Option<(Intersection, Intersection)> {
-    let a = ray.direction.x().powi(2) + ray.direction.z().powi(2);
-
-    if almost_eq(a, 0.0) { return None; }
-
-    let b =
-        (2.0 * ray.origin.x() * ray.direction.x()) +
-        (2.0 * ray.origin.z() * ray.direction.z());
-
-    let c = ray.origin.x().powi(2) + ray.origin.z().powi(2) - 1.0;
-    let disc = b.powi(2) - (4.0 * a * c);
-    if disc < 0.0 { return None ; }
-
-    let t0 = ( -b - disc.sqrt()) / (2.0*a);
-    let t1 = ( -b + disc.sqrt()) / (2.0*a);
-
-    Some((intersection(t0, obj), intersection(t1, obj)))
-}
-
-/// Describes an axis aligned bounding box
-#[derive(Debug, Copy, Clone)]
-pub struct Bounds {
-    min: Tuple4,
-    max: Tuple4,
-}
-
-fn unit_bounds() -> Bounds {
-    Bounds { min: point(-1.0, -1.0, -1.0), max: point(1.0, 1.0, 1.0) }
-}
-
-impl Bounds {
-    pub fn min(&self) -> Tuple4 {
-        self.min
-    }
-    pub fn max(&self) -> Tuple4 {
-        self.max
-    }
-    pub fn all_corners(&self) -> [Tuple4 ; 8] {
-        [
-            point(self.min.x(), self.min.y(), self.min.z()),
-            point(self.min.x(), self.min.y(), self.max.z()),
-            point(self.min.x(), self.max.y(), self.min.z()),
-            point(self.min.x(), self.max.y(), self.max.z()),
-            point(self.max.x(), self.min.y(), self.min.z()),
-            point(self.max.x(), self.min.y(), self.max.z()),
-            point(self.max.x(), self.max.y(), self.min.z()),
-            point(self.max.x(), self.max.y(), self.max.z()),
-        ]
     }
 }
