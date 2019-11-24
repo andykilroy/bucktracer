@@ -29,7 +29,7 @@ pub enum Shape {
     Plane,
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
-    Triangle { p1: Tuple4, p2: Tuple4, p3: Tuple4 },
+    Triangle { p1: Tuple4, p2: Tuple4, p3: Tuple4, e1: Tuple4, e2: Tuple4, normal: Tuple4},
     Group { children: Vec<Object> },
 }
 
@@ -49,7 +49,7 @@ impl Shape {
             Shape::Cylinder { lbound, ubound, ..} => {
                 cylinder::normal_of_cylinder(*lbound, *ubound, position)
             },
-            Shape::Triangle { p1, p2, p3 } => vector(0.0, 0.0, -1.0),
+            Shape::Triangle { normal, .. } => *normal,
             Shape::Group { children : _ } => {
                 unimplemented!()
             },
@@ -68,7 +68,7 @@ impl Shape {
                     point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
                 )
             },
-            Shape::Triangle {p1, p2, p3} => Bounds::new(point(-1.0, -1.0, -1.0), point(1.0, 1.0, 1.0)),
+            Shape::Triangle {..} => Bounds::new(point(-1.0, -1.0, -1.0), point(1.0, 1.0, 1.0)),
             Shape::Group {children} => {
                 Bounds::new(min_point(children.as_slice()), max_point(children.as_slice()))
             },
@@ -221,6 +221,6 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Group {children} => {
             group::append_grp_intersects(&r, s, vec, &children)
         },
-        Shape::Triangle {p1, p2, p3} => triangle::append_tri_intersects(&r, s, vec),
+        Shape::Triangle {..} => triangle::append_tri_intersects(&r, s, vec),
     }
 }
