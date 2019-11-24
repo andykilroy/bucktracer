@@ -1,62 +1,22 @@
 use crate::*;
 
+mod sphere;
+mod plane;
 mod cube;
 mod cylinder;
 mod bounds;
+mod group;
 
+pub use sphere::unit_sphere;
+pub use sphere::glass_sphere;
+pub use plane::plane;
 pub use cube::cube;
 pub use cylinder::CylKind;
 pub use cylinder::cylinder;
 pub use cylinder::inf_cylinder;
+pub use group::group;
 pub use bounds::Bounds;
 
-/// Creates a sphere of radius 1 centred at the origin.
-pub fn unit_sphere() -> Object {
-    Object {
-        world_to_object_spc: identity(),
-        material: Material::default(),
-        shape: Shape::Sphere,
-    }
-}
-
-/// Creates a transparent sphere of radius 1 centred at the origin.
-pub fn glass_sphere() -> Object {
-    let mut glass = Material::default();
-    glass.set_transparency(1.0);
-    glass.set_refractive_index(1.5);
-    Object {
-        world_to_object_spc: identity(),
-        material: glass,
-        shape: Shape::Sphere,
-    }
-}
-
-/// Creates an x-z plane intersecting y=0.
-pub fn plane() -> Object {
-    Object {
-        world_to_object_spc: identity(),
-        material: Material::default(),
-        shape: Shape::Plane,
-    }
-}
-
-
-/// Creates a group of objects.
-///
-/// Intended to be used where a list of objects is to be treated as part of a whole.
-/// E.g. 4 cylinders and one (flattened) cube can be placed into a group to
-/// represent a table.
-///
-/// Groups can also be used to partition a scene, to help the ray tracer quickly
-/// discard large numbers of objects that don't intersect the ray.
-pub fn group(children: Vec<Object>) -> Object {
-    let grp = Shape::Group { children };
-    Object {
-        world_to_object_spc: identity(),
-        material: Material::default(),
-        shape: grp,
-    }
-}
 
 /// Determines what shape an object has.
 ///
@@ -234,13 +194,13 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
     let shape = &s.shape;
     match shape {
         Shape::Sphere => {
-            if let Some((a, b)) = intersect_sphere(&r, s) {
+            if let Some((a, b)) = sphere::intersect_sphere(&r, s) {
                 vec.push(a);
                 vec.push(b);
             }
         },
         Shape::Plane => {
-            if let Some(a) = intersect_plane(&r, s) {
+            if let Some(a) = plane::intersect_plane(&r, s) {
                 vec.push(a);
             }
         },
@@ -254,50 +214,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
             cylinder::append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         },
         Shape::Group {children} => {
-            append_grp_intersects(&r, s, vec, &children)
+            group::append_grp_intersects(&r, s, vec, &children)
         }
-    }
-}
-
-fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
-    if bounds::intersect_bounding_box(r, grp.shape.bounds()).is_none() {
-        return;
-    }
-
-    let initial = vec.len();
-    for obj in children {
-        append_intersects(r, obj, vec);
-    }
-
-    let final_len = vec.len();
-    for i in vec[initial..final_len].iter_mut() {
-        let m = i.to_group_space() * grp.world_to_object_spc();
-        i.set_to_group_space(m);
-    }
-}
-
-fn intersect_sphere(r: &Ray, sphere: &Object) -> Option<(Intersection, Intersection)> {
-    // presume the sphere is centred at (0,0,0)
-    let s_to_ray = r.origin - point(0.0, 0.0, 0.0);
-    let a = r.direction.dot(r.direction);
-    let b = 2.0 * r.direction.dot(s_to_ray);
-    let c = s_to_ray.dot(s_to_ray) - 1.0;
-    let discriminant = b.powf(2.0) - (4.0 * a * c);
-
-    if discriminant < 0.0 {
-        None
-    } else {
-        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        Some((intersection(t1, sphere), intersection(t2, sphere)))
-    }
-}
-
-
-fn intersect_plane(r: &Ray, s: &Object) -> Option<Intersection> {
-    if r.direction.y().abs() < EPSILON {
-        None
-    } else {
-        Some(intersection(-r.origin.y() / r.direction.y(), s))
     }
 }
