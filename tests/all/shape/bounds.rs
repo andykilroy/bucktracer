@@ -131,12 +131,14 @@ fn bounds_in_group_affected_by_nested_group_transform() {
     approx_bounds(g1.bounds(), (-root_2 - 5.0, -root_2, -1.0), (root_2 - 5.0, root_2, 1.0));
 }
 
+#[allow(non_snake_case)]
+#[test]
 fn two_groups_and_intersect_them() {
     let c1 = cube().set_object_to_world_spc(translation(4.0, 0.0, 0.0) * rotation_z(std::f64::consts::FRAC_PI_4)).clone();
     let c2 = cube().set_object_to_world_spc(translation(0.0, 4.0, 0.0) * rotation_z(std::f64::consts::FRAC_PI_4)).clone();
 
     let g1 = group(vec![c1.clone()]).set_object_to_world_spc(translation(0.0, -3.0, 0.0)).clone();
-    let g2 = group(vec![c2.clone()]).set_object_to_world_spc(translation(-3.0, 0.0, 0.0)).clone();;
+    let g2 = group(vec![c2.clone()]).set_object_to_world_spc(translation(-3.0, 0.0, 0.0)).clone();
 
     let w = World::with(vec![], vec![g1, g2]);
     let ints = w.intersect(&ray(point(0.0, -3.0, 0.0), vector(1.0, 0.0, 0.0)));
