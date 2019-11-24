@@ -34,8 +34,8 @@ fn scenario_ray_hits_a_cylinder(origin: Tuple4, direction: Tuple4, t0: f64, t1:f
     let mut v = vec![];
     append_intersects(&r, &c, &mut v);
     assert_eq!(2, v.len());
-    assert_eq!(true, almost_eq(t0, v[0].t_value));
-    assert_eq!(true, almost_eq(t1, v[1].t_value));
+    assert_eq!(true, almost_eq(t0, v[0].t_value()));
+    assert_eq!(true, almost_eq(t1, v[1].t_value()));
 }
 
 #[allow(non_snake_case)]

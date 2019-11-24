@@ -21,8 +21,8 @@ fn scenario_ray_intersects_cube(_s: &str, pos: Tuple4, dir: Tuple4, t1: f64, t2:
     let mut xs: Vec<Intersection> = vec![];
     append_intersects(&r, &c, &mut xs);
     assert_eq!(2, xs.len());
-    assert_eq!(t1, xs[0].t_value);
-    assert_eq!(t2, xs[1].t_value);
+    assert_eq!(t1, xs[0].t_value());
+    assert_eq!(t2, xs[1].t_value());
 }
 
 fn scenario_ray_misses_cube(pos: Tuple4, dir: Tuple4) {

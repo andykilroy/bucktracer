@@ -147,8 +147,8 @@ impl Ray {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Intersection {
-    pub t_value: f64,
-    pub intersected: Object,
+    t_value: f64,
+    intersected: Object,
     to_group_spc: Matrix,
 }
 
@@ -550,7 +550,7 @@ fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
 
 fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalculations {
     let hit: &Intersection = &intersects[hit_index];
-    let pos = r.position(hit.t_value);
+    let pos = r.position(hit.t_value());
 
     // TODO think of a test to assert that the hit's normal takes into
     // account the group transformations.
@@ -562,8 +562,8 @@ fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalcul
     let (n1, n2) = refractive_indices(hit_index, intersects);
 
     HitCalculations {
-        t_value: hit.t_value,
-        object: hit.intersected.clone(),
+        t_value: hit.t_value(),
+        object: hit.intersected(),
         point: pos,
         eyev: e,
         normalv: norm,

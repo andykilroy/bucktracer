@@ -114,8 +114,8 @@ fn intersect_transforms_world_point_to_object_point() {
     // transform to object space must be S G2 G1 p where S, G2 ,G1 are world to object transforms
     let intersections = w.intersect(&ray(point(-5.0, 5.0,  0.0), vector(1.0, 0.0, 0.0)));
     let p = point(0.0, 6.0, 0.0);
-    assert_eq!(4.0, intersections[0].t_value);
-    assert_eq!(6.0, intersections[1].t_value);
+    assert_eq!(4.0, intersections[0].t_value());
+    assert_eq!(6.0, intersections[1].t_value());
     assert_eq!(sphere, intersections[0].intersected());
 
     assert_eq!(vector(0.0, 1.0, 0.0), intersections[0].normal_at(p));
