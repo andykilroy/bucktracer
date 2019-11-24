@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 
 fn white() -> RGB {
     RGB::white()

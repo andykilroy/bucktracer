@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use bucktracer::CylKind::{Open, Closed};
 use std::f64::{INFINITY, NEG_INFINITY};
 use crate::almost_eq;

@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use crate::almost_eq;
 
 #[test]

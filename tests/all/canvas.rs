@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 
 #[test]
 fn create_a_colour() {

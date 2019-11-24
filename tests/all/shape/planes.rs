@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use std::f64::consts::FRAC_PI_2;
 
 #[allow(non_snake_case)]

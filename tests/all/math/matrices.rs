@@ -1,4 +1,5 @@
-use bucktracer::*;
+//use bucktracer::*;
+use bucktracer::math::*;
 
 #[test]
 fn create_4x4_matrix() {

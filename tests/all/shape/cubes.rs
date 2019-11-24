@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 
 #[allow(non_snake_case)]
 #[test]

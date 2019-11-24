@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use bucktracer::ppm;
 use std::f64::consts::FRAC_PI_2;
 use std::io::{stdout, Result};

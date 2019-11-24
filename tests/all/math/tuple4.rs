@@ -1,4 +1,5 @@
-use bucktracer::*;
+//use bucktracer::*;
+use bucktracer::math::*;
 
 const P_INF: f64 = std::f64::INFINITY;
 const N_INF: f64 = std::f64::NEG_INFINITY;

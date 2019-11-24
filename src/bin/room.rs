@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use bucktracer::ppm;
 use exitfailure::ExitFailure;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};

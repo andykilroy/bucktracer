@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 use bucktracer::ppm;
 use std::io::Result;
 

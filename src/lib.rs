@@ -4,11 +4,11 @@ use std::ops::{Add, Mul};
 
 use serde::Deserialize;
 
-mod math;
+pub mod math;
 mod shape;
 pub mod ppm;
 
-pub use crate::math::*;
+use crate::math::*;
 pub use crate::shape::*;
 
 

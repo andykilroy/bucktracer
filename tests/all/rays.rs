@@ -1,4 +1,5 @@
 use bucktracer::*;
+use bucktracer::math::*;
 
 fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
     match index_of_hit(&intersects) {
