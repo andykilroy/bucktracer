@@ -149,7 +149,7 @@ impl Ray {
 pub struct Intersection {
     pub t_value: f64,
     pub intersected: Object,
-    pub to_group_spc: Matrix,
+    to_group_spc: Matrix,
 }
 
 impl Intersection {
