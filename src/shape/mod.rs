@@ -221,6 +221,6 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Group {children} => {
             group::append_grp_intersects(&r, s, vec, &children)
         },
-        Shape::Triangle {..} => triangle::append_tri_intersects(&r, s, vec),
+        Shape::Triangle {p1, p2, p3, e1, e2, ..} => triangle::append_tri_intersects(&r, s, vec, *p1, *p2, *p3, *e1, *e2),
     }
 }
