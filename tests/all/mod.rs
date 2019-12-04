@@ -6,5 +6,6 @@ mod patterns;
 mod material;
 mod ppm;
 mod rays;
+mod wavefront;
 mod world;
 

@@ -5,8 +5,10 @@ use std::ops::{Add, Mul};
 use serde::Deserialize;
 
 pub mod math;
-mod shape;
 pub mod ppm;
+pub mod wavefront;
+mod shape;
+
 
 use crate::math::*;
 pub use crate::shape::*;
