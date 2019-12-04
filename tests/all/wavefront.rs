@@ -39,6 +39,15 @@ f 1 3 4
 
 #[allow(non_snake_case)]
 #[test]
+fn bad_instruction_if_vertex_is_not_triple() {
+    let mut input1 = "v -1".as_bytes();
+    let mut input2 = "v -1 1".as_bytes();
+    assert_eq!(wavefront::parse(&mut input1), Err(ParseError::BadInstruction));
+    assert_eq!(wavefront::parse(&mut input2), Err(ParseError::BadInstruction));
+}
+
+#[allow(non_snake_case)]
+#[test]
 fn zero_index_for_face_is_illegal() {
     let mut input = r##"v -1 1 0
 v -1 0 0
