@@ -1,6 +1,7 @@
 use bucktracer::*;
 use bucktracer::math::*;
 use bucktracer::wavefront;
+use bucktracer::wavefront::ParseError;
 
 
 #[allow(non_snake_case)]
@@ -34,4 +35,16 @@ f 1 3 4
         triangle(point(-1.0, 1.0, 0.0), point(-1.0, 0.0, 0.0), point(1.0, 0.0, 0.0)),
         triangle(point(-1.0, 1.0, 0.0), point(1.0, 0.0, 0.0), point(1.0, 1.0, 0.0)),
     ]);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn zero_index_for_face_is_illegal() {
+    let mut input = r##"v -1 1 0
+v -1 0 0
+v 1 0 0
+v 1 1 0
+f 0 2 3
+"##.as_bytes();
+    assert_eq!(wavefront::parse(&mut input), Err(ParseError::BadInstruction));
 }
