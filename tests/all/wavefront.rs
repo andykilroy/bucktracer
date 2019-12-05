@@ -57,3 +57,22 @@ f 0 2 3
 "##.as_bytes();
     assert_eq!(wavefront::parse(&mut input), Err(ParseError::BadInstruction));
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn face_must_have_three_vertices() {
+    let mut input1 = r##"v -1 1 0
+v -1 0 0
+v 1 0 0
+v 1 1 0
+f 1 2
+"##.as_bytes();
+    let mut input2 = r##"v -1 1 0
+v -1 0 0
+v 1 0 0
+v 1 1 0
+f 1
+"##.as_bytes();
+    assert_eq!(wavefront::parse(&mut input1), Err(ParseError::BadInstruction));
+    assert_eq!(wavefront::parse(&mut input2), Err(ParseError::BadInstruction));
+}

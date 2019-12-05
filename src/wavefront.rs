@@ -63,10 +63,10 @@ fn read_facet(triplet: &str, points: &[Tuple4], triangles: &mut Vec<Object>) -> 
         else { Err(ParseError::BadInstruction) }
     }
 
-    let splitted: Vec<&str> = triplet.split(" ").collect();
-    let x1 = splitted[0].parse::<usize>().unwrap();
-    let x2 = splitted[1].parse::<usize>().unwrap();
-    let x3 = splitted[2].parse::<usize>().unwrap();
+    let (s1, s2, s3) = triple(triplet)?;
+    let x1 = s1.parse::<usize>().or_else(|e| Err(BadInstruction))?;
+    let x2 = s2.parse::<usize>().or_else(|e| Err(BadInstruction))?;
+    let x3 = s3.parse::<usize>().or_else(|e| Err(BadInstruction))?;
     triangles.push(triangle(points[gt_zero(x1)?], points[gt_zero(x2)?], points[gt_zero(x3)?]));
     Ok(())
 }
