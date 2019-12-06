@@ -76,3 +76,22 @@ f 1
     assert_eq!(wavefront::parse(&mut input1), Err(ParseError::BadInstruction));
     assert_eq!(wavefront::parse(&mut input2), Err(ParseError::BadInstruction));
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn fan_triangulation() {
+    let mut input = r##"v -1 1 0
+v -1 0 0
+v 1 0 0
+v 1 1 0
+v 0 2 0
+f 1 2 3 4 5
+"##.as_bytes();
+
+    let out: Vec<Object> = wavefront::parse(&mut input).unwrap();
+    assert_eq!(out, vec![
+        triangle(point(-1.0, 1.0, 0.0), point(-1.0, 0.0, 0.0), point(1.0, 0.0, 0.0)),
+        triangle(point(-1.0, 1.0, 0.0), point(1.0, 0.0, 0.0), point(1.0, 1.0, 0.0)),
+        triangle(point(-1.0, 1.0, 0.0), point(1.0, 1.0, 0.0), point(0.0, 2.0, 0.0)),
+    ]);
+}
