@@ -1,15 +1,20 @@
-
-use crate::*;
-use std::io;
-use std::io::{BufReader, BufRead};
-use std::vec::Vec;
-use std::f64;
 use crate::wavefront::ParseError::BadInstruction;
+use crate::*;
+use std::f64;
+use std::io;
+use std::io::{BufRead, BufReader};
+use std::vec::Vec;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ParseError {
     Io,
     BadInstruction,
+}
+
+impl From<&ParseError> for ParseError {
+    fn from(x: &ParseError) -> Self {
+        (*x).clone()
+    }
 }
 
 pub fn parse(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
@@ -26,10 +31,15 @@ pub fn parse(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
     Ok(tris)
 }
 
-fn handle_line(line: String, points: &mut Vec<Tuple4>, triangles: &mut Vec<Object>) -> Result<(), ParseError>  {
+fn handle_line(
+    line: String,
+    points: &mut Vec<Tuple4>,
+    triangles: &mut Vec<Object>,
+) -> Result<(), ParseError> {
+
     if line.starts_with("v ") {
         read_point(&line[2..], points)
-    } else if line.starts_with("f "){
+    } else if line.starts_with("f ") {
         read_facet(&line[2..], points, triangles)
     } else {
         Ok(())
@@ -57,16 +67,32 @@ fn read_point(triplet: &str, points: &mut Vec<Tuple4>) -> Result<(), ParseError>
     Ok(())
 }
 
-fn read_facet(triplet: &str, points: &[Tuple4], triangles: &mut Vec<Object>) -> Result<(), ParseError> {
+fn read_facet(
+    args: &str,
+    points: &[Tuple4],
+    triangles: &mut Vec<Object>,
+) -> Result<(), ParseError> {
     fn gt_zero(i: usize) -> Result<usize, ParseError> {
-        if i > 0 { Ok(i - 1) }
-        else { Err(ParseError::BadInstruction) }
+        if i > 0 {
+            Ok(i - 1)
+        } else {
+            Err(ParseError::BadInstruction)
+        }
     }
 
-    let (s1, s2, s3) = triple(triplet)?;
-    let x1 = s1.parse::<usize>().or_else(|e| Err(BadInstruction))?;
-    let x2 = s2.parse::<usize>().or_else(|e| Err(BadInstruction))?;
-    let x3 = s3.parse::<usize>().or_else(|e| Err(BadInstruction))?;
-    triangles.push(triangle(points[gt_zero(x1)?], points[gt_zero(x2)?], points[gt_zero(x3)?]));
+    let indices : Vec<Result<usize, ParseError>> = args
+        .split_whitespace()
+        .map(|x| x.parse::<usize>().or_else(|e| Err(BadInstruction)))
+        .collect();
+
+    if indices.len() < 3 { return Err(BadInstruction); }
+
+    let first = indices[0].as_ref()?;
+    for i in 1..=(indices.len() - 2) {
+        let x1 = first;
+        let x2 = indices[i].as_ref()?;
+        let x3 = indices[i+1].as_ref()?;
+        triangles.push(triangle(points[gt_zero(*x1)?], points[gt_zero(*x2)?], points[gt_zero(*x3)?]));
+    }
     Ok(())
 }
