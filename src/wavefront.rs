@@ -91,14 +91,6 @@ fn read_point(triplet: &str, points: &mut Vec<Tuple4>) -> Result<(), ParseError>
 }
 
 fn read_facet(args: &str, state: &mut ParseState) -> Result<(), ParseError> {
-    fn gt_zero(i: usize) -> Result<usize, ParseError> {
-        if i > 0 {
-            Ok(i - 1)
-        } else {
-            Err(ParseError::BadInstruction)
-        }
-    }
-
     let indices : Vec<Result<usize, ParseError>> = args
         .split_whitespace()
         .map(|x| x.parse::<usize>().or_else(|e| Err(BadInstruction)))
@@ -107,16 +99,24 @@ fn read_facet(args: &str, state: &mut ParseState) -> Result<(), ParseError> {
     if indices.len() < 3 { return Err(BadInstruction); }
 
     let points = &state.vertices;
-    let triangles = state.groups.get_mut(&state.group_name).unwrap();
+    let group = state.groups.get_mut(&state.group_name).unwrap();
 
     let first = indices[0].as_ref()?;
     for i in 1..=(indices.len() - 2) {
         let x1 = first;
         let x2 = indices[i].as_ref()?;
         let x3 = indices[i+1].as_ref()?;
-        triangles.push(triangle(points[gt_zero(*x1)?], points[gt_zero(*x2)?], points[gt_zero(*x3)?]));
+        group.push(triangle(points[gt_zero(*x1)?], points[gt_zero(*x2)?], points[gt_zero(*x3)?]));
     }
     Ok(())
+}
+
+fn gt_zero(i: usize) -> Result<usize, ParseError> {
+    if i > 0 {
+        Ok(i - 1)
+    } else {
+        Err(ParseError::BadInstruction)
+    }
 }
 
 fn handle_group(newgroup: &str, state: &mut ParseState) -> Result<(), ParseError> {
