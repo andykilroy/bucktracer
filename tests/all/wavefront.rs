@@ -95,3 +95,30 @@ f 1 2 3 4 5
         triangle(point(-1.0, 1.0, 0.0), point(1.0, 1.0, 0.0), point(0.0, 2.0, 0.0)),
     ]);
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn extract_groups() {
+    let mut input = r##"v -1 1 0
+v -1 0 0
+v 1 0 0
+v 1 1 0
+
+g FirstGroup
+f 1 2 3
+
+g SecondGroup
+f 1 3 4
+"##.as_bytes();
+
+    let out: Vec<Object> = wavefront::parse(&mut input).unwrap();
+
+    assert_eq!(out, vec![
+        group(vec![
+            triangle(point(-1.0, 1.0, 0.0), point(-1.0, 0.0, 0.0), point(1.0, 0.0, 0.0)),
+        ]),
+        group(vec![
+            triangle(point(-1.0, 1.0, 0.0), point(1.0, 0.0, 0.0), point(1.0, 1.0, 0.0)),
+        ])
+    ]);
+}

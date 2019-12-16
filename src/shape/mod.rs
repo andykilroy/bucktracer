@@ -98,9 +98,9 @@ fn max_point(arr: &[Object]) -> Tuple4 {
 /// properties.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
+    shape: Shape,
     world_to_object_spc: Matrix,
     material: Material,
-    shape: Shape,
 }
 
 impl Object {
