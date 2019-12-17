@@ -9,7 +9,6 @@ pub mod ppm;
 pub mod wavefront;
 mod shape;
 
-
 use crate::math::*;
 pub use crate::shape::*;
 

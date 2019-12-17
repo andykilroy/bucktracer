@@ -1,4 +1,3 @@
-use std::io;
 use std::fs::File;
 use exitfailure::ExitFailure;
 
@@ -18,13 +17,21 @@ struct Counter {
     min_bound: (f64, f64, f64),
     max_bound: (f64, f64, f64),
     vertices: usize,
+    triangles: usize,
+    groups: usize,
 }
 
 impl Counter {
     fn new() -> Counter {
         let max = std::f64::MAX;
         let min = std::f64::MIN;
-        Counter { min_bound: (max, max, max), max_bound: (min, min, min), vertices: 0 }
+        Counter { 
+            min_bound: (max, max, max),
+            max_bound: (min, min, min),
+            vertices: 0,
+            triangles: 0,
+            groups: 0,
+        }
     }
 }
 
@@ -46,23 +53,27 @@ impl wavefront::ParseHandler for Counter {
         Ok(())
     }
 
-    fn handle_triangle(&mut self, i1: usize, i2: usize, i3: usize) -> Result<(), ParseError> {
+    fn handle_triangle(&mut self, _i1: usize, _i2: usize, _i3: usize) -> Result<(), ParseError> {
+        self.triangles += 1;
         Ok(())
     }
 
-    fn declare_group(&mut self, name: &str) -> Result<(), ParseError> {
+    fn declare_group(&mut self, _name: &str) -> Result<(), ParseError> {
+        self.groups += 1;
         Ok(())
     }
 }
 
 fn main() -> Result<(), ExitFailure> {
     let args: CmdOptions = CmdOptions::from_args();
-    let mut f = File::open(args.objfile)?;
+    let mut f = File::open(&args.objfile)?;
     let mut c = Counter::new();
     wavefront::parse(&mut c,&mut f)?;
-    let stdin = std::io::stdin();
+    println!("filepath  {}", &args.objfile);
     println!("min_bound ({:.6} {:.6} {:.6})", c.min_bound.0, c.min_bound.1, c.min_bound.2);
     println!("max_bound ({:.6} {:.6} {:.6})", c.max_bound.0, c.max_bound.1, c.max_bound.2);
     println!("vertices  {}", c.vertices);
+    println!("triangles {}", c.triangles);
+    println!("groups    {}", c.groups);
     Ok(())
 }
