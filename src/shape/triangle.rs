@@ -13,8 +13,9 @@ pub fn triangle(p1: Tuple4, p2: Tuple4, p3: Tuple4) -> Object {
 
 pub fn append_tri_intersects(
     r: &Ray, obj: &Object, vec: &mut Vec<Intersection>,
-    p1: Tuple4, p2: Tuple4, p3: Tuple4,
-    e1: Tuple4, e2: Tuple4) {
+    p1: Tuple4, _p2: Tuple4, _p3: Tuple4,
+    e1: Tuple4, e2: Tuple4)
+{
     let c = r.direction.cross(e2);
     let det = e1.dot(c);
     if det.abs() >= EPSILON {

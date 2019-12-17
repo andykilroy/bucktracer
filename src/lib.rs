@@ -545,6 +545,7 @@ struct HitCalculations {
     n2: f64,
 }
 
+#[allow(dead_code)]
 fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
     hit_data(r, 0, &[hit.clone()])
 }
