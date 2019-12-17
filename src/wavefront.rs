@@ -1,4 +1,3 @@
-use crate::wavefront::ParseError::BadInstruction;
 use crate::*;
 use std::f64;
 use std::io;
@@ -28,8 +27,8 @@ impl Error for ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Io => write!(f, "Io"),
-            BadInstruction => write!(f, "BadInstruction"),
+            ParseError::Io => write!(f, "Io"),
+            ParseError::BadInstruction => write!(f, "BadInstruction"),
         }
     }
 }
@@ -98,11 +97,11 @@ pub fn read_object_vec(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseErr
 }
 
 pub fn parse(handler: &mut dyn ParseHandler, input: &mut dyn io::Read) -> Result<(), ParseError> {
-    let mut bufread = BufReader::new(input);
+    let bufread = BufReader::new(input);
 
     let mut lines = bufread.lines();
     while let Some(l) = lines.next() {
-        let line = l.or_else(|e| Err(ParseError::Io))?;
+        let line = l.or_else(|_| Err(ParseError::Io))?;
         handle_line(line, handler)?;
     }
     Ok(())
@@ -134,9 +133,9 @@ fn triple(s: &str) -> Result<(&str, &str, &str), ParseError> {
 
 fn read_point(triplet: &str, handler: &mut dyn ParseHandler) -> Result<(), ParseError> {
     let (s1, s2, s3) = triple(triplet)?;
-    let x1 = s1.parse::<f64>().or_else(|e| Err(BadInstruction))?;
-    let x2 = s2.parse::<f64>().or_else(|e| Err(BadInstruction))?;
-    let x3 = s3.parse::<f64>().or_else(|e| Err(BadInstruction))?;
+    let x1 = s1.parse::<f64>().or_else(|_| Err(ParseError::BadInstruction))?;
+    let x2 = s2.parse::<f64>().or_else(|_| Err(ParseError::BadInstruction))?;
+    let x3 = s3.parse::<f64>().or_else(|_| Err(ParseError::BadInstruction))?;
     handler.handle_vertex(x1, x2, x3)?;
     Ok(())
 }
@@ -144,10 +143,10 @@ fn read_point(triplet: &str, handler: &mut dyn ParseHandler) -> Result<(), Parse
 fn read_facet(args: &str, handler: &mut dyn ParseHandler) -> Result<(), ParseError> {
     let indices : Vec<Result<usize, ParseError>> = args
         .split_whitespace()
-        .map(|x| x.parse::<usize>().or_else(|e| Err(BadInstruction)))
+        .map(|x| x.parse::<usize>().or_else(|_| Err(ParseError::BadInstruction)))
         .collect();
 
-    if indices.len() < 3 { return Err(BadInstruction); }
+    if indices.len() < 3 { return Err(ParseError::BadInstruction); }
 
     let first = indices[0].as_ref()?;
     for i in 1..=(indices.len() - 2) {

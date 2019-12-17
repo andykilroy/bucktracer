@@ -1,6 +1,5 @@
 use bucktracer::*;
 use bucktracer::math::*;
-use crate::almost_eq;
 
 #[allow(non_snake_case)]
 #[test]
