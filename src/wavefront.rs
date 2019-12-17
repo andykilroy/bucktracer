@@ -5,6 +5,9 @@ use std::io;
 use std::io::{BufRead, BufReader};
 use std::vec::Vec;
 use std::collections::BTreeMap;
+use std::error::Error;
+use std::fmt;
+use serde::export::Formatter;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParseError {
@@ -15,6 +18,19 @@ pub enum ParseError {
 impl From<&ParseError> for ParseError {
     fn from(x: &ParseError) -> Self {
         (*x).clone()
+    }
+}
+
+impl Error for ParseError {
+
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Io => write!(f, "Io"),
+            BadInstruction => write!(f, "BadInstruction"),
+        }
     }
 }
 
@@ -45,19 +61,13 @@ impl ParseState {
 }
 
 
-trait ParseHandler {
-    fn handle_vertex(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError> {
-        Ok(())
-    }
+pub trait ParseHandler {
+    fn handle_vertex(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError>;
 
     // TODO should be handle_facet, really...
-    fn handle_triangle(&mut self, i1: usize, i2: usize, i3: usize) -> Result<(), ParseError> {
-        Ok(())
-    }
+    fn handle_triangle(&mut self, i1: usize, i2: usize, i3: usize) -> Result<(), ParseError> ;
 
-    fn declare_group(&mut self, name: &str) -> Result<(), ParseError> {
-        Ok(())
-    }
+    fn declare_group(&mut self, name: &str) -> Result<(), ParseError> ;
 }
 
 impl ParseHandler for ParseState {
@@ -81,17 +91,21 @@ impl ParseHandler for ParseState {
     }
 }
 
-pub fn parse(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
-    let mut bufread = BufReader::new(input);
+pub fn read_object_vec(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
     let mut state = ParseState::new();
+    parse(&mut state, input)?;
+    Ok(state.to_vec())
+}
+
+pub fn parse(handler: &mut dyn ParseHandler, input: &mut dyn io::Read) -> Result<(), ParseError> {
+    let mut bufread = BufReader::new(input);
 
     let mut lines = bufread.lines();
     while let Some(l) = lines.next() {
         let line = l.or_else(|e| Err(ParseError::Io))?;
-        handle_line(line, &mut state)?;
+        handle_line(line, handler)?;
     }
-
-    Ok(state.to_vec())
+    Ok(())
 }
 
 fn handle_line(line: String, handler: &mut dyn ParseHandler) -> Result<(), ParseError>  {
