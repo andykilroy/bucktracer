@@ -44,6 +44,43 @@ impl ParseState {
     }
 }
 
+
+trait ParseHandler {
+    fn handle_vertex(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError> {
+        Ok(())
+    }
+
+    // TODO should be handle_facet, really...
+    fn handle_triangle(&mut self, i1: usize, i2: usize, i3: usize) -> Result<(), ParseError> {
+        Ok(())
+    }
+
+    fn declare_group(&mut self, name: &str) -> Result<(), ParseError> {
+        Ok(())
+    }
+}
+
+impl ParseHandler for ParseState {
+    fn handle_vertex(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError> {
+        self.vertices.push(point(x, y, z));
+        Ok(())
+    }
+
+    fn handle_triangle(&mut self, i1: usize, i2: usize, i3: usize) -> Result<(), ParseError> {
+        let points = &self.vertices;
+        let group = self.groups.get_mut(&self.group_name).unwrap();
+        group.push(triangle(points[gt_zero(i1)?], points[gt_zero(i2)?], points[gt_zero(i3)?]));
+
+        Ok(())
+    }
+
+    fn declare_group(&mut self, name: &str) -> Result<(), ParseError> {
+        self.groups.insert(name.to_string(), vec![]);
+        self.group_name = name.to_string();
+        Ok(())
+    }
+}
+
 pub fn parse(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
     let mut bufread = BufReader::new(input);
     let mut state = ParseState::new();
@@ -57,13 +94,13 @@ pub fn parse(input: &mut dyn io::Read) -> Result<Vec<Object>, ParseError> {
     Ok(state.to_vec())
 }
 
-fn handle_line(line: String, state: &mut ParseState) -> Result<(), ParseError>  {
+fn handle_line(line: String, handler: &mut dyn ParseHandler) -> Result<(), ParseError>  {
     if line.starts_with("v ") {
-        read_point(&line[2..], &mut state.vertices)
+        read_point(&line[2..], handler)
     } else if line.starts_with("f ") {
-        read_facet(&line[2..], state)
+        read_facet(&line[2..], handler)
     } else if line.starts_with("g ") {
-        handle_group(&line[2..], state)
+        handler.declare_group(&line[2..])
     } else {
         Ok(())
     }
@@ -81,16 +118,16 @@ fn triple(s: &str) -> Result<(&str, &str, &str), ParseError> {
     Err(ParseError::BadInstruction)
 }
 
-fn read_point(triplet: &str, points: &mut Vec<Tuple4>) -> Result<(), ParseError> {
+fn read_point(triplet: &str, handler: &mut dyn ParseHandler) -> Result<(), ParseError> {
     let (s1, s2, s3) = triple(triplet)?;
     let x1 = s1.parse::<f64>().or_else(|e| Err(BadInstruction))?;
     let x2 = s2.parse::<f64>().or_else(|e| Err(BadInstruction))?;
     let x3 = s3.parse::<f64>().or_else(|e| Err(BadInstruction))?;
-    points.push(point(x1, x2, x3));
+    handler.handle_vertex(x1, x2, x3)?;
     Ok(())
 }
 
-fn read_facet(args: &str, state: &mut ParseState) -> Result<(), ParseError> {
+fn read_facet(args: &str, handler: &mut dyn ParseHandler) -> Result<(), ParseError> {
     let indices : Vec<Result<usize, ParseError>> = args
         .split_whitespace()
         .map(|x| x.parse::<usize>().or_else(|e| Err(BadInstruction)))
@@ -98,15 +135,12 @@ fn read_facet(args: &str, state: &mut ParseState) -> Result<(), ParseError> {
 
     if indices.len() < 3 { return Err(BadInstruction); }
 
-    let points = &state.vertices;
-    let group = state.groups.get_mut(&state.group_name).unwrap();
-
     let first = indices[0].as_ref()?;
     for i in 1..=(indices.len() - 2) {
         let x1 = first;
         let x2 = indices[i].as_ref()?;
         let x3 = indices[i+1].as_ref()?;
-        group.push(triangle(points[gt_zero(*x1)?], points[gt_zero(*x2)?], points[gt_zero(*x3)?]));
+        handler.handle_triangle(*x1, *x2, *x3)?;
     }
     Ok(())
 }
@@ -119,8 +153,3 @@ fn gt_zero(i: usize) -> Result<usize, ParseError> {
     }
 }
 
-fn handle_group(newgroup: &str, state: &mut ParseState) -> Result<(), ParseError> {
-    state.groups.insert(newgroup.to_string(), vec![]);
-    state.group_name = newgroup.to_string();
-    Ok(())
-}
