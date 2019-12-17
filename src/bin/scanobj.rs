@@ -9,7 +9,9 @@ use bucktracer::wavefront::ParseError;
 #[derive(Debug, StructOpt)]
 #[structopt(about = "A tool to output statistics about a wavefront obj file", rename_all = "kebab-case")]
 struct CmdOptions {
-    objfile: String,
+    #[structopt(parse(from_os_str))]
+    /// List of files to scan
+    objfiles: Vec<std::ffi::OsString>,
 }
 
 #[derive(Debug)]
@@ -66,14 +68,19 @@ impl wavefront::ParseHandler for Counter {
 
 fn main() -> Result<(), ExitFailure> {
     let args: CmdOptions = CmdOptions::from_args();
-    let mut f = File::open(&args.objfile)?;
-    let mut c = Counter::new();
-    wavefront::parse(&mut c,&mut f)?;
-    println!("filepath  {}", &args.objfile);
-    println!("min_bound ({:.6} {:.6} {:.6})", c.min_bound.0, c.min_bound.1, c.min_bound.2);
-    println!("max_bound ({:.6} {:.6} {:.6})", c.max_bound.0, c.max_bound.1, c.max_bound.2);
-    println!("vertices  {}", c.vertices);
-    println!("triangles {}", c.triangles);
-    println!("groups    {}", c.groups);
+
+    for file in &args.objfiles {
+        let mut f = File::open(&file)?;
+        let mut c = Counter::new();
+        wavefront::parse(&mut c,&mut f)?;
+        println!("filepath    {}", file.to_string_lossy());
+        println!("min_bound   {:.6} {:.6} {:.6}", c.min_bound.0, c.min_bound.1, c.min_bound.2);
+        println!("max_bound   {:.6} {:.6} {:.6}", c.max_bound.0, c.max_bound.1, c.max_bound.2);
+        println!("vertices    {}", c.vertices);
+        println!("triangles   {}", c.triangles);
+        println!("groups      {}", c.groups);
+    }
     Ok(())
 }
+
+
