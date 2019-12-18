@@ -11,7 +11,9 @@ use crate::shape::bounds;
 /// Groups can also be used to partition a scene, to help the ray tracer quickly
 /// discard large numbers of objects that don't intersect the ray.
 pub fn group(children: Vec<Object>) -> Object {
-    let grp = Shape::Group { children };
+    let bounds = Bounds::new(min_point(children.as_slice()), max_point(children.as_slice()));
+    let grp = Shape::Group { children, bounds };
+
     Object {
         world_to_object_spc: identity(),
         material: Material::default(),
@@ -19,6 +21,19 @@ pub fn group(children: Vec<Object>) -> Object {
     }
 }
 
+fn min_point(arr: &[Object]) -> Tuple4 {
+    let inf = std::f64::INFINITY;
+    let inf_t = tuple(inf, inf, inf, inf);
+    let p = arr.iter().map(|o| o.bounds().min()).fold(inf_t, Tuple4::min);
+    p
+}
+
+fn max_point(arr: &[Object]) -> Tuple4 {
+    let inf = std::f64::NEG_INFINITY;
+    let inf_t = tuple(inf, inf, inf, inf);
+    let p = arr.iter().map(|o| o.bounds().max()).fold(inf_t, Tuple4::max);
+    p
+}
 
 pub fn append_grp_intersects(r: &Ray, grp: &Object, vec: &mut Vec<Intersection>, children: &[Object]) {
     if bounds::intersect_bounding_box(r, grp.shape.bounds()).is_none() {

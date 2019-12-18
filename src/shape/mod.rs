@@ -30,7 +30,7 @@ pub enum Shape {
     Cube,
     Cylinder { kind: CylKind, lbound: f64, ubound: f64 },
     Triangle { p1: Tuple4, p2: Tuple4, p3: Tuple4, e1: Tuple4, e2: Tuple4, normal: Tuple4},
-    Group { children: Vec<Object> },
+    Group { children: Vec<Object>, bounds: Bounds },
 }
 
 impl Shape {
@@ -50,7 +50,7 @@ impl Shape {
                 cylinder::normal_of_cylinder(*lbound, *ubound, position)
             },
             Shape::Triangle { normal, .. } => *normal,
-            Shape::Group { children : _ } => {
+            Shape::Group { .. } => {
                 unimplemented!()
             },
         }
@@ -69,25 +69,9 @@ impl Shape {
                 )
             },
             Shape::Triangle {p1, p2, p3, ..} => Bounds::new(Tuple4::min_all(&[*p1, *p2, *p3]), Tuple4::max_all(&[*p1, *p2, *p3])),
-            Shape::Group {children} => {
-                Bounds::new(min_point(children.as_slice()), max_point(children.as_slice()))
-            },
+            Shape::Group {children: _, bounds} => *bounds,
         }
     }
-}
-
-fn min_point(arr: &[Object]) -> Tuple4 {
-    let inf = std::f64::INFINITY;
-    let inf_t = tuple(inf, inf, inf, inf);
-    let p = arr.iter().map(|o| o.bounds().min()).fold(inf_t, Tuple4::min);
-    p
-}
-
-fn max_point(arr: &[Object]) -> Tuple4 {
-    let inf = std::f64::NEG_INFINITY;
-    let inf_t = tuple(inf, inf, inf, inf);
-    let p = arr.iter().map(|o| o.bounds().max()).fold(inf_t, Tuple4::max);
-    p
 }
 
 /// An object to be placed in the world; something to be rendered.
@@ -155,7 +139,7 @@ impl Object {
 
     pub fn children(&self) -> &[Object] {
         match &self.shape {
-            Shape::Group { children } => &children,
+            Shape::Group { children, .. } => &children,
             _ => &[]
         }
     }
@@ -219,7 +203,7 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Cylinder { lbound, ubound, .. } => {
             cylinder::append_cyl_intersects(&r, s, vec, *lbound, *ubound)
         },
-        Shape::Group {children} => {
+        Shape::Group {children, ..} => {
             group::append_grp_intersects(&r, s, vec, &children)
         },
         Shape::Triangle {p1, p2, p3, e1, e2, ..} => triangle::append_tri_intersects(&r, s, vec, *p1, *p2, *p3, *e1, *e2),
