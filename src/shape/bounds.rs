@@ -5,7 +5,7 @@ use crate::Ray;
 use std::f64::INFINITY;
 
 /// Describes an axis aligned bounding box
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Bounds {
     min: Tuple4,
     max: Tuple4,

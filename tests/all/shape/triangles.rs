@@ -15,6 +15,17 @@ fn normal_for_triangle() {
 
 #[allow(non_snake_case)]
 #[test]
+fn bounds_for_a_triangle() {
+    assert_eq!(triangle(point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0)).bounds(),
+               Bounds::new(point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0)));
+    assert_eq!(triangle(point(0.0, 1.0, 0.0), point(-1.0, 0.0, 0.0), point(1.0, 0.0, 0.0)).bounds(),
+               Bounds::new(point(-1.0, 0.0, 0.0), point(1.0, 1.0, 0.0)));
+    assert_eq!(triangle(point(-12.0, -3.0, 8.0), point(-1.0, -9.0, 13.0), point(1.0, 6.0, 7.0)).bounds(),
+               Bounds::new(point(-12.0, -9.0, 7.0), point(1.0, 6.0, 13.0)));
+}
+
+#[allow(non_snake_case)]
+#[test]
 fn normal_for_triangle___points_out_from_anticlockwise_face() {
     let t = triangle(point(0.0, 1.0, 0.0), point(1.0, 0.0, 0.0), point(0.0, -1.0, 0.0));
     let n1 = t.normal_at(point( 0.0,  0.5, 0.0));

@@ -121,6 +121,26 @@ impl Tuple4 {
     pub fn max(a: Tuple4, b: Tuple4) -> Tuple4{
         Tuple4(a.x().max(b.x()), a.y().max(b.y()), a.z().max(b.z()), a.w().max(b.w()))
     }
+
+    pub fn min_all(items: &[Tuple4]) -> Tuple4 {
+        use std::f64::INFINITY;
+        let mut minp = tuple(INFINITY, INFINITY, INFINITY, INFINITY);
+
+        for p in items {
+            minp = Tuple4::min(*p, minp);
+        }
+        minp
+    }
+
+    pub fn max_all(items: &[Tuple4]) -> Tuple4 {
+        use std::f64::NEG_INFINITY;
+        let mut maxp = tuple(NEG_INFINITY, NEG_INFINITY, NEG_INFINITY, NEG_INFINITY);
+
+        for p in items {
+            maxp = Tuple4::max(*p, maxp);
+        }
+        maxp
+    }
 }
 
 impl Index<usize> for Tuple4 {

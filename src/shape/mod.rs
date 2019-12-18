@@ -68,7 +68,7 @@ impl Shape {
                     point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
                 )
             },
-            Shape::Triangle {..} => Bounds::new(point(-1.0, -1.0, -1.0), point(1.0, 1.0, 1.0)),
+            Shape::Triangle {p1, p2, p3, ..} => Bounds::new(Tuple4::min_all(&[*p1, *p2, *p3]), Tuple4::max_all(&[*p1, *p2, *p3])),
             Shape::Group {children} => {
                 Bounds::new(min_point(children.as_slice()), max_point(children.as_slice()))
             },
