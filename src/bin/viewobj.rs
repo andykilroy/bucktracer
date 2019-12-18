@@ -22,11 +22,12 @@ fn main() -> Result<(), ExitFailure> {
     let objects = wavefront::read_object_vec(&mut f)?;
 
     let light = point_light(point(10.0, 10.0, -10.0), RGB::white());
-    let world = World::with(vec![light], objects);
+    let world = World::with(vec![light], vec![group(objects)]);
     let mut cam = Camera::new(800, 600, 90.0);
     cam.set_view_transform(view_transform(point(0.0, 0.0, -5.0), point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0)));
     let canvas = cam.render(&world);
     let mut stdout = std::io::stdout();
+
     ppm::encode(&canvas, &mut stdout)?;
     Ok(())
 }

@@ -165,30 +165,31 @@ impl Object {
         let corners = bnds.all_corners();
         let ninf = std::f64::NEG_INFINITY;
         let pinf = std::f64::INFINITY;
-        let mut minx = if bnds.min().x() == ninf { ninf } else { pinf };
-        let mut miny = if bnds.min().y() == ninf { ninf } else { pinf };
-        let mut minz = if bnds.min().z() == ninf { ninf } else { pinf };
+
+        let mut minp = point(
+            if bnds.min().x() == ninf { ninf } else { pinf },
+            if bnds.min().y() == ninf { ninf } else { pinf },
+            if bnds.min().z() == ninf { ninf } else { pinf },
+        );
 
         let to_world_spc = self.object_to_world_spc();
         for vertex in &corners {
             let p = to_world_spc.mult(*vertex);
-            if p.x() < minx { minx = p.x() };
-            if p.y() < miny { miny = p.y() };
-            if p.z() < minz { minz = p.z() };
+            minp = Tuple4::min(p, minp);
         }
 
-        let mut maxx = if bnds.max().x() == pinf { pinf } else { ninf };
-        let mut maxy = if bnds.max().y() == pinf { pinf } else { ninf };
-        let mut maxz = if bnds.max().z() == pinf { pinf } else { ninf };
+        let mut maxp = point(
+            if bnds.max().x() == pinf { pinf } else { ninf },
+            if bnds.max().y() == pinf { pinf } else { ninf },
+            if bnds.max().z() == pinf { pinf } else { ninf },
+        );
 
         for vertex in &corners {
             let p = to_world_spc.mult(*vertex);
-            if p.x() > maxx { maxx = p.x() };
-            if p.y() > maxy { maxy = p.y() };
-            if p.z() > maxz { maxz = p.z() };
+            maxp = Tuple4::max(p, maxp);
         }
 
-        Bounds::new(point(minx, miny, minz), point(maxx, maxy, maxz))
+        Bounds::new(minp, maxp)
     }
 }
 
