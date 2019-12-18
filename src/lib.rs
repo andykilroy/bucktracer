@@ -590,7 +590,6 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
         }
         let object: &Object = &current.intersected;
 
-
         match find(&containers, object) {
             Some(obj_index) => containers.remove(obj_index),
             None => {
@@ -632,7 +631,6 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
         let reflected = world.reflected_colour(&comps, rlimit);
         let refracted = world.refracted_colour(&comps, rlimit);
 
-//        let c = surface + reflected + refracted;
         let c = if comps.object.material().reflective() > 0.0 && comps.object.material().transparency() > 0.0 {
             let reflectance = schlick(comps);
             surface + (reflected * reflectance) + (refracted * (1.0 - reflectance))
