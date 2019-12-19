@@ -772,7 +772,6 @@ impl Camera {
     pub fn render(self: &Self, w: &World) -> Canvas {
         let mut canv = canvas(self.hsize as usize, self.vsize as usize);
         for y in 0..self.vsize {
-            eprintln!("computing colours for row {}", y);
             for x in 0..self.hsize {
                 let r = self.ray_for_pixel(x, y);
                 let c = w.colour_at_intersect(&r, RECURSION_LIMIT);
