@@ -8,7 +8,11 @@ use bucktracer::math::*;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "Shows the model represented by a wavefront obj file", rename_all = "kebab-case")]
+#[structopt(
+    name = "viewobj",
+    about = "Shows the model represented by a wavefront obj file",
+    rename_all = "kebab-case",
+)]
 struct CmdOptions {
 
     /// The position of the camera.

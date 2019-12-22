@@ -7,7 +7,11 @@ use structopt::StructOpt;
 use bucktracer::wavefront::ParseError;
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "A tool to output statistics about a wavefront obj file", rename_all = "kebab-case")]
+#[structopt(
+    name = "scanobj",
+    about = "A tool to output statistics about a wavefront obj file",
+    rename_all = "kebab-case",
+)]
 struct CmdOptions {
     #[structopt(parse(from_os_str))]
     /// List of files to scan
