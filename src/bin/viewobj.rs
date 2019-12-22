@@ -23,6 +23,14 @@ struct CmdOptions {
     #[structopt(long="up", default_value="(0.0, 1.0, 0.0)", parse(try_from_str))]
     up: Tuple4,
 
+    /// The position of the light source
+    #[structopt(long="light-pos", default_value="(10.0, 10.0, -10.0)", parse(try_from_str))]
+    light_pos: Tuple4,
+
+    /// The position of the light source
+    #[structopt(long="light-colour", default_value="(1.0, 1.0, 1.0)", parse(try_from_str))]
+    light_colour: Tuple4,
+
     /// The field of view of the camera, stated in degrees.
     #[structopt(long="fov", default_value="90.0")]
     fov_degrees: f64,
@@ -46,9 +54,12 @@ fn main() -> Result<(), ExitFailure> {
     let mut f = File::open(&args.objfile)?;
     let objects = wavefront::read_object_vec(&mut f)?;
 
-    let light = point_light(point(10.0, 10.0, -10.0), RGB::white());
+    let light = point_light(
+        args.light_pos,
+        colour(args.light_colour.x(), args.light_colour.y(), args.light_colour.z())
+    );
     let world = World::with(vec![light], vec![group(objects)]);
-    let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees);
+    let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees.to_radians());
     cam.set_view_transform(view_transform(args.from, args.to, vector(args.up.x(), args.up.y(), args.up.z())));
     let canvas = cam.render(&world);
     let mut stdout = std::io::stdout();
