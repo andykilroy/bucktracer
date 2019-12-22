@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::vec;
 use std::ops::{Add, Mul};
+#[macro_use] extern crate lazy_static;
 
 use serde::Deserialize;
 

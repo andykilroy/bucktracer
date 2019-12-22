@@ -186,15 +186,18 @@ impl FromStr for Tuple4 {
 fn expect_braces(s: & str) -> Result<Tuple4, Error> {
     if s.starts_with("(") {
         let i = s.find(')').ok_or_else(|| Error::BadTuple)?;
-        parse_quad(&s[1..i])
+        parse_tuple4(&s[1..i])
     } else {
         Err(Error::BadTuple)
     }
 }
 
-fn parse_quad(s: &str) -> Result<Tuple4, Error> {
-    let re = Regex::new(r"([^,]+),([^,]+),([^,]+)(,([^,]+))?$").unwrap();
-    let captures = re.captures(s).ok_or_else(|| Error::BadTuple)?;
+
+fn parse_tuple4(s: &str) -> Result<Tuple4, Error> {
+    lazy_static! {
+        static ref TUPLE4_RE: Regex = Regex::new(r"([^,]+),([^,]+),([^,]+)(,([^,]+))?$").unwrap();
+    }
+    let captures = TUPLE4_RE.captures(s).ok_or_else(|| Error::BadTuple)?;
     let mut parts: Vec<String> = Vec::with_capacity(4);
 
     for (i, om) in captures.iter().enumerate() {
