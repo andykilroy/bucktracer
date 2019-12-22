@@ -196,7 +196,7 @@ fn exact_eq(l: Tuple4, r: Tuple4) {
 
 #[allow(non_snake_case)]
 #[test]
-fn convert_from_string___whitespace_only() {
+fn convert_from_string___whitespace_only_returns_error() {
     assert_eq!(Tuple4::from_str("").is_err(), true);
     assert_eq!(Tuple4::from_str(" ").is_err(), true);
     assert_eq!(Tuple4::from_str("  ").is_err(), true);
@@ -205,14 +205,23 @@ fn convert_from_string___whitespace_only() {
 
 #[allow(non_snake_case)]
 #[test]
-fn convert_from_string___3_members() {
+fn convert_from_string___3_members_is_ok() {
+    assert_eq!(Tuple4::from_str("(2.3, 1.0, -5.0)").unwrap(), point(2.3, 1.0, -5.0));
     assert_eq!(Tuple4::from_str("(2.3,1.0,-5.0)").unwrap(), point(2.3, 1.0, -5.0));
 }
 
 #[allow(non_snake_case)]
 #[test]
-fn convert_from_string___4_members() {
+fn convert_from_string___4_members_is_ok() {
+    assert_eq!(Tuple4::from_str("(2.3, 1.0, -5.0, 4.0)").unwrap(), tuple(2.3, 1.0, -5.0, 4.0));
     assert_eq!(Tuple4::from_str("(2.3,1.0,-5.0,4.0)").unwrap(), tuple(2.3, 1.0, -5.0, 4.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___integer_members_ok() {
+    assert_eq!(Tuple4::from_str("(2, 1, -5.0, 4.0)").unwrap(), tuple(2.0, 1.0, -5.0, 4.0));
+    assert_eq!(Tuple4::from_str("(2, 1, -5.0)").unwrap(), tuple(2.0, 1.0, -5.0, 1.0));
 }
 
 #[allow(non_snake_case)]
@@ -221,3 +230,11 @@ fn convert_from_string___2_members_returns_error() {
     assert_eq!(Tuple4::from_str("(2.3, 1.0)").is_err(), true);
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___non_numeric_returns_error() {
+    assert_eq!(Tuple4::from_str("(fds, 1.0, -5.0, 4.0)").is_err(), true);
+    assert_eq!(Tuple4::from_str("(2.3, are, -5.0, 4.0)").is_err(), true);
+    assert_eq!(Tuple4::from_str("(2.3, 1.0, ---, 4.0)").is_err(), true);
+    assert_eq!(Tuple4::from_str("(2.3, 1.0, -5.0, ./%)").is_err(), true);
+}

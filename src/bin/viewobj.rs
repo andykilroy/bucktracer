@@ -49,7 +49,7 @@ fn main() -> Result<(), ExitFailure> {
     let light = point_light(point(10.0, 10.0, -10.0), RGB::white());
     let world = World::with(vec![light], vec![group(objects)]);
     let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees);
-    cam.set_view_transform(view_transform(point(0.0, 0.0, -5.0), point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0)));
+    cam.set_view_transform(view_transform(args.from, args.to, vector(args.up.x(), args.up.y(), args.up.z())));
     let canvas = cam.render(&world);
     let mut stdout = std::io::stdout();
 

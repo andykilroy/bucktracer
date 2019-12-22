@@ -1,6 +1,7 @@
 use std::ops::{Add, Index, Mul, Neg, Sub};
 use std::str::FromStr;
 use std::fmt;
+use regex::Regex;
 
 use super::almost_eq;
 
@@ -183,50 +184,45 @@ impl FromStr for Tuple4 {
 }
 
 fn expect_braces(s: & str) -> Result<Tuple4, Error> {
-    use std::f64::NAN;
-    let mut members = [NAN, NAN, NAN, NAN];
     if s.starts_with("(") {
         let i = s.find(')').ok_or_else(|| Error::BadTuple)?;
-        parse_quad(&mut members, &s[1..i], 0)?;
-        Ok(tuple(members[0], members[1], members[2], members[3]))
+        parse_quad(&s[1..i])
     } else {
         Err(Error::BadTuple)
     }
 }
 
-struct ParseNext<'a> {
-    next: &'a str,
-}
+fn parse_quad(s: &str) -> Result<Tuple4, Error> {
+    let re = Regex::new(r"([^,]+),([^,]+),([^,]+)(,([^,]+))?$").unwrap();
+    let captures = re.captures(s).ok_or_else(|| Error::BadTuple)?;
+    let mut parts: Vec<String> = Vec::with_capacity(4);
 
-fn parse_quad(arr: &mut [f64], s: &str, i: usize) -> Result<(), Error> {
-    if i < 2 {
-        let x = s.find(',').ok_or_else(|| Error::BadTuple)?;
-        arr[i] = consume_one_f64(&s[0..x])?;
-        parse_quad(arr, &s[(x+1)..], i + 1)
-    } else if i == 2 {
-        let segment = s.find(',');
-        match segment {
-            Some(x) => {
-                arr[i] = consume_one_f64(&s[0..x])?;
-                parse_quad(arr, &s[(x+1)..], i + 1)
-            },
-            None => {
-                arr[i] = consume_one_f64(s)?;
-                arr[i + 1] = 1.0;
-                Ok(())
-            },
+    for (i, om) in captures.iter().enumerate() {
+        if i == 0 { continue; }
+        if let Some(m) = om {
+            parts.push(m.as_str().to_string());
         }
-    } else if i == 3 {
-        arr[i] = consume_one_f64(s)?;
-        parse_quad(arr, &s[s.len()..], i + 1)
-    } else {
-        Ok(())
     }
 
+    if parts.len() == 3 {
+        return Ok(point(consume_one_f64(parts[0].trim())?,
+                        consume_one_f64(parts[1].trim())?,
+                        consume_one_f64(parts[2].trim())?,
+        ));
+    }
+    if parts.len() == 5 {
+        return Ok(tuple(consume_one_f64(parts[0].trim())?,
+                        consume_one_f64(parts[1].trim())?,
+                        consume_one_f64(parts[2].trim())?,
+                        consume_one_f64(parts[4].trim())?,
+        ));
+    }
+
+    Err(Error::BadTuple)
 }
 
 fn consume_one_f64(s: &str) -> Result<f64, Error> {
-    let f = s[0..].parse::<f64>().or_else(|e| Err(Error::BadTuple))?;
+    let f = s[0..].parse::<f64>().or_else(|_| Err(Error::BadTuple))?;
     Ok(f)
 }
 
