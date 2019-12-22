@@ -1,4 +1,4 @@
-//use bucktracer::*;
+use std::str::FromStr;
 use bucktracer::math::*;
 
 const P_INF: f64 = std::f64::INFINITY;
@@ -193,3 +193,31 @@ fn exact_eq(l: Tuple4, r: Tuple4) {
     assert_eq!(l.z(), r.z());
     assert_eq!(l.w(), r.w());
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___whitespace_only() {
+    assert_eq!(Tuple4::from_str("").is_err(), true);
+    assert_eq!(Tuple4::from_str(" ").is_err(), true);
+    assert_eq!(Tuple4::from_str("  ").is_err(), true);
+    assert_eq!(Tuple4::from_str("\t").is_err(), true);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___3_members() {
+    assert_eq!(Tuple4::from_str("(2.3,1.0,-5.0)").unwrap(), point(2.3, 1.0, -5.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___4_members() {
+    assert_eq!(Tuple4::from_str("(2.3,1.0,-5.0,4.0)").unwrap(), tuple(2.3, 1.0, -5.0, 4.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn convert_from_string___2_members_returns_error() {
+    assert_eq!(Tuple4::from_str("(2.3, 1.0)").is_err(), true);
+}
+

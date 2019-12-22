@@ -10,9 +10,18 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(about = "Shows the model represented by a wavefront obj file", rename_all = "kebab-case")]
 struct CmdOptions {
-    // TODO from: (f64, f64, f64)
-    // TODO to: (f64, f64, f64)
-    // TODO up: (f64, f64, f64)
+
+    /// The position of the camera.
+    #[structopt(long="from", default_value="(0.0, 0.0, -1.0)", parse(try_from_str))]
+    from: Tuple4,
+
+    /// The position the camera points at.
+    #[structopt(long="to", default_value="(0.0, 0.0, 0.0)", parse(try_from_str))]
+    to: Tuple4,
+
+    /// Which direction is considered 'up'
+    #[structopt(long="up", default_value="(0.0, 1.0, 0.0)", parse(try_from_str))]
+    up: Tuple4,
 
     /// The field of view of the camera, stated in degrees.
     #[structopt(long="fov", default_value="90.0")]
