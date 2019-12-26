@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 pub mod math;
 pub mod ppm;
+pub mod png;
 pub mod wavefront;
 mod shape;
 
