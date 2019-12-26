@@ -68,6 +68,6 @@ fn main() -> Result<(), ExitFailure> {
     let canvas = cam.render(&world);
     let mut stdout = std::io::stdout();
 
-    ppm::encode(&canvas, &mut stdout)?;
+    png::encode(&canvas, &mut stdout)?;
     Ok(())
 }

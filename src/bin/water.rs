@@ -1,6 +1,6 @@
 use bucktracer::*;
 use bucktracer::math::*;
-use bucktracer::ppm;
+use bucktracer::png;
 use exitfailure::ExitFailure;
 use std::f64::consts::FRAC_PI_2;
 use std::io::stdout;
@@ -76,6 +76,6 @@ fn main() -> Result<(), ExitFailure> {
     ));
     let canvas = cam.render(&world);
     let mut stdout = stdout();
-    ppm::encode(&canvas, &mut stdout)?;
+    png::encode(&canvas, &mut stdout)?;
     Ok(())
 }
