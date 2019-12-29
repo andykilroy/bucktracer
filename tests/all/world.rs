@@ -25,16 +25,18 @@ fn properties_of_default_world() {
     assert_eq!(s2.object_to_world_spc(), scaling(0.5, 0.5, 0.5));
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn colour_when_a_ray_misses() {
+fn colour_when_a_ray_misses___is_black() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
     let c = w.colour_at_intersect(&r, 5);
     assert_eq!(c, colour(0.0, 0.0, 0.0));
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn colour_when_a_ray_hits() {
+fn colour_when_a_ray_hits___is_consequence_of_material_and_light_colour() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let c = w.colour_at_intersect(&r, 5);
@@ -43,16 +45,15 @@ fn colour_when_a_ray_hits() {
 
 #[test]
 fn colour_with_an_intersection_behind_the_ray() {
-    let mut w = World::default();
-    let mut outer = w.objects()[0].clone();
-    let mut inner = w.objects()[1].clone();
+    // TODO Interesting test with mutable references; use of the references can't be reordered while they both exist.
+    let mut objects = World::default().objects().to_vec();
 
-    let mut outer_mat = outer.material();
-    outer.set_material(outer_mat.set_ambient(1.0).clone());
-    let mut inner_mat = inner.material();
-    inner.set_material(inner_mat.set_ambient(1.0).clone());
+    let outer: &mut Object = objects.get_mut(0).unwrap();
+    outer.mut_material().set_ambient(1.0);
+    let inner: &mut Object = objects.get_mut(1).unwrap();
+    inner.mut_material().set_ambient(1.0);
 
-    w.set_objects(vec![outer, inner]);
+    let w = World::with(World::default().light_sources().to_vec(), objects);
 
     let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
     let c = w.colour_at_intersect(&r, 5);

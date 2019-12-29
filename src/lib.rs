@@ -448,11 +448,6 @@ impl World {
         &self.objects
     }
 
-    pub fn set_objects(self: &mut Self, v: Vec<Object>) -> &mut Self {
-        self.objects = v;
-        self
-    }
-
     pub fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
         let mut v: Vec<Intersection> = Vec::with_capacity(2 * self.objects.len());
         for obj in self.objects.iter() {
