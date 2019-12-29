@@ -38,3 +38,14 @@ pub fn append_tri_intersects(
         vec.push(intersection(t, obj));
     }
 }
+
+
+pub fn smooth_triangle(p1: Tuple4, p2: Tuple4, p3: Tuple4, n1: Tuple4, n2: Tuple4, n3: Tuple4) -> Object {
+    Object {
+        world_to_object_spc: identity(),
+        material: Material::default(),
+        shape: Shape::SmoothTri {
+            p1, p2, p3, n1, n2, n3,
+        }
+    }
+}

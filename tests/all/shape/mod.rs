@@ -5,3 +5,4 @@ mod planes;
 mod spheres;
 mod bounds;
 mod triangles;
+mod smooth_triangles;
