@@ -35,7 +35,7 @@ pub fn append_tri_intersects(
         }
 
         let t = f * e2.dot(origin_cross_e1);
-        vec.push(intersection(t, obj));
+        vec.push(intersection_with_uv(t, obj, u, v));
     }
 }
 

@@ -164,6 +164,7 @@ pub struct Intersection {
     t_value: f64,
     intersected: Object,
     to_group_spc: Matrix,
+    uv: Option<(f64, f64)>,
 }
 
 impl Intersection {
@@ -189,6 +190,23 @@ impl Intersection {
         self.to_group_spc = matr;
         self
     }
+
+    // TODO we want this to be private, it only has relevance for smooth triangles.
+    pub fn u(&self) -> Option<f64> {
+        match self.uv {
+            Some((u, v)) => Some(u),
+            None => None,
+        }
+    }
+
+    // TODO we want this to be private, it only has relevance for smooth triangles.
+    pub fn v(&self) -> Option<f64> {
+        match self.uv {
+            Some((u, v)) => Some(v),
+            None => None,
+        }
+    }
+
 }
 
 pub fn intersection(t: f64, s: &Object) -> Intersection {
@@ -196,6 +214,16 @@ pub fn intersection(t: f64, s: &Object) -> Intersection {
         t_value: t,
         intersected: s.clone(),
         to_group_spc: identity(),
+        uv: None,
+    }
+}
+
+pub fn intersection_with_uv(t: f64, s: &Object, u: f64, v: f64) -> Intersection {
+    Intersection {
+        t_value: t,
+        intersected: s.clone(),
+        to_group_spc: identity(),
+        uv: Some((u, v))
     }
 }
 

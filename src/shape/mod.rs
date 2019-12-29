@@ -213,6 +213,8 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         Shape::Triangle {p1, p2, p3, e1, e2, ..} => {
             triangle::append_tri_intersects(&r, s, vec, *p1, *p2, *p3, *e1, *e2)
         },
-        Shape::SmoothTri {..} => unimplemented!(),
+        Shape::SmoothTri {p1, p2, p3, ..} => {
+            triangle::append_tri_intersects(&r, s, vec, *p1, *p2, *p3, *p2 - *p1, *p3 - *p1)
+        },
     }
 }
