@@ -36,28 +36,32 @@ fn colour_when_a_ray_misses___is_black() {
 
 #[allow(non_snake_case)]
 #[test]
-fn colour_when_a_ray_hits___is_consequence_of_material_and_light_colour() {
+fn colour_when_a_ray_hits___the_colour_is_consequence_of_material_and_light_colour() {
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let c = w.colour_at_intersect(&r, 5);
     assert_eq!(c, colour(0.38066, 0.47583, 0.2855));
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn colour_with_an_intersection_behind_the_ray() {
+fn when_determining_colour___determine_colour_of_first_hit_along_the_ray() {
     // TODO Interesting test with mutable references; use of the references can't be reordered while they both exist.
     let mut objects = World::default().objects().to_vec();
-
+    let outers_colour = colour(1.0, 0.0, 0.0);
+    let inners_colour = colour(0.0, 1.0, 0.0);
     let outer: &mut Object = objects.get_mut(0).unwrap();
     outer.mut_material().set_ambient(1.0);
+    outer.mut_material().set_pattern(Pattern::Solid(outers_colour));
     let inner: &mut Object = objects.get_mut(1).unwrap();
     inner.mut_material().set_ambient(1.0);
+    inner.mut_material().set_pattern(Pattern::Solid(inners_colour));
 
     let w = World::with(World::default().light_sources().to_vec(), objects);
-
+    // position the origin of the ray between inner and outer concentric spheres, directed at the inner.
     let r = ray(point(0.0, 0.0, 0.75), vector(0.0, 0.0, -1.0));
     let c = w.colour_at_intersect(&r, 5);
-    assert_eq!(c, RGB::white());
+    assert_eq!(c, inners_colour);
 }
 
 #[test]
