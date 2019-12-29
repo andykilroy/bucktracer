@@ -177,8 +177,9 @@ impl Intersection {
     }
 
     pub fn normal_at(&self, world_point: Tuple4) -> Tuple4 {
+        // TODO can we opt out of the matrix multiplications?
         let p = self.to_group_spc.mult(world_point);
-        let tmp = self.intersected.normal_at(p);
+        let tmp = self.intersected.normal_at(p, self);
         self.to_group_spc.inverse().mult(tmp)
     }
 
@@ -194,7 +195,7 @@ impl Intersection {
     // TODO we want this to be private, it only has relevance for smooth triangles.
     pub fn u(&self) -> Option<f64> {
         match self.uv {
-            Some((u, v)) => Some(u),
+            Some((u, _v)) => Some(u),
             None => None,
         }
     }
@@ -202,7 +203,7 @@ impl Intersection {
     // TODO we want this to be private, it only has relevance for smooth triangles.
     pub fn v(&self) -> Option<f64> {
         match self.uv {
-            Some((u, v)) => Some(v),
+            Some((_u, v)) => Some(v),
             None => None,
         }
     }

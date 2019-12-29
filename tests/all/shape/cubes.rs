@@ -60,6 +60,6 @@ fn normal_on_a_cube() {
 
 fn scenario_normal_on_a_cube(pos: Tuple4, normal: Tuple4) {
     let c = cube();
-    let n = c.normal_at(pos);
+    let n = c.normal_at(pos, &intersection(0.0, &c));
     assert_eq!(normal, n);
 }

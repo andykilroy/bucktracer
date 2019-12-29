@@ -49,13 +49,13 @@ fn normal_on_a_cylinder() {
 
 fn scenario_normal_on_an_inf_cylinder(origin: Tuple4, expected: Tuple4) {
     let c = inf_cylinder();
-    let n = c.normal_at(origin);
+    let n = c.normal_at(origin, &intersection(0.0, &c));
     assert_eq!(n, expected);
 }
 
 fn scenario_normal_on_a_closed_cylinder(origin: Tuple4, expected: Tuple4) {
     let c = cylinder(Closed, 1.0, 2.0);
-    let n = c.normal_at(origin);
+    let n = c.normal_at(origin, &intersection(0.0, &c));
     assert_eq!(n, expected);
 }
 

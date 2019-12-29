@@ -38,3 +38,19 @@ fn an_intersection_with_smooth_triangle_stores_u_v() {
     almost_eq(vec[0].u().unwrap(), 0.45);
     almost_eq(vec[0].v().unwrap(), 0.25);
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn use_intersection_uv_to_interpolate_the_normal() {
+    let tri = smooth_triangle(
+        point( 0.0, 1.0, 0.0),
+        point(-1.0, 0.0, 0.0),
+        point( 1.0, 0.0, 0.0),
+        vector( 0.0, 1.0, 0.0),
+        vector(-1.0, 0.0, 0.0),
+        vector( 1.0, 0.0, 0.0),
+    );
+    let i = intersection_with_uv(1.0, &tri, 0.45, 0.25);
+    let n = i.normal_at(point(0.0, 0.0, 0.0));
+    assert_eq!(n, vector(-0.5547, 0.83205, 0.0));
+}

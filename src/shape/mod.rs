@@ -40,7 +40,7 @@ impl Shape {
     /// specified position.  The position is always in object
     /// co-ordinates.  The returned normal vector is also in
     /// object space.
-    fn local_normal_at(&self, position: Tuple4) -> Tuple4 {
+    fn local_normal_at(&self, position: Tuple4, hit: &Intersection) -> Tuple4 {
         match self {
             Shape::Sphere => {
                 // presume the sphere is centred at (0, 0, 0)
@@ -52,7 +52,9 @@ impl Shape {
                 cylinder::normal_of_cylinder(*lbound, *ubound, position)
             },
             Shape::Triangle { normal, .. } => *normal,
-            Shape::SmoothTri { .. } => unimplemented!(),
+            Shape::SmoothTri { p1, p2, p3, n1, n2, n3 } => {
+                triangle::normal_of_smooth_triangle(*p1, *p2, *p3, *n1, *n2, *n3, position, hit)
+            },
             Shape::Group { .. } => {
                 unimplemented!()
             },
@@ -126,10 +128,10 @@ impl Object {
         &mut self.material
     }
 
-    pub fn normal_at(self: &Self, world_point: Tuple4) -> Tuple4 {
+    pub fn normal_at(self: &Self, world_point: Tuple4, supplemental: &Intersection) -> Tuple4 {
         let inversion_mat = self.world_to_object_spc();
         let object_point = inversion_mat.mult(world_point);
-        let object_normal = self.shape.local_normal_at(object_point);
+        let object_normal = self.shape.local_normal_at(object_point, supplemental);
         let tmp = inversion_mat.transpose().mult(object_normal);
 
         vector(tmp.x(), tmp.y(), tmp.z()).normalize()
