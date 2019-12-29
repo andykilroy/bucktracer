@@ -63,7 +63,7 @@ fn shade_an_intersection_point() {
 #[test]
 fn shade_an_intersection_point_from_inside() {
     let light = point_light(point(0.0, 0.25, 0.0), RGB::white());
-    let w = World::with(vec![light], World::default().objects());
+    let w = World::with(vec![light], World::default().objects().to_vec());
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
     let shape = &w.objects()[1];
     let i = intersection(0.5, &shape);

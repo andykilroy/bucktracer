@@ -440,12 +440,12 @@ impl World {
         World { objects, lights }
     }
 
-    pub fn light_sources(self: &Self) -> Vec<RadialLightSource> {
-        self.lights.clone()
+    pub fn light_sources(self: &Self) -> &[RadialLightSource] {
+        &self.lights
     }
 
-    pub fn objects(self: &Self) -> Vec<Object> {
-        self.objects.clone()
+    pub fn objects(self: &Self) -> &[Object] {
+        &self.objects
     }
 
     pub fn set_objects(self: &mut Self, v: Vec<Object>) -> &mut Self {
