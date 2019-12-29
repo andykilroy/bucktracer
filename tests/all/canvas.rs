@@ -19,8 +19,8 @@ fn multiply_colours() {
 #[test]
 fn create_a_canvas() {
     let c = canvas(10, 20);
-    assert_eq!(c.width, 10);
-    assert_eq!(c.height, 20);
+    assert_eq!(c.width(), 10);
+    assert_eq!(c.height(), 20);
 
     let black = colour(0.0, 0.0, 0.0);
     for i in 0..10 {

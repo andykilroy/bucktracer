@@ -11,8 +11,8 @@ fn hit(intersects: Vec<Intersection>) -> Option<Intersection> {
 #[test]
 fn create_ray() {
     let r = ray(point(1.0, 2.0, 3.0), vector(4.0, 5.0, 6.0));
-    assert_eq!(r.origin, point(1.0, 2.0, 3.0));
-    assert_eq!(r.direction, vector(4.0, 5.0, 6.0));
+    assert_eq!(r.origin(), point(1.0, 2.0, 3.0));
+    assert_eq!(r.direction(), vector(4.0, 5.0, 6.0));
 }
 
 #[test]
@@ -128,8 +128,8 @@ fn translating_a_ray() {
     let m = translation(3.0, 4.0, 5.0);
     let r2 = r.transform(&m);
 
-    assert_eq!(r2.origin, point(4.0, 6.0, 8.0));
-    assert_eq!(r2.direction, vector(0.0, 1.0, 0.0));
+    assert_eq!(r2.origin(), point(4.0, 6.0, 8.0));
+    assert_eq!(r2.direction(), vector(0.0, 1.0, 0.0));
 }
 
 #[test]
@@ -138,8 +138,8 @@ fn scaling_a_ray() {
     let m = scaling(2.0, 3.0, 4.0);
     let r2 = r.transform(&m);
 
-    assert_eq!(r2.origin, point(2.0, 6.0, 12.0));
-    assert_eq!(r2.direction, vector(0.0, 3.0, 0.0));
+    assert_eq!(r2.origin(), point(2.0, 6.0, 12.0));
+    assert_eq!(r2.direction(), vector(0.0, 3.0, 0.0));
 }
 
 #[test]

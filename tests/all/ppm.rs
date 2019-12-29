@@ -74,8 +74,8 @@ fn print_ppm_output_with_clamping() -> IOResult<()> {
 fn print_ppm_output_max_70_chars_per_line() -> IOResult<()> {
     let mut cvs = canvas(10, 2);
 
-    for col in 0..(cvs.width) {
-        for row in 0..(cvs.height) {
+    for col in 0..(cvs.width()) {
+        for row in 0..(cvs.height()) {
             cvs.set_colour_at(col, row, colour(1.0, 0.8, 0.6));
         }
     }

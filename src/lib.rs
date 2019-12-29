@@ -96,8 +96,8 @@ impl Mul<f64> for RGB {
 /// top-left pixel of the canvas.
 #[derive(Debug)]
 pub struct Canvas {
-    pub width: usize,
-    pub height: usize,
+    width: usize,
+    height: usize,
     pixels: Vec<RGB>,
 }
 
@@ -120,20 +120,26 @@ impl Canvas {
     pub fn set_colour_at(&mut self, x: usize, y: usize, c: RGB) {
         self.pixels[y * self.width + x] = c;
     }
+    pub fn width(&self) -> usize {
+        self.width
+    }
+    pub fn height(&self) -> usize {
+        self.height
+    }
 }
 
 /// Represents a ray fired from a point in a particular
 /// direction
 #[derive(Debug, Clone)]
 pub struct Ray {
-    pub origin: Tuple4,
-    pub direction: Tuple4,
+    origin: Tuple4,
+    direction: Tuple4,
 }
 
 /// Create a ray pointing in a particular direction, rooted at a point.
-pub fn ray(root: Tuple4, direction: Tuple4) -> Ray {
+pub fn ray(origin: Tuple4, direction: Tuple4) -> Ray {
     Ray {
-        origin: root,
+        origin,
         direction,
     }
 }
@@ -142,9 +148,14 @@ impl Ray {
     pub fn position(&self, t: f64) -> Tuple4 {
         self.origin + (self.direction.scale(t))
     }
-
     pub fn transform(&self, m: &Matrix) -> Ray {
         ray(m.mult(self.origin), m.mult(self.direction))
+    }
+    pub fn origin(&self) -> Tuple4 {
+        self.origin
+    }
+    pub fn direction(&self) -> Tuple4 {
+        self.direction
     }
 }
 

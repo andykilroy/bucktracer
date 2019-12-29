@@ -31,16 +31,16 @@ fn pixel_size_for_vertical_canvas() {
 fn ray_thru_centre_of_canvas() {
     let c = Camera::new(201, 101, FRAC_PI_2);
     let r = c.ray_for_pixel(100, 50);
-    assert_eq!(r.origin, point(0.0, 0.0, 0.0));
-    assert_eq!(r.direction, vector(0.0, 0.0, -1.0));
+    assert_eq!(r.origin(), point(0.0, 0.0, 0.0));
+    assert_eq!(r.direction(), vector(0.0, 0.0, -1.0));
 }
 
 #[test]
 fn ray_thru_corner_of_canvas() {
     let c = Camera::new(201, 101, FRAC_PI_2);
     let r = c.ray_for_pixel(0, 0);
-    assert_eq!(r.origin, point(0.0, 0.0, 0.0));
-    assert_eq!(r.direction, vector(0.66519, 0.33259, -0.66851));
+    assert_eq!(r.origin(), point(0.0, 0.0, 0.0));
+    assert_eq!(r.direction(), vector(0.66519, 0.33259, -0.66851));
 }
 
 #[test]
@@ -48,8 +48,8 @@ fn ray_when_camera_transformed() {
     let mut c = Camera::new(201, 101, FRAC_PI_2);
     c.set_view_transform(rotation_y(FRAC_PI_4) * translation(0.0, -2.0, 5.0));
     let r = c.ray_for_pixel(100, 50);
-    assert_eq!(r.origin, point(0.0, 2.0, -5.0));
-    assert_eq!(r.direction, vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0));
+    assert_eq!(r.origin(), point(0.0, 2.0, -5.0));
+    assert_eq!(r.direction(), vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0));
 }
 
 
