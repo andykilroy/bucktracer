@@ -558,11 +558,6 @@ struct HitCalculations {
     n2: f64,
 }
 
-#[allow(dead_code)]
-fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
-    hit_data(r, 0, &[hit.clone()])
-}
-
 fn hit_data(r: &Ray, hit_index: usize, intersects: &[Intersection]) -> HitCalculations {
     let hit: &Intersection = &intersects[hit_index];
     let pos = r.position(hit.t_value());
@@ -883,6 +878,13 @@ fn checkers_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
     } else {
         b
     }
+}
+
+
+// A helper for the following test modules
+#[cfg(test)]
+fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
+    hit_data(r, 0, &[hit.clone()])
 }
 
 #[cfg(test)]
