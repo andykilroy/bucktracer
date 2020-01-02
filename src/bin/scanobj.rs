@@ -39,6 +39,14 @@ impl Counter {
             groups: 0,
         }
     }
+
+    fn centre (&self) -> (f64, f64, f64) {
+        (
+            (self.min_bound.0 + self.max_bound.0) / 2.0, 
+            (self.min_bound.1 + self.max_bound.1) / 2.0, 
+            (self.min_bound.2 + self.max_bound.2) / 2.0
+        )
+    }
 }
 
 impl wavefront::ParseHandler for Counter {
@@ -76,10 +84,11 @@ fn main() -> Result<(), ExitFailure> {
     for file in &args.objfiles {
         let mut f = File::open(&file)?;
         let mut c = Counter::new();
-        wavefront::parse(&mut c,&mut f)?;
+        wavefront::parse(&mut c, &mut f)?;
         println!("filepath    {}", file.to_string_lossy());
         println!("min_bound   {:.6} {:.6} {:.6}", c.min_bound.0, c.min_bound.1, c.min_bound.2);
         println!("max_bound   {:.6} {:.6} {:.6}", c.max_bound.0, c.max_bound.1, c.max_bound.2);
+        println!("centre      {:.6} {:.6} {:.6}", c.centre().0, c.centre().1, c.centre().2);
         println!("vertices    {}", c.vertices);
         println!("triangles   {}", c.triangles);
         println!("groups      {}", c.groups);
