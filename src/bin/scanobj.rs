@@ -5,6 +5,7 @@ use bucktracer::wavefront;
 
 use structopt::StructOpt;
 use bucktracer::wavefront::ParseError;
+use bucktracer::wavefront::PolygonPoint;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -23,7 +24,8 @@ struct Counter {
     min_bound: (f64, f64, f64),
     max_bound: (f64, f64, f64),
     vertices: usize,
-    triangles: usize,
+    normals: usize,
+    polygons: usize,
     groups: usize,
 }
 
@@ -35,7 +37,8 @@ impl Counter {
             min_bound: (max, max, max),
             max_bound: (min, min, min),
             vertices: 0,
-            triangles: 0,
+            normals: 0,
+            polygons: 0,
             groups: 0,
         }
     }
@@ -67,8 +70,13 @@ impl wavefront::ParseHandler for Counter {
         Ok(())
     }
 
-    fn handle_triangle(&mut self, _i1: usize, _i2: usize, _i3: usize) -> Result<(), ParseError> {
-        self.triangles += 1;
+    fn handle_normal(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError> {
+        self.normals += 1;
+        Ok(())
+    }
+
+    fn handle_polygon(&mut self, points: &[PolygonPoint]) -> Result<(), ParseError> {
+        self.polygons += 1;
         Ok(())
     }
 
@@ -90,7 +98,7 @@ fn main() -> Result<(), ExitFailure> {
         println!("max_bound   {:.6} {:.6} {:.6}", c.max_bound.0, c.max_bound.1, c.max_bound.2);
         println!("centre      {:.6} {:.6} {:.6}", c.centre().0, c.centre().1, c.centre().2);
         println!("vertices    {}", c.vertices);
-        println!("triangles   {}", c.triangles);
+        println!("polygons    {}", c.polygons);
         println!("groups      {}", c.groups);
     }
     Ok(())
