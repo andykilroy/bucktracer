@@ -73,8 +73,12 @@ impl Shape {
                     point(std::f64::    INFINITY, std::f64::    INFINITY, std::f64::    INFINITY),
                 )
             },
-            Shape::Triangle {p1, p2, p3, ..} => Bounds::new(Tuple4::min_all(&[*p1, *p2, *p3]), Tuple4::max_all(&[*p1, *p2, *p3])),
-            Shape::SmoothTri {..} => unimplemented!(),
+            Shape::Triangle {p1, p2, p3, ..} => {
+                Bounds::new(Tuple4::min_all(&[*p1, *p2, *p3]), Tuple4::max_all(&[*p1, *p2, *p3]))
+            },
+            Shape::SmoothTri {p1, p2, p3, ..} => {
+                Bounds::new(Tuple4::min_all(&[*p1, *p2, *p3]), Tuple4::max_all(&[*p1, *p2, *p3]))
+            },
             Shape::Group {children: _, bounds} => *bounds,
         }
     }

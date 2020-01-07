@@ -54,3 +54,18 @@ fn use_intersection_uv_to_interpolate_the_normal() {
     let n = i.normal_at(point(0.0, 0.0, 0.0));
     assert_eq!(n, vector(-0.5547, 0.83205, 0.0));
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn bounds_of_smooth_triangle() {
+    let n1 = vector( 0.0, 1.0, 0.0);
+    let n2 = vector(-1.0, 0.0, 0.0);
+    let n3 = vector( 1.0, 0.0, 0.0);
+    assert_eq!(smooth_triangle(point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0), n1, n2, n3).bounds(),
+               Bounds::new(point(0.0, 0.0, 0.0), point(0.0, 0.0, 0.0)));
+    assert_eq!(smooth_triangle(point(0.0, 1.0, 0.0), point(-1.0, 0.0, 0.0), point(1.0, 0.0, 0.0), n1, n2, n3).bounds(),
+               Bounds::new(point(-1.0, 0.0, 0.0), point(1.0, 1.0, 0.0)));
+    assert_eq!(smooth_triangle(point(-12.0, -3.0, 8.0), point(-1.0, -9.0, 13.0), point(1.0, 6.0, 7.0), n1, n2, n3).bounds(),
+               Bounds::new(point(-12.0, -9.0, 7.0), point(1.0, 6.0, 13.0)));
+
+}
