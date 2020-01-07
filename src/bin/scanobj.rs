@@ -70,12 +70,12 @@ impl wavefront::ParseHandler for Counter {
         Ok(())
     }
 
-    fn handle_normal(&mut self, x: f64, y: f64, z: f64) -> Result<(), ParseError> {
+    fn handle_normal(&mut self, _x: f64, _y: f64, _z: f64) -> Result<(), ParseError> {
         self.normals += 1;
         Ok(())
     }
 
-    fn handle_polygon(&mut self, points: &[PolygonPoint]) -> Result<(), ParseError> {
+    fn handle_polygon(&mut self, _points: &[PolygonPoint]) -> Result<(), ParseError> {
         self.polygons += 1;
         Ok(())
     }

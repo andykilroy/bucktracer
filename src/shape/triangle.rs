@@ -40,9 +40,9 @@ pub fn append_tri_intersects(
 }
 
 pub fn normal_of_smooth_triangle(
-    p1: Tuple4, p2: Tuple4, p3: Tuple4,
+    _p1: Tuple4, _p2: Tuple4, _p3: Tuple4,
     n1: Tuple4, n2: Tuple4, n3: Tuple4,
-    pos: Tuple4, hit: &Intersection) -> Tuple4
+    _pos: Tuple4, hit: &Intersection) -> Tuple4
 {
     let u = hit.u().unwrap();
     let v = hit.v().unwrap();
