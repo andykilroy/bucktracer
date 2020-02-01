@@ -15,11 +15,11 @@ fn main() -> Result<()> {
     let world = World::with(vec![light], vec![s]);
 
     let mut cam = Camera::new(300, 300, FRAC_PI_2);
-    cam.set_view_transform(view_transform(
+    cam.orient(
         point(30.0, 30.0, 0.0),
         point(30.0, 30.0, 20.0),
         vector(0.0, 1.0, 0.0),
-    ));
+    );
     let canv = cam.render(&world);
 
     let mut stdout = stdout();

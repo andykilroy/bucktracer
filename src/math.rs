@@ -558,6 +558,7 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
     )
 }
 
+
 /// Create a matrix specifying a clockwise rotation around the x axis.
 /// The argument is specified in radians.
 pub fn rotation_x(r: f64) -> Matrix {
@@ -591,7 +592,18 @@ pub fn rotation_z(r: f64) -> Matrix {
     )
 }
 
-// I don't like the call style of the trig functions in f64
+pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
+    let forward = (to - from).normalize();
+    let left = forward.cross(up.normalize());
+    let trueup = left.cross(forward);
+    let m = matrix(
+        (    left.x(),     left.y(),     left.z(), 0.0),
+        (  trueup.x(),   trueup.y(),   trueup.z(), 0.0),
+        (-forward.x(), -forward.y(), -forward.z(), 0.0),
+        (         0.0,          0.0,          0.0, 1.0),
+    );
+    m * translation(-from.x(), -from.y(), -from.z())
+}
 
 fn sin(r: f64) -> f64 {
     r.sin()

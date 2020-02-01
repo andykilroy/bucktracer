@@ -78,11 +78,11 @@ fn main() -> Result<(), ExitFailure> {
         vec![floor, right_wall, left_wall, left, middle, right],
     );
     let mut cam = Camera::new(2560, 1600, FRAC_PI_3);
-    cam.set_view_transform(view_transform(
+    cam.orient(
         point(0.0, 1.5, -5.0),
         point(0.0, 1.0, 0.0),
         vector(0.0, 1.0, 0.0),
-    ));
+    );
     let canvas = cam.render(&world);
     let mut stdout = stdout();
     ppm::encode(&canvas, &mut stdout)?;

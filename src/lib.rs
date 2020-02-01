@@ -696,19 +696,6 @@ fn schlick(comps: &HitCalculations) -> f64 {
 }
 
 
-pub fn view_transform(from: Tuple4, to: Tuple4, up: Tuple4) -> Matrix {
-    let forward = (to - from).normalize();
-    let left = forward.cross(up.normalize());
-    let trueup = left.cross(forward);
-    let m = matrix(
-        (    left.x(),     left.y(),     left.z(), 0.0),
-        (  trueup.x(),   trueup.y(),   trueup.z(), 0.0),
-        (-forward.x(), -forward.y(), -forward.z(), 0.0),
-        (         0.0,          0.0,          0.0, 1.0),
-    );
-    m * translation(-from.x(), -from.y(), -from.z())
-}
-
 /// The configuration of a Camera sets up how a world will be
 /// viewed.  It sets up what portion of the scene is visible
 /// and what will be rendered in the final image.
@@ -780,6 +767,9 @@ impl Camera {
     pub fn set_view_transform(self: &mut Self, m: Matrix) -> &mut Self {
         self.inverse_view_t = m.inverse();
         self
+    }
+    pub fn orient(&mut self, from: Tuple4, to: Tuple4, up: Tuple4) {
+        self.set_view_transform(view_transform(from, to, up));
     }
     pub fn pixel_size(self: &Self) -> f64 {
         self.pixel_size

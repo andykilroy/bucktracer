@@ -69,11 +69,11 @@ fn main() -> Result<(), ExitFailure> {
         vec![floor, above, below, cyl, water_surface, sun, sky],
     );
     let mut cam = Camera::new(1280, 800, FRAC_PI_2);
-    cam.set_view_transform(view_transform(
+    cam.orient(
         point(0.0, 1.5, -5.0),
         point(0.0, 0.0, 0.0),
         vector(0.0, 1.0, 0.0),
-    ));
+    );
     let canvas = cam.render(&world);
     let mut stdout = stdout();
     png::encode(&canvas, &mut stdout)?;
