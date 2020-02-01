@@ -83,7 +83,7 @@ fn main() -> Result<(), ExitFailure> {
         point(0.0, 1.0, 0.0),
         vector(0.0, 1.0, 0.0),
     );
-    let canvas = cam.render(&world);
+    let canvas = cam.render(&world, |_, _|{});
     let mut stdout = stdout();
     ppm::encode(&canvas, &mut stdout)?;
     Ok(())

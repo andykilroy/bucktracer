@@ -63,6 +63,6 @@ fn render_world_with_camera() {
         vector(0.0, 1.0, 0.0),
     );
     c.set_view_transform(t);
-    let image = c.render(&w);
+    let image = c.render(&w, |_, _|{});
     assert_eq!(image.colour_at(5, 5), colour(0.38066, 0.47583, 0.2855))
 }

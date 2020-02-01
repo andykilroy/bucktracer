@@ -791,7 +791,9 @@ impl Camera {
         ray(origin, dir)
     }
 
-    pub fn render(self: &Self, w: &World) -> Canvas {
+    pub fn render<F>(&self, w: &World, mut progress: F) -> Canvas
+        where F: FnMut(u32, u32) -> ()
+    {
         let mut canv = canvas(self.hsize as usize, self.vsize as usize);
         for y in 0..self.vsize {
             for x in 0..self.hsize {
@@ -799,6 +801,7 @@ impl Camera {
                 let c = w.colour_at_intersect(&r, RECURSION_LIMIT);
                 canv.set_colour_at(x as usize, y as usize, c);
             }
+            progress(y + 1, self.vsize);
         }
         canv
     }

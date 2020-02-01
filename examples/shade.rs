@@ -20,7 +20,7 @@ fn main() -> Result<()> {
         point(30.0, 30.0, 20.0),
         vector(0.0, 1.0, 0.0),
     );
-    let canv = cam.render(&world);
+    let canv = cam.render(&world, |_,_|{});
 
     let mut stdout = stdout();
     ppm::encode(&canv, &mut stdout)
