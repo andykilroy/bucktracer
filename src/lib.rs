@@ -904,6 +904,33 @@ fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
     hit_data(r, 0, &[hit.clone()])
 }
 
+/// Take existing objects in a scene, and arrange them in a new
+/// Object structure, by the bounding box they occupy.  This new
+/// structure is solely for the purpose of accelerating the
+/// routine to find the intersections along a ray.  The idea is
+/// to take advantage of bounding boxes such that the intersection
+/// algorithm can identify regions containing irrelevant
+/// objects, and discard them without explicly computing
+/// their intersection.
+///
+/// The partitioning works recursively.  A bounding box is determined
+/// that includes the entire original scene.  This original
+/// bounding box is subdivided into 8 smaller bounding boxes.
+/// Each of those bounding boxes is subdivided into 8 bounding boxes ...
+/// and so on for a fixed number of recursions.  In practice, only 4
+/// levels of recursion would be attempted, since more levels
+/// may have diminishing returns.
+pub fn partition(scene: Vec<Object>) -> Object {
+    let mut lvl = vec![];
+//    if scene.len() == 1 {
+        lvl.extend(scene);
+//    }
+    let node = group(lvl);
+    group(vec![node])
+}
+
+
+
 #[cfg(test)]
 mod test_shading;
 

@@ -224,3 +224,15 @@ pub fn append_intersects(orig: &Ray, s: &Object, vec: &mut Vec<Intersection>) {
         },
     }
 }
+
+pub fn obj_at(root: &Object, path: &[usize]) -> Option<Object> {
+    if path.len() == 0 { return Some(root.clone()); };
+    let index = *(path.first().unwrap());
+    match &root.shape {
+        Shape::Group { children, .. } => {
+            let next = children.get(index)?;
+            obj_at(next, &path[1..])
+        },
+        _ => None
+    }
+}

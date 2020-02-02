@@ -8,4 +8,4 @@ mod ppm;
 mod rays;
 mod wavefront;
 mod world;
-
+mod partitioning;
