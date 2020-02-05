@@ -1,6 +1,7 @@
 use crate::EPSILON;
 use crate::math::*;
 use crate::Ray;
+use crate::Object;
 
 use std::f64::INFINITY;
 
@@ -38,6 +39,13 @@ impl Bounds {
             point(self.max.x(), self.max.y(), self.max.z()),
         ]
     }
+
+    /// Finds the smallest bounding box that contains all given objects
+    pub fn enclose(objects: &[Object]) -> Bounds {
+        Bounds::unit()
+        // TODO implement
+    }
+
 }
 
 

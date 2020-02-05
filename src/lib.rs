@@ -1,26 +1,25 @@
 use std::cmp::Ordering;
-use std::vec;
 use std::ops::{Add, Mul};
-#[macro_use] extern crate lazy_static;
+use std::vec;
+#[macro_use]
+extern crate lazy_static;
 
 use serde::Deserialize;
 
 pub mod math;
-pub mod ppm;
 pub mod png;
-pub mod wavefront;
+pub mod ppm;
 mod shape;
+pub mod wavefront;
 
 use crate::math::*;
 pub use crate::shape::*;
-
 
 const EPSILON: f64 = 1e-5;
 
 fn almost_eq(x1: f64, x2: f64) -> bool {
     f64::abs(x1 - x2) < EPSILON
 }
-
 
 /// A structure representing a colour in red, green, and blue components.
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
@@ -138,10 +137,7 @@ pub struct Ray {
 
 /// Create a ray pointing in a particular direction, rooted at a point.
 pub fn ray(origin: Tuple4, direction: Tuple4) -> Ray {
-    Ray {
-        origin,
-        direction,
-    }
+    Ray { origin, direction }
 }
 
 impl Ray {
@@ -207,7 +203,6 @@ impl Intersection {
             None => None,
         }
     }
-
 }
 
 pub fn intersection(t: f64, s: &Object) -> Intersection {
@@ -224,16 +219,17 @@ pub fn intersection_with_uv(t: f64, s: &Object, u: f64, v: f64) -> Intersection 
         t_value: t,
         intersected: s.clone(),
         to_group_spc: identity(),
-        uv: Some((u, v))
+        uv: Some((u, v)),
     }
 }
 
 pub fn index_of_hit(intersects: &[Intersection]) -> Option<usize> {
     intersects
-        .iter().enumerate()
+        .iter()
+        .enumerate()
         .filter(|(_, i)| i.t_value >= 0.0)
         .fold(None, nearer_intersect)
-        .map(|(ind, _)| {ind})
+        .map(|(ind, _)| ind)
 }
 
 fn nearer_intersect<'a>(
@@ -536,7 +532,6 @@ impl World {
                 // colour contributes.
                 RGB::black()
             } else {
-
                 // Snell's law: for incoming ray i and refracted ray t,
                 // and angles theta_i and theta_t of i and t made respectively
                 // with the normal of the surface, the following relationship holds:
@@ -546,7 +541,8 @@ impl World {
                 //    sin(theta_t)     n1
 
                 let cos_t = (1.0 - sin2_t).sqrt();
-                let direction = comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
+                let direction =
+                    comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
                 let refract_ray = ray(comps.under_point, direction);
                 let c = self.colour_at_intersect(&refract_ray, rlimit - 1);
                 c * comps.object.material().transparency()
@@ -559,7 +555,9 @@ impl World {
         let mag = point_to_light.magnitude();
         let r = ray(point, point_to_light.normalize());
 
-        let accumulatd : f64 = self.intersect(&r).iter()
+        let accumulatd: f64 = self
+            .intersect(&r)
+            .iter()
             .filter(|i| i.t_value >= 0.0 && i.t_value < mag)
             .map(|h| h.intersected.material().transparency())
             .fold(1.0, |x, y| x * y);
@@ -644,7 +642,7 @@ fn refractive_indices(hit_index: usize, intersects: &[Intersection]) -> (f64, f6
 fn find(objects: &[&Object], obj: &Object) -> Option<usize> {
     for (i, item) in objects.iter().enumerate() {
         if *item == obj {
-            return Some(i)
+            return Some(i);
         }
     }
     None
@@ -663,7 +661,9 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
         let reflected = world.reflected_colour(&comps, rlimit);
         let refracted = world.refracted_colour(&comps, rlimit);
 
-        let c = if comps.object.material().reflective() > 0.0 && comps.object.material().transparency() > 0.0 {
+        let c = if comps.object.material().reflective() > 0.0
+            && comps.object.material().transparency() > 0.0
+        {
             let reflectance = schlick(comps);
             surface + (reflected * reflectance) + (refracted * (1.0 - reflectance))
         } else {
@@ -674,7 +674,6 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
 }
 
 fn schlick(comps: &HitCalculations) -> f64 {
-
     fn calc(comps: &HitCalculations, cos: f64) -> f64 {
         let r0 = ((comps.n1 - comps.n2) / (comps.n1 + comps.n2)).powi(2);
         r0 + (1.0 - r0) * (1.0 - cos).powi(5)
@@ -694,7 +693,6 @@ fn schlick(comps: &HitCalculations) -> f64 {
         calc(comps, cos)
     }
 }
-
 
 /// The configuration of a Camera sets up how a world will be
 /// viewed.  It sets up what portion of the scene is visible
@@ -815,7 +813,7 @@ pub enum Pattern {
     Gradient { from: RGB, to: RGB },
     Ring { a: RGB, b: RGB },
     Checkers { a: RGB, b: RGB },
-    Test
+    Test,
 }
 
 impl Pattern {
@@ -845,10 +843,9 @@ impl Pattern {
             Pattern::Gradient { from, to } => gradient_colour(from, to, pattern_space_pos),
             Pattern::Ring { a, b } => ring_colour(a, b, pattern_space_pos),
             Pattern::Checkers { a, b } => checkers_colour(a, b, pattern_space_pos),
-            Pattern::Test => no_op_colour(pattern_space_pos)
+            Pattern::Test => no_op_colour(pattern_space_pos),
         }
     }
-
 }
 
 fn no_op_colour(pattern_space_pos: Tuple4) -> RGB {
@@ -897,7 +894,6 @@ fn checkers_colour(a: RGB, b: RGB, p: Tuple4) -> RGB {
     }
 }
 
-
 // A helper for the following test modules
 #[cfg(test)]
 fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
@@ -922,14 +918,145 @@ fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
 /// may have diminishing returns.
 pub fn partition(scene: Vec<Object>) -> Object {
     let mut lvl = vec![];
-//    if scene.len() == 1 {
-        lvl.extend(scene);
-//    }
+    let bounds_tree: Vec<Bounds> = bounding_box_tree(1, Bounds::enclose(&scene));
+    // TODO implement
+    //    if scene.len() == 1 {
+    lvl.extend(scene);
+    //    }
     let node = group(lvl);
     group(vec![node])
 }
 
+fn bounding_box_tree(depth: usize, enclosure: Bounds) -> Vec<Bounds> {
 
+
+    let mut v = vec![];
+    v.push(enclosure.clone());
+    for i in 1..(depth+1) {
+        append_generation(&mut v, i);
+    }
+    return v;
+}
+
+fn count_in_generation(gen: usize) -> usize {
+    1 << (3 * gen)
+}
+
+fn tree_size(n: usize) -> usize {
+    let mut s = 1;
+    for i in 1..=n {
+        s += count_in_generation(i);
+    }
+    return s;
+}
+
+fn first_item_of_gen(n: usize) -> usize {
+    if n <= 0 {
+        return 0;
+    }
+    tree_size(n - 1)
+}
+
+// Defined only for gen >= 1.  v must always be prepared with at least
+// the first bounding box for generation 0 in it.
+fn append_generation(v: &mut Vec<Bounds>, gen: usize) {
+    let prev_gen = gen - 1;
+    let first_item_prev_gen = first_item_of_gen(prev_gen);
+    for i in 0..count_in_generation(prev_gen) {
+        append_bbox(v, &v[first_item_prev_gen + i].clone());
+    }
+}
+
+fn append_bbox(boxes: &mut Vec<Bounds>, enclosure: &Bounds) {
+    let min = enclosure.min();
+    let max = enclosure.max();
+    let one = (enclosure.max() - enclosure.min()).scale(0.5);
+    let i = vector(one.x(), 0.0, 0.0);
+    let j = vector(0.0, one.y(), 0.0);
+    let k = vector(0.0, 0.0, one.z());
+
+    boxes.push(Bounds::new(min, min + one));
+    boxes.push(Bounds::new(min + k, max - i - j));
+    boxes.push(Bounds::new(min + j, max - i - k));
+    boxes.push(Bounds::new(min + j + k, max - i));
+
+    boxes.push(Bounds::new(min + i, min + i + one));
+    boxes.push(Bounds::new(min + i + k, min + i + k + one));
+    boxes.push(Bounds::new(min + i + j, min + i + j + one));
+    boxes.push(Bounds::new(min + i + j + k, min + i + j + k + one));
+}
+
+#[cfg(test)]
+mod test_partition {
+    use super::*;
+    use crate::bounding_box_tree;
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn size_of_box_tree_is_related_to_power_of_2() {
+        assert_eq!(bounding_box_tree(0, Bounds::unit()).len(), 1);
+        assert_eq!(bounding_box_tree(1, Bounds::unit()).len(), 8 + 1);
+        assert_eq!(bounding_box_tree(2, Bounds::unit()).len(), 64 + 8 + 1);
+        assert_eq!(bounding_box_tree(3, Bounds::unit()).len(), 512 + 64 + 8 + 1);
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_boxes_depth0() {
+        assert_eq!(bounding_box_tree(0, Bounds::unit()), vec![Bounds::unit()]);
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_boxes_depth1() {
+        assert_eq!(
+            bounding_box_tree(1, Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0))),
+            vec![
+                Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0)), // 0th lvl
+                Bounds::new(point(0.0, 0.0, 0.0), point(0.5, 0.5, 0.5)), // 1st lvl, 0
+                Bounds::new(point(0.0, 0.0, 0.5), point(0.5, 0.5, 1.0)), // 1st lvl, 1
+                Bounds::new(point(0.0, 0.5, 0.0), point(0.5, 1.0, 0.5)), // 1st lvl, 2
+                Bounds::new(point(0.0, 0.5, 0.5), point(0.5, 1.0, 1.0)), // 1st lvl, 3
+                Bounds::new(point(0.5, 0.0, 0.0), point(1.0, 0.5, 0.5)), // 1st lvl, 4
+                Bounds::new(point(0.5, 0.0, 0.5), point(1.0, 0.5, 1.0)), // 1st lvl, 5
+                Bounds::new(point(0.5, 0.5, 0.0), point(1.0, 1.0, 0.5)), // 1st lvl, 6
+                Bounds::new(point(0.5, 0.5, 0.5), point(1.0, 1.0, 1.0)), // 1st lvl, 7
+            ]
+        );
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_boxes_depth2() {
+        let all = bounding_box_tree(2, Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0)));
+        assert_eq!(
+            &all[9..=16],
+            [
+                Bounds::new(point(0.00, 0.00, 0.00), point(0.25, 0.25, 0.25)),
+                Bounds::new(point(0.00, 0.00, 0.25), point(0.25, 0.25, 0.50)),
+                Bounds::new(point(0.00, 0.25, 0.00), point(0.25, 0.50, 0.25)),
+                Bounds::new(point(0.00, 0.25, 0.25), point(0.25, 0.50, 0.50)),
+                Bounds::new(point(0.25, 0.00, 0.00), point(0.50, 0.25, 0.25)),
+                Bounds::new(point(0.25, 0.00, 0.25), point(0.50, 0.25, 0.50)),
+                Bounds::new(point(0.25, 0.25, 0.00), point(0.50, 0.50, 0.25)),
+                Bounds::new(point(0.25, 0.25, 0.25), point(0.50, 0.50, 0.50)),
+            ]
+        );
+        assert_eq!(
+            &all[65..=72],
+            [
+                Bounds::new(point(0.50, 0.50, 0.50), point(0.75, 0.75, 0.75)),
+                Bounds::new(point(0.50, 0.50, 0.75), point(0.75, 0.75, 1.00)),
+                Bounds::new(point(0.50, 0.75, 0.50), point(0.75, 1.00, 0.75)),
+                Bounds::new(point(0.50, 0.75, 0.75), point(0.75, 1.00, 1.00)),
+                Bounds::new(point(0.75, 0.50, 0.50), point(1.00, 0.75, 0.75)),
+                Bounds::new(point(0.75, 0.50, 0.75), point(1.00, 0.75, 1.00)),
+                Bounds::new(point(0.75, 0.75, 0.50), point(1.00, 1.00, 0.75)),
+                Bounds::new(point(0.75, 0.75, 0.75), point(1.00, 1.00, 1.00)),
+            ]
+        );
+    }
+}
 
 #[cfg(test)]
 mod test_shading;
