@@ -151,6 +151,56 @@ fn two_groups_and_intersect_them() {
     assert_eq!(ints[1].intersected(), c1.clone());
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn enclose_two_shapes___produces_smallest_bounding_box_that_contains_them() {
+    let c = cube().set_object_to_world_spc(translation(0.0, 5.0, 2.0)).clone();
+    let s = unit_sphere();
+    assert_bounds(Bounds::enclose(&[c, s]), (-1.0, -1.0, -1.0), (1.0, 6.0, 3.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn enclose_two_shapes___order_doesnt_matter() {
+    let c = cube().set_object_to_world_spc(translation(0.0, 5.0, 2.0)).clone();
+    let s = unit_sphere();
+    assert_bounds(Bounds::enclose(&[s, c]), (-1.0, -1.0, -1.0), (1.0, 6.0, 3.0));
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn contains___returns_true_if_rhs_within_lhs() {
+    let lhs = Bounds::new(point(0.0, 0.0, 0.0), point(5.0, 5.0, 5.0));
+    let rhs1 = Bounds::new(point(1.0, 1.0, 1.0), point(4.0, 4.0, 4.0));
+    let rhs2 = Bounds::new(point(1.0, 1.0, 1.0), point(5.0, 5.0, 5.0));
+    assert_eq!(lhs.contains(&rhs1), true);
+    assert_eq!(lhs.contains(&rhs2), true);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn contains___a_bounds_contains_itself() {
+    let lhs = Bounds::new(point(0.0, 0.0, 0.0), point(5.0, 5.0, 5.0));
+    let rhs1 = Bounds::new(point(1.0, 1.0, 1.0), point(4.0, 4.0, 4.0));
+    let rhs2 = Bounds::new(point(1.0, 1.0, 1.0), point(5.0, 5.0, 5.0));
+    assert_eq!(lhs.contains(&lhs), true);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn contains___when_rhs_includes_space_outside_lhs___lhs_does_not_contain_rhs() {
+    let lhs = Bounds::new(point(0.0, 0.0, 0.0), point(5.0, 5.0, 5.0));
+    let rhs = Bounds::new(point(1.0, 1.0, 1.0), point(4.0, 4.0, 6.0));
+    assert_eq!(lhs.contains(&rhs), false);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn contains___when_rhs_completely_outside_lhs___lhs_does_not_contain_rhs() {
+    let lhs = Bounds::new(point(0.0, 0.0, 0.0), point(5.0, 5.0, 5.0));
+    let rhs = Bounds::new(point(7.0, 1.0, 1.0), point(11.0, 4.0, 6.0));
+    assert_eq!(lhs.contains(&rhs), false);
+}
 
 fn assert_bounds(b: Bounds, min: (f64, f64, f64), max: (f64, f64, f64)) {
     assert_eq!(b.min().x(), min.0);

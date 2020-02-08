@@ -42,8 +42,24 @@ impl Bounds {
 
     /// Finds the smallest bounding box that contains all given objects
     pub fn enclose(objects: &[Object]) -> Bounds {
-        Bounds::unit()
-        // TODO implement
+        use std::f64::MIN;
+        use std::f64::MAX;
+        let max: Tuple4 = objects.iter().map(|o| o.bounds().max()).fold(
+            tuple(MIN, MIN, MIN, MIN),
+            |acc, next| Tuple4::max(acc, next)
+        );
+        let min: Tuple4 = objects.iter().map(|o| o.bounds().min()).fold(
+            tuple(MAX, MAX, MAX, MAX),
+            |acc, next| Tuple4::min(acc, next)
+        );
+        Bounds::new(min, max)
+    }
+
+    pub fn contains(&self, b: &Bounds) -> bool {
+        (self.min.x() <= b.min.x()) && (b.min.x() <= b.max.x()) && (b.max.x() <= self.max.x())
+            && (self.min.y() <= b.min.y()) && (b.min.y() <= b.max.y()) && (b.max.y() <= self.max.y())
+            && (self.min.z() <= b.min.z()) && (b.min.z() <= b.max.z()) && (b.max.z() <= self.max.z())
+            && (self.min.w() <= b.min.w()) && (b.min.w() <= b.max.w()) && (b.max.w() <= self.max.w())
     }
 
 }

@@ -108,6 +108,7 @@ fn a_shape_placed_in_each_eighth() {
         s0.clone(), s1.clone(), s2.clone(), s3.clone(), s4.clone(),
         s5.clone(), s6.clone(), s7.clone(), root.clone()
     ]);
+//    println!("{:#?}",groups);
     assert_eq!(obj_at(&groups, &[0, 0].clone()), Some(root));
     assert_eq!(obj_at(&groups, &[1, 0, 0].clone()), Some(s0));
     assert_eq!(obj_at(&groups, &[2, 0, 0].clone()), Some(s1));

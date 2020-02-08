@@ -6,6 +6,7 @@ extern crate lazy_static;
 
 use serde::Deserialize;
 
+use std::collections::HashMap;
 pub mod math;
 pub mod png;
 pub mod ppm;
@@ -917,19 +918,15 @@ fn singleton_hit_data(r: &Ray, hit: &Intersection) -> HitCalculations {
 /// levels of recursion would be attempted, since more levels
 /// may have diminishing returns.
 pub fn partition(scene: Vec<Object>) -> Object {
-    let mut lvl = vec![];
-    let bounds_tree: Vec<Bounds> = bounding_box_tree(1, Bounds::enclose(&scene));
-    // TODO implement
-    //    if scene.len() == 1 {
-    lvl.extend(scene);
-    //    }
-    let node = group(lvl);
-    group(vec![node])
+    let mut box_map = BoundingBoxMap::create(1, Bounds::enclose(&scene));
+    for o in scene {
+        box_map.put(o);
+    }
+    eprintln!("{:#?}", &box_map);
+    box_map.groups()
 }
 
 fn bounding_box_tree(depth: usize, enclosure: Bounds) -> Vec<Bounds> {
-
-
     let mut v = vec![];
     v.push(enclosure.clone());
     for i in 1..(depth+1) {
@@ -986,10 +983,78 @@ fn append_bbox(boxes: &mut Vec<Bounds>, enclosure: &Bounds) {
     boxes.push(Bounds::new(min + i + j + k, min + i + j + k + one));
 }
 
+#[derive(Debug)]
+struct BoundingBoxMap {
+    depth: usize,
+    bounding_boxes: Vec<Bounds>,
+    mapping: HashMap<usize, Vec<Object>>,
+}
+
+impl BoundingBoxMap {
+    pub fn create(depth: usize, enclosure: Bounds) -> BoundingBoxMap {
+        BoundingBoxMap {
+            depth: depth,
+            bounding_boxes: bounding_box_tree(depth, enclosure),
+            mapping: HashMap::with_capacity(tree_size(depth))
+        }
+    }
+
+    pub fn put(&mut self, o: Object) -> Bounds {
+        for i in (0..self.bounding_boxes.len()).rev() {
+            if self.bounding_boxes[i].contains(&o.bounds()) {
+                return self.place(i, o);
+            }
+        }
+        return self.place(0, o);
+    }
+
+    fn place(&mut self, index: usize, o: Object) -> Bounds {
+        if self.mapping.contains_key(&index) {
+            self.mapping.get_mut(&index).unwrap().push(o);
+        } else {
+            self.mapping.insert(index, vec![o]);
+        }
+
+        self.bounding_boxes[index].clone()
+    }
+
+    pub fn groups(&self) -> Object {
+        self.create_node(0, 0)
+    }
+
+    fn create_node(&self, index: usize, gen: usize) -> Object {
+        let members: Object = self.create_members(index);
+        let mut v = vec![members];
+        self.extend_with_children(index, gen + 1, &mut v);
+        group(v)
+    }
+
+    fn create_members(&self, index: usize) -> Object {
+        let empty_vec = vec![];
+        return group(self.mapping.get(&index).unwrap_or_else(|| {&empty_vec}).clone());
+    }
+
+    fn extend_with_children(&self, parent: usize, gen: usize, dest: &mut Vec<Object>) {
+        let start = first_item_of_gen(gen);
+        let end = first_item_of_gen(gen + 1);
+        if start < self.bounding_boxes.len() {
+            for i in start..end {
+                dest.push(self.create_node(i, gen));
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod test_partition {
     use super::*;
-    use crate::bounding_box_tree;
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_box_map___put_associates_object_with_smallest_bounding_box_that_contains_it() {
+        let mut box_map = BoundingBoxMap::create(1, Bounds::unit());
+        let o = unit_sphere().set_object_to_world_spc(translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+        assert_eq!(box_map.put(o), Bounds::new(point(-1.0, -1.0, -1.0), point(0.0, 0.0, 0.0)));
+    }
 
     #[allow(non_snake_case)]
     #[test]
