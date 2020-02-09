@@ -76,9 +76,7 @@ fn path_goes_out_of_bounds___returns_none() {
 #[test]
 fn no_objects___generates_empty_group() {
     let group = binary_partition(1, vec![]);
-    let path = [0];
-
-    assert_eq!(obj_at(&group, &path).unwrap().children().len(), 0);
+    assert_eq!(group.children().len(), 0);
 }
 
 #[allow(non_snake_case)]
@@ -120,6 +118,8 @@ fn a_shape_placed_in_each_eighth() {
     assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), Some(s7));
 }
 
+#[allow(non_snake_case)]
+#[test]
 fn do_not_add_groups_which_are_empty() {
     let root = unit_sphere();
     let s0 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();

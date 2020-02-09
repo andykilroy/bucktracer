@@ -118,19 +118,34 @@ impl BoundingBoxMap {
     }
 
     pub fn groups(&self) -> Object {
-        self.create_node(0, 0)
+        match self.create_node(0, 0) {
+            None => group(vec![]),
+            Some(obj) => obj,
+        }
     }
 
-    fn create_node(&self, index: usize, gen: usize) -> Object {
-        let members: Object = self.create_members(index);
-        let mut v = vec![members];
+    fn create_node(&self, index: usize, gen: usize) -> Option<Object> {
+        let mut v = vec![];
+        let members: Option<Object> = self.create_members(index);
+
+        if members.is_some() {
+            v.push(members.unwrap());
+        }
+
         self.extend_with_children(gen + 1, &mut v);
-        group(v)
+
+        if v.len() > 0 {
+            Some(group(v))
+        } else {
+            None
+        }
     }
 
-    fn create_members(&self, index: usize) -> Object {
-        let empty_vec = vec![];
-        return group(self.mapping.get(&index).unwrap_or_else(|| {&empty_vec}).clone());
+    fn create_members(&self, index: usize) -> Option<Object> {
+        match self.mapping.get(&index) {
+            None => None,
+            Some(v) => Some(group(v.clone())),
+        }
     }
 
     fn extend_with_children(&self, gen: usize, dest: &mut Vec<Object>) {
@@ -138,7 +153,10 @@ impl BoundingBoxMap {
         let end = first_item_of_gen(gen + 1);
         if start < self.bounding_boxes.len() {
             for i in start..end {
-                dest.push(self.create_node(i, gen));
+                self.create_node(i, gen).and_then(|o| {
+                    dest.push(o);
+                    Some(())
+                });
             }
         }
     }
