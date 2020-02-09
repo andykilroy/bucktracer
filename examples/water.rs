@@ -3,7 +3,6 @@ use bucktracer::math::*;
 use bucktracer::png;
 use exitfailure::ExitFailure;
 use std::f64::consts::FRAC_PI_2;
-use std::io::Write;
 
 fn main() -> Result<(), ExitFailure> {
     let water = *Material::default()
@@ -75,7 +74,6 @@ fn main() -> Result<(), ExitFailure> {
         vector(0.0, 1.0, 0.0),
     );
 
-    let mut stderr = std::io::stderr();
     let canvas = cam.render(&world, |_,_|{});
     let mut stdout = std::io::stdout();
     png::encode(&canvas, &mut stdout)?;

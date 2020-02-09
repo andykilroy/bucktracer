@@ -124,7 +124,7 @@ impl BoundingBoxMap {
     fn create_node(&self, index: usize, gen: usize) -> Object {
         let members: Object = self.create_members(index);
         let mut v = vec![members];
-        self.extend_with_children(index, gen + 1, &mut v);
+        self.extend_with_children(gen + 1, &mut v);
         group(v)
     }
 
@@ -133,7 +133,7 @@ impl BoundingBoxMap {
         return group(self.mapping.get(&index).unwrap_or_else(|| {&empty_vec}).clone());
     }
 
-    fn extend_with_children(&self, parent: usize, gen: usize, dest: &mut Vec<Object>) {
+    fn extend_with_children(&self, gen: usize, dest: &mut Vec<Object>) {
         let start = first_item_of_gen(gen);
         let end = first_item_of_gen(gen + 1);
         if start < self.bounding_boxes.len() {

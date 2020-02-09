@@ -181,8 +181,6 @@ fn contains___returns_true_if_rhs_within_lhs() {
 #[test]
 fn contains___a_bounds_contains_itself() {
     let lhs = Bounds::new(point(0.0, 0.0, 0.0), point(5.0, 5.0, 5.0));
-    let rhs1 = Bounds::new(point(1.0, 1.0, 1.0), point(4.0, 4.0, 4.0));
-    let rhs2 = Bounds::new(point(1.0, 1.0, 1.0), point(5.0, 5.0, 5.0));
     assert_eq!(lhs.contains(&lhs), true);
 }
 
