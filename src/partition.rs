@@ -1,21 +1,21 @@
 use crate::*;
 
-/// Take existing objects in a scene, and arrange them in a new
-/// Object structure, by the bounding box they occupy.  This new
-/// structure is solely for the purpose of accelerating the
-/// routine to find the intersections along a ray.  The idea is
-/// to take advantage of bounding boxes such that the intersection
-/// algorithm can identify regions containing irrelevant
-/// objects, and discard them without explicly computing
-/// their intersection.
+/// Arrange objects from a scene into a hierarchical
+/// structure to speed up finding intersections.
 ///
-/// The partitioning works recursively.  A bounding box is determined
-/// that includes the entire original scene.  This original
-/// bounding box is subdivided into 8 smaller bounding boxes.
-/// Each of those bounding boxes is subdivided into 8 bounding boxes ...
-/// and so on for a fixed number of recursions.  In practice, only 4
-/// levels of recursion would be attempted, since more levels
-/// may have diminishing returns.
+/// Where a scene contains n = 10k objects or more, computing
+/// intersections along a ray can be a very costly O(n) search.
+/// This function groups together those objects that occupy
+/// similar regions of space, hoping to speed up the search by
+/// allowing the intersection algorithm to quickly discard irrelevant
+/// regions and the objects therein, only computing
+/// intersections for those objects in regions that
+/// intersect the ray.
+///
+/// This algorithm defines regions by recursively performing a
+/// binary partition on the original bounding box encompassing all the
+/// objects in the scene.  Objects are then placed into the
+/// smallest region that fully contains them.
 pub fn binary_partition(scene: Vec<Object>) -> Object {
     let mut box_map = BoundingBoxMap::create(1, Bounds::enclose(&scene));
     for o in scene {
