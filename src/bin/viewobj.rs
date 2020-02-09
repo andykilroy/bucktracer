@@ -64,7 +64,7 @@ fn main() -> Result<(), ExitFailure> {
         args.light_pos,
         colour(args.light_colour.x(), args.light_colour.y(), args.light_colour.z())
     );
-    let world = World::with(vec![light], vec![group(objects)]);
+    let world = World::with(vec![light], vec![binary_partition(2, objects)]);
     let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees.to_radians());
     cam.orient(args.from, args.to, vector(args.up.x(), args.up.y(), args.up.z()));
 

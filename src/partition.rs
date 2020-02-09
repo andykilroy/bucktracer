@@ -16,12 +16,12 @@ use crate::*;
 /// binary partition on the original bounding box encompassing all the
 /// objects in the scene.  Objects are then placed into the
 /// smallest region that fully contains them.
-pub fn binary_partition(scene: Vec<Object>) -> Object {
-    let mut box_map = BoundingBoxMap::create(1, Bounds::enclose(&scene));
+pub fn binary_partition(depth: usize, scene: Vec<Object>) -> Object {
+    // TODO make the depth parameter unnecessary.  Decide an appropriate depth internally.
+    let mut box_map = BoundingBoxMap::create(depth, Bounds::enclose(&scene));
     for o in scene {
         box_map.put(o);
     }
-    eprintln!("{:#?}", &box_map);
     box_map.groups()
 }
 

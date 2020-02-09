@@ -75,7 +75,7 @@ fn path_goes_out_of_bounds___returns_none() {
 #[allow(non_snake_case)]
 #[test]
 fn no_objects___generates_empty_group() {
-    let group = binary_partition(vec![]);
+    let group = binary_partition(1, vec![]);
     let path = [0];
 
     assert_eq!(obj_at(&group, &path).unwrap().children().len(), 0);
@@ -85,7 +85,7 @@ fn no_objects___generates_empty_group() {
 #[test]
 fn one_shape___generates_one_node___because_it_defines_outermost_bounding_box() {
     let tri = triangle(point(1.0, 0.0, 0.0), point(0.0, 1.0, 0.0), point(0.0, 0.0, 1.0));
-    let groups = binary_partition(vec![tri.clone()]);
+    let groups = binary_partition(1, vec![tri.clone()]);
 
     assert_eq!(obj_at(&groups, &[0].clone()).unwrap().children().len(), 1);
     assert_eq!(obj_at(&groups, &[0, 0].clone()), Some(tri));
@@ -104,11 +104,11 @@ fn a_shape_placed_in_each_eighth() {
     let s6 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s7 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
 
-    let groups = binary_partition(vec![
+    let groups = binary_partition(1, vec![
         s0.clone(), s1.clone(), s2.clone(), s3.clone(), s4.clone(),
         s5.clone(), s6.clone(), s7.clone(), root.clone()
     ]);
-//    println!("{:#?}",groups);
+
     assert_eq!(obj_at(&groups, &[0, 0].clone()), Some(root));
     assert_eq!(obj_at(&groups, &[1, 0, 0].clone()), Some(s0));
     assert_eq!(obj_at(&groups, &[2, 0, 0].clone()), Some(s1));
