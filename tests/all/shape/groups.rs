@@ -121,4 +121,13 @@ fn intersect_transforms_world_point_to_object_point() {
     assert_eq!(vector(0.0, 1.0, 0.0), intersections[0].normal_at(p));
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn format_group_object() {
+    let non_empty = group(vec![unit_sphere(), cube()]);
+    let empty = group(vec![]);
+
+    assert_eq!(format!("{}", empty), "Object { Group (0), Bounds { min: (inf, inf, inf, 1), max: (-inf, -inf, -inf, 1) } }");
+    assert_eq!(format!("{}", non_empty), "Object { Group (2), Bounds { min: (-1, -1, -1, 1), max: (1, 1, 1, 1) } }");
+}
 

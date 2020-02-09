@@ -238,3 +238,13 @@ fn convert_from_string___non_numeric_returns_error() {
     assert_eq!(Tuple4::from_str("(2.3, 1.0, ---, 4.0)").is_err(), true);
     assert_eq!(Tuple4::from_str("(2.3, 1.0, -5.0, ./%)").is_err(), true);
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn format_tuple4() {
+    assert_eq!("(4, 3, 2, 1)", format!("{}", tuple(4.0, 3.0, 2.0, 1.0)));
+    assert_eq!("(-4, 3, -2, 1)", format!("{}", tuple(-4.0, 3.0, -2.0, 1.0)));
+    assert_eq!("(4.3, 3.5, 2.25, 1)", format!("{}", tuple(4.3, 3.5, 2.25, 1.0)));
+    assert_eq!("(inf, NaN, -inf, 1)", format!("{}", tuple(std::f64::INFINITY, std::f64::NAN, std::f64::NEG_INFINITY, 1.0)));
+    assert_eq!("(-2901.4732899, 294.7234329, 0, 0)", format!("{}", tuple(-2901.4732899, 294.7234329, 0.0, -0.0)));
+}

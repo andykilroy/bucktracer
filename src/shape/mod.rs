@@ -84,6 +84,20 @@ impl Shape {
     }
 }
 
+impl std::fmt::Display for Shape {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Shape::Sphere {..} => write!(f, "Sphere"),
+            Shape::Plane {..} => write!(f, "Plane"),
+            Shape::Cube {..} => write!(f, "Cube"),
+            Shape::Triangle {..} => write!(f, "Triangle"),
+            Shape::SmoothTri {..} => write!(f, "SmoothTri"),
+            Shape::Cylinder {..} => write!(f, "Cylinder"),
+            Shape::Group {children, ..} => write!(f, "Group ({})", children.len()),
+        }
+    }
+}
+
 /// An object to be placed in the world; something to be rendered.
 ///
 /// The object has a transform that dictates where it is placed in
@@ -184,6 +198,12 @@ impl Object {
         }
 
         Bounds::new(minp, maxp)
+    }
+}
+
+impl std::fmt::Display for Object {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Object {{ {}, {} }}", self.shape, self.bounds())
     }
 }
 

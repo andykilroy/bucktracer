@@ -175,12 +175,16 @@ impl fmt::Display for Error {
 
 impl FromStr for Tuple4 {
     type Err = Error;
-
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.is_empty() {return Err(Error::BadTuple);}
         expect_braces(s)
     }
+}
 
+impl fmt::Display for Tuple4 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.x(), self.y(), self.z(), self.w())
+    }
 }
 
 fn expect_braces(s: & str) -> Result<Tuple4, Error> {

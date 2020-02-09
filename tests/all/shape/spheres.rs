@@ -103,3 +103,9 @@ fn reflect_vector_off_slanted_surface() {
     let r = reflect(v, n);
     assert_eq!(r, vector(1.0, 0.0, 0.0));
 }
+
+#[allow(non_snake_case)]
+#[test]
+fn format_sphere_object() {
+    assert_eq!(format!("{}", unit_sphere()), "Object { Sphere, Bounds { min: (-1, -1, -1, 1), max: (1, 1, 1, 1) } }")
+}

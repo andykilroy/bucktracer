@@ -31,7 +31,7 @@ fn main() -> Result<(), ExitFailure> {
     let objects = wavefront::read_object_vec(&mut f)?;
     if args.before_partitioning {
         for obj in objects.iter() {
-            println!("{:?}", obj.bounds());
+            println!("{}", obj.bounds());
         }
     } else {
         let root = binary_partition(2, objects);
@@ -42,7 +42,7 @@ fn main() -> Result<(), ExitFailure> {
 
 fn print_bounding_box_info(lvl: usize, upto: usize, node: &Object) -> Result<(), ExitFailure> {
     if lvl < upto {
-        println!("{}\t{:?}", lvl, node.bounds());
+        println!("{}\t{}", lvl, node.bounds());
         let children = node.children();
         let nextlvl = lvl + 1;
         for child in children.iter() {

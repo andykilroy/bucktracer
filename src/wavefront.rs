@@ -6,7 +6,6 @@ use std::vec::Vec;
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
-use serde::export::Formatter;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -26,7 +25,7 @@ impl Error for ParseError {
 }
 
 impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ParseError::Io => write!(f, "Io"),
             ParseError::BadInstruction => write!(f, "BadInstruction"),

@@ -120,8 +120,6 @@ fn a_shape_placed_in_each_eighth() {
     assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), Some(s7));
 }
 
-#[allow(non_snake_case)]
-#[test]
 fn do_not_add_groups_which_are_empty() {
     let root = unit_sphere();
     let s0 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();

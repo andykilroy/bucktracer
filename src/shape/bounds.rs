@@ -64,6 +64,11 @@ impl Bounds {
 
 }
 
+impl std::fmt::Display for Bounds {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Bounds {{ min: {}, max: {} }}", self.min, self.max)
+    }
+}
 
 pub fn intersect_bounding_box(r: &Ray, bbox: Bounds) -> Option<(f64, f64)> {
     let (x_tmin, x_tmax) = check_axis(r.origin.x(), r.direction.x(), bbox.min().x(), bbox.max().x());
