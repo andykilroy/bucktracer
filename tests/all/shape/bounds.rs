@@ -87,6 +87,38 @@ fn group_bounds_is_origin_if_no_members() {
 
 #[allow(non_snake_case)]
 #[test]
+fn bounds_of_empty_group___cannot_intersect_any_ray() {
+    use std::f64::{MIN, MAX};
+    let g = group(vec![]);
+    // no good example of 'all' rays...
+    let r1 = ray(point(MIN, 0.0, 0.0), vector(1.0, 0.0, 0.0));
+    let r2 = ray(point(MAX, 0.0, 0.0), vector(-1.0, 0.0, 0.0));
+
+    let mut v = vec![];
+    append_intersects(&r1, &g, &mut v);
+    append_intersects(&r2, &g, &mut v);
+    assert_eq!(v.len(), 0);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn bounds_of_empty_group___cannot_contain_any_bound() {
+    use std::f64::{MIN, MAX};
+    use std::f64::{NEG_INFINITY, INFINITY};
+    let largest_finite = Bounds::new(tuple(MIN, MIN, MIN, MIN), tuple(MAX, MAX, MAX, MAX));
+    let largest_infinite = Bounds::new(tuple(NEG_INFINITY, NEG_INFINITY, NEG_INFINITY, NEG_INFINITY), tuple(INFINITY, INFINITY, INFINITY, INFINITY));
+    let g = group(vec![]);
+
+    assert_eq!(g.bounds().contains(&largest_finite), false);
+    assert_eq!(g.bounds().contains(&largest_infinite), false);
+    assert_eq!(largest_finite.contains(&g.bounds()), false);
+    assert_eq!(largest_infinite.contains(&g.bounds()), false);
+}
+
+
+
+#[allow(non_snake_case)]
+#[test]
 fn group_minima_and_maxima_are_dictated_by_its_members_bounds() {
     assert_bounds(
         group(vec![unit_sphere(), cylinder(CylKind::Open, -5.0, 2.0)]).bounds(),

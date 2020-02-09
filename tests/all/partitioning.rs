@@ -120,4 +120,34 @@ fn a_shape_placed_in_each_eighth() {
     assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), Some(s7));
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn do_not_add_groups_which_are_empty() {
+    let root = unit_sphere();
+    let s0 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s1 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s2 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s3 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s4 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s5 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s6 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s7 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+
+    let groups = binary_partition(1, vec![
+        s0.clone(), s1.clone(), s2.clone(), s3.clone(),
+        // s4.clone(),  omit s4
+        s5.clone(), s6.clone(), s7.clone(), root.clone()
+    ]);
+
+    assert_eq!(obj_at(&groups, &[0, 0].clone()), Some(root));
+    assert_eq!(obj_at(&groups, &[1, 0, 0].clone()), Some(s0));
+    assert_eq!(obj_at(&groups, &[2, 0, 0].clone()), Some(s1));
+    assert_eq!(obj_at(&groups, &[3, 0, 0].clone()), Some(s2));
+    assert_eq!(obj_at(&groups, &[4, 0, 0].clone()), Some(s3));
+    assert_eq!(obj_at(&groups, &[5, 0, 0].clone()), Some(s5));
+    assert_eq!(obj_at(&groups, &[6, 0, 0].clone()), Some(s6));
+    assert_eq!(obj_at(&groups, &[7, 0, 0].clone()), Some(s7));
+    assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), None);
+}
+
 // TODO test when the shapes are in one plane (one of the axes has exactly one value)
