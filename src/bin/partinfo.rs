@@ -19,6 +19,10 @@ struct CmdOptions {
     #[structopt(short="b")]
     before_partitioning: bool,
 
+    /// The depth with which to run the binary partitioning algorithm
+    #[structopt(long="depth", default_value="0")]
+    depth: usize,
+
     /// The input obj file
     #[structopt(parse(from_os_str))]
     objfile: std::ffi::OsString,
@@ -30,25 +34,26 @@ fn main() -> Result<(), ExitFailure> {
     let mut f = File::open(&args.objfile)?;
     let objects = wavefront::read_object_vec(&mut f)?;
     if args.before_partitioning {
-        for obj in objects.iter() {
-            println!("{}", obj.bounds());
-        }
+        let root = group(objects);
+        print_bounding_box_info(0, &root);
     } else {
-        let root = binary_partition(2, objects);
-        print_bounding_box_info(0, 3, &root)?;
+        let root = binary_partition(args.depth, objects);
+        print_bounding_box_info(0, &root);
     }
     Ok(())
 }
 
-fn print_bounding_box_info(lvl: usize, upto: usize, node: &Object) -> Result<(), ExitFailure> {
-    if lvl < upto {
-        println!("{}\t{}", lvl, node.bounds());
-        let children = node.children();
+fn print_bounding_box_info(lvl: usize, node: &Object) -> usize {
+    let children = node.children();
+    let mut c = 0;
+    if children.len() > 0 {
         let nextlvl = lvl + 1;
         for child in children.iter() {
-            print_bounding_box_info(nextlvl, upto, child)?;
+            c += print_bounding_box_info(nextlvl, child);
         }
+        println!("{}\t{}\t{}", lvl, c, node.bounds());
+    } else {
+        c += 1;
     }
-    // TODO print the number of children contained by this bounding box
-    Ok(())
+    return c;
 }
