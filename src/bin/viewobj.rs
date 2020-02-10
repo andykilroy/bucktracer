@@ -68,11 +68,8 @@ fn main() -> Result<(), ExitFailure> {
     let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees.to_radians());
     cam.orient(args.from, args.to, vector(args.up.x(), args.up.y(), args.up.z()));
 
-    let mut stderr = std::io::stderr();
-    let canvas = cam.render(&world, |p, _total|{
-        let x = p % 16;
-        if x == 0 { stderr.write_all(b"#\n").unwrap(); }
-        else { stderr.write_all(b"#").unwrap(); }
+    let canvas = cam.render(&world, |p, total|{
+        eprintln!("{}/{}", p, total);
     });
     let mut stdout = std::io::stdout();
 
