@@ -49,5 +49,6 @@ fn print_bounding_box_info(lvl: usize, upto: usize, node: &Object) -> Result<(),
             print_bounding_box_info(nextlvl, upto, child)?;
         }
     }
+    // TODO print the number of children contained by this bounding box
     Ok(())
 }

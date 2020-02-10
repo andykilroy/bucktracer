@@ -148,4 +148,37 @@ fn do_not_add_groups_which_are_empty() {
     assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), None);
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn flatten___empty_list___produces_empty_list() {
+    let input = vec![];
+    let v = flatten(&input);
+    assert_eq!(v.len(), 0);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn flatten___flattened_list_produces_same_result() {
+    let input = vec![unit_sphere(), cube(), glass_sphere()];
+    let v = flatten(&input);
+    assert_eq!(v, input);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn flatten___children_of_group_are_promoted_to_top_level() {
+    let p1 = point(0.0, 0.0, 0.0);
+    let p2 = point(0.0, 0.0, 1.0);
+    let p3 = point(1.0, 0.0, 0.0);
+    let input = vec![
+        unit_sphere(),
+        cube(),
+        group(vec![triangle(p1, p2, p3)]),
+        glass_sphere()];
+
+    let v = flatten(&input);
+    assert_eq!(v, vec![unit_sphere(), cube(), triangle(p1, p2, p3), glass_sphere()]);
+}
+
+
 // TODO test when the shapes are in one plane (one of the axes has exactly one value)

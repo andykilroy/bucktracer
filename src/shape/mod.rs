@@ -199,6 +199,13 @@ impl Object {
 
         Bounds::new(minp, maxp)
     }
+
+    pub fn is_group(&self) -> bool {
+        match self.shape {
+            Shape::Group {..} => true,
+            _ => false,
+        }
+    }
 }
 
 impl std::fmt::Display for Object {
@@ -256,3 +263,4 @@ pub fn obj_at(root: &Object, path: &[usize]) -> Option<Object> {
         _ => None
     }
 }
+

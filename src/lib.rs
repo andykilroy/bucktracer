@@ -18,6 +18,7 @@ use crate::math::*;
 pub use crate::shape::*;
 
 pub use partition::binary_partition;
+pub use partition::flatten;
 
 const EPSILON: f64 = 1e-5;
 

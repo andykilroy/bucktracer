@@ -18,8 +18,9 @@ use crate::*;
 /// smallest region that fully contains them.
 pub fn binary_partition(depth: usize, scene: Vec<Object>) -> Object {
     // TODO make the depth parameter unnecessary.  Decide an appropriate depth internally.
-    let mut box_map = BoundingBoxMap::create(depth, Bounds::enclose(&scene));
-    for o in scene {
+    let flattened = flatten(&scene);
+    let mut box_map = BoundingBoxMap::create(depth, Bounds::enclose(&flattened));
+    for o in flattened {
         box_map.put(o);
     }
     box_map.groups()
@@ -161,6 +162,23 @@ impl BoundingBoxMap {
         }
     }
 }
+
+/// Takes a list of objects which may contain nested groups.
+/// The result is a linear list of objects which have no groups.
+/// In other words, the leaf objects from the original list.
+pub fn flatten(input: &[Object]) -> Vec<Object> {
+    let mut v: Vec<Object> = vec![];
+    for o in input {
+        if o.is_group() {
+            let mut inner = flatten(o.children());
+            v.append(&mut inner);
+        } else {
+            v.push(o.clone());
+        }
+    }
+    v
+}
+
 
 #[cfg(test)]
 mod test_partition {
