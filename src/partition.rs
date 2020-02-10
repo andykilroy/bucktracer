@@ -198,6 +198,7 @@ mod test_partition {
         assert_eq!(bounding_box_tree(1, Bounds::unit()).len(), 8 + 1);
         assert_eq!(bounding_box_tree(2, Bounds::unit()).len(), 64 + 8 + 1);
         assert_eq!(bounding_box_tree(3, Bounds::unit()).len(), 512 + 64 + 8 + 1);
+        assert_eq!(bounding_box_tree(4, Bounds::unit()).len(), 4096 + 512 + 64 + 8 + 1);
     }
 
     #[allow(non_snake_case)]

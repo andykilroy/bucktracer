@@ -1,5 +1,6 @@
 use bucktracer::*;
 use bucktracer::math::*;
+use std::io::Read;
 
 #[allow(non_snake_case)]
 #[test]
@@ -148,6 +149,94 @@ fn do_not_add_groups_which_are_empty() {
     assert_eq!(obj_at(&groups, &[8, 0, 0].clone()), None);
 }
 
+
+#[allow(non_snake_case)]
+#[test]
+fn objects_placed_in_one_cell___depth2() {
+    let root = unit_sphere();
+    let s0 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s1 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s2 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s3 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s4 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+
+    let groups = binary_partition(2, vec![
+        root.clone(), s0.clone(), s1.clone(), s2.clone(), s3.clone(), s4.clone()
+    ]);
+
+    let expected = group(vec![ // 0th level
+        group(vec![root]),      // member of 0th level
+        group(vec![            // 1st level
+            group(vec![        // 2nd level
+                group(vec![    // 0th cell
+                    s0, s1, s2, s3, s4
+                ])
+            ])
+        ])
+    ]);
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn objects_at_multiple_levels() {
+    let root = unit_sphere();
+    let s10 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s11 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s12 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s13 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s14 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s15 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s16 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s17 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+
+    let s20 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s21 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s22 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s23 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s24 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+
+    let groups = binary_partition(2, vec![
+        s10.clone(), s11.clone(), s12.clone(), s13.clone(), s14.clone(),
+        s20.clone(), s21.clone(), s22.clone(), s23.clone(), s24.clone(),
+        s15.clone(), s16.clone(), s17.clone(), root.clone()
+    ]);
+
+    let expected = group(vec![ // 0th level
+        group(vec![root]),      // member of 0th level
+        group(vec![            // 0th cell, 1st level
+            group(vec![s10]),  // member of 0th cell on 1st level
+            group(vec![        // 0th cell, 2nd level
+                group(vec![    // members of 0th cell, 2nd level
+                    s20, s21, s22, s23, s24
+                ])
+            ])
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s11]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s12]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s13]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s14]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s15]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s16]),  // member of 1st cell on 1st level
+        ]),
+        group(vec![            // 1st cell, 1st level
+            group(vec![s17]),  // member of 1st cell on 1st level
+        ]),
+    ]);
+
+}
+
+
 #[allow(non_snake_case)]
 #[test]
 fn flatten___empty_list___produces_empty_list() {
@@ -180,5 +269,45 @@ fn flatten___children_of_group_are_promoted_to_top_level() {
     assert_eq!(v, vec![unit_sphere(), cube(), triangle(p1, p2, p3), glass_sphere()]);
 }
 
+#[allow(non_snake_case)]
+#[test]
+fn flatten___() {
+    let mut bytes = r#"v 0 0 0
+v 0 0 1
+v 0 1 0
+v 0 1 1
+v 1 0 0
+v 1 0 1
+v 1 1 0
+v 1 1 1
+
+f 1 2 4 3
+f 5 6 8 7
+f 1 2 6 5
+g HalfOne
+
+f 3 4 8 7
+f 1 3 7 5
+f 2 4 8 6
+g HalfTwo
+"#.as_bytes();
+    let input = wavefront::read_object_vec(&mut bytes).unwrap();
+
+    let v = flatten(&input);
+    assert_eq!(v, vec![
+        triangle(point(0.0, 0.0, 0.0), point(0.0, 0.0, 1.0), point(0.0, 1.0, 1.0)),
+        triangle(point(0.0, 0.0, 0.0), point(0.0, 1.0, 1.0), point(0.0, 1.0, 0.0)),
+        triangle(point(1.0, 0.0, 0.0), point(1.0, 0.0, 1.0), point(1.0, 1.0, 1.0)),
+        triangle(point(1.0, 0.0, 0.0), point(1.0, 1.0, 1.0), point(1.0, 1.0, 0.0)),
+        triangle(point(0.0, 0.0, 0.0), point(0.0, 0.0, 1.0), point(1.0, 0.0, 1.0)),
+        triangle(point(0.0, 0.0, 0.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, 0.0)),
+        triangle(point(0.0, 1.0, 0.0), point(0.0, 1.0, 1.0), point(1.0, 1.0, 1.0)),
+        triangle(point(0.0, 1.0, 0.0), point(1.0, 1.0, 1.0), point(1.0, 1.0, 0.0)),
+        triangle(point(0.0, 0.0, 0.0), point(0.0, 1.0, 0.0), point(1.0, 1.0, 0.0)),
+        triangle(point(0.0, 0.0, 0.0), point(1.0, 1.0, 0.0), point(1.0, 0.0, 0.0)),
+        triangle(point(0.0, 0.0, 1.0), point(0.0, 1.0, 1.0), point(1.0, 1.0, 1.0)),
+        triangle(point(0.0, 0.0, 1.0), point(1.0, 1.0, 1.0), point(1.0, 0.0, 1.0)),
+    ]);
+}
 
 // TODO test when the shapes are in one plane (one of the axes has exactly one value)
