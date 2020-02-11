@@ -113,6 +113,10 @@ impl BoundingBoxMap {
         return self.place(0, o);
     }
 
+    pub fn iter(&self) -> BoundingBoxMapIterator {
+        BoundingBoxMapIterator::new(self)
+    }
+
     fn place(&mut self, index: usize, o: Object) -> Bounds {
         if self.mapping.contains_key(&index) {
             self.mapping.get_mut(&index).unwrap().push(o);
@@ -138,6 +142,7 @@ impl BoundingBoxMap {
             v.push(members.unwrap());
         }
 
+        // TODO need to calculate the descendant 8 cells' indices and give them to extend method.
         self.extend_with_children(gen + 1, &mut v);
 
         if v.len() > 0 {
@@ -165,6 +170,33 @@ impl BoundingBoxMap {
                 });
             }
         }
+    }
+}
+
+pub struct BoundingBoxMapIterator<'a> {
+    current_index: usize,
+    map: &'a BoundingBoxMap,
+}
+
+impl BoundingBoxMapIterator<'_> {
+    fn new(map: &BoundingBoxMap) -> BoundingBoxMapIterator {
+        BoundingBoxMapIterator { current_index: 0, map }
+    }
+}
+
+impl Iterator for BoundingBoxMapIterator<'_> {
+    type Item = (usize, Bounds, Vec<Object>);
+    fn next(&mut self) -> Option<Self::Item> {
+        for i in self.current_index..self.map.bounding_boxes.len() {
+            let opt = self.map.mapping.get(&i);
+            if opt.is_some() {
+                self.current_index = i + 1;
+                return Some((i, self.map.bounding_boxes[i], opt.unwrap().clone()))
+            } else {
+                self.current_index = i + 1;
+            }
+        }
+        return None;
     }
 }
 
@@ -261,5 +293,43 @@ mod test_partition {
                 Bounds::new(point(0.75, 0.75, 0.75), point(1.00, 1.00, 1.00)),
             ]
         );
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_box_iterator___no_elements___returns_none() {
+        let map = BoundingBoxMap::create(2, Bounds::unit());
+        assert_eq!(map.iter().next(), None);
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_box_iterator___one_element___gets_returned() {
+        let mut map = BoundingBoxMap::create(2, Bounds::unit());
+        map.put(glass_sphere());
+        let mut iter = map.iter();
+        assert_eq!(iter.next(), Some((0, Bounds::unit(), vec![glass_sphere()])));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[allow(non_snake_case)]
+    #[test]
+    fn bounding_box_iterator___multiple_entries___returned_in_order_of_bounding_box_they_occupy() {
+        let s10 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+        let s11 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+        let s12 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+        let s13 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+
+        let mut map = BoundingBoxMap::create(2, Bounds::unit());
+        map.put(s10.clone());
+        map.put(s11.clone());
+        map.put(s12.clone());
+        map.put(s13.clone());
+        let mut iter = map.iter();
+        assert_eq!(iter.next(), Some((16, Bounds::new(point(-0.5, -0.5, -0.5), point(0.0, 0.0, 0.0)), vec![s10])));
+        assert_eq!(iter.next(), Some((23, Bounds::new(point(-0.5, -0.5,  0.0), point(0.0, 0.0, 0.5)), vec![s11])));
+        assert_eq!(iter.next(), Some((30, Bounds::new(point(-0.5,  0.0, -0.5), point(0.0, 0.5, 0.0)), vec![s12])));
+        assert_eq!(iter.next(), Some((37, Bounds::new(point(-0.5,  0.0,  0.0), point(0.0, 0.5, 0.5)), vec![s13])));
+        assert_eq!(iter.next(), None);
     }
 }

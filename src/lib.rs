@@ -19,6 +19,8 @@ pub use crate::shape::*;
 
 pub use partition::binary_partition;
 pub use partition::flatten;
+// TODO for testing.  Remove once debugged
+pub use partition::bbox_map;
 
 const EPSILON: f64 = 1e-5;
 

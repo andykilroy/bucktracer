@@ -37,8 +37,12 @@ fn main() -> Result<(), ExitFailure> {
         let root = group(objects);
         print_bounding_box_info(0, &root);
     } else {
-        let root = binary_partition(args.depth, objects);
-        print_bounding_box_info(0, &root);
+        let map = bbox_map(args.depth, objects);
+        for (ind, k, v) in map.iter() {
+            println!("{}\t{}\t{}", ind, v.len(), k);
+        }
+//        let root = map.groups();
+//        print_bounding_box_info(0, &root);
     }
     Ok(())
 }
