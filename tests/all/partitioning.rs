@@ -271,7 +271,7 @@ fn flatten___children_of_group_are_promoted_to_top_level() {
 
 #[allow(non_snake_case)]
 #[test]
-fn flatten___() {
+fn flatten___produces_flat_vector() {
     let mut bytes = r#"v 0 0 0
 v 0 0 1
 v 0 1 0
@@ -281,15 +281,15 @@ v 1 0 1
 v 1 1 0
 v 1 1 1
 
+g HalfOne
 f 1 2 4 3
 f 5 6 8 7
 f 1 2 6 5
-g HalfOne
 
+g HalfTwo
 f 3 4 8 7
 f 1 3 7 5
 f 2 4 8 6
-g HalfTwo
 "#.as_bytes();
     let input = wavefront::read_object_vec(&mut bytes).unwrap();
 
