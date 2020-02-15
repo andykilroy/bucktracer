@@ -1,6 +1,5 @@
 use bucktracer::*;
 use bucktracer::math::*;
-use std::io::Read;
 
 #[allow(non_snake_case)]
 #[test]
@@ -127,7 +126,7 @@ fn do_not_add_groups_which_are_empty() {
     let s1 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s2 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s3 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s4 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
+//    let s4 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s5 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s6 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
     let s7 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
@@ -174,6 +173,7 @@ fn objects_placed_in_one_cell___depth2() {
             ])
         ])
     ]);
+//    assert_eq!(groups, expected);
 }
 
 #[allow(non_snake_case)]
@@ -233,7 +233,7 @@ fn objects_at_multiple_levels() {
             group(vec![s17]),  // member of 1st cell on 1st level
         ]),
     ]);
-
+//    assert_eq!(groups, expected);
 }
 
 

@@ -147,6 +147,7 @@ impl BoundingBoxMap {
         v.into_iter()
     }
 
+    #[allow(dead_code)]
     fn bounds_vec(&self) -> Vec<Bounds> {
         let mut v: Vec<Bounds> = vec![];
         self.breadth_first_traverse(&mut |node: &TreeNode|{
@@ -155,7 +156,7 @@ impl BoundingBoxMap {
         v
     }
 
-    pub fn breadth_first_traverse<F>(&self, consumer: &mut F)
+    fn breadth_first_traverse<F>(&self, consumer: &mut F)
         where F: FnMut(&TreeNode) -> ()
     {
         let mut nodes: Vec<&TreeNode> = vec![&self.bounding_boxes];

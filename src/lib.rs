@@ -6,7 +6,6 @@ extern crate lazy_static;
 
 use serde::Deserialize;
 
-use std::collections::HashMap;
 pub mod math;
 pub mod png;
 pub mod ppm;

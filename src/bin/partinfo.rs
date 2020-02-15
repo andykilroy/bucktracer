@@ -1,11 +1,9 @@
 use std::fs::File;
-use std::io::Write;
 
 use exitfailure::ExitFailure;
 
 use bucktracer::wavefront;
 use bucktracer::*;
-use bucktracer::math::*;
 
 use structopt::StructOpt;
 

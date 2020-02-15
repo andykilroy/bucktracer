@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::io::Write;
 
 use exitfailure::ExitFailure;
 
@@ -16,6 +15,10 @@ use structopt::StructOpt;
     rename_all = "kebab-case",
 )]
 struct CmdOptions {
+
+    /// Binary space partitioning depth.
+    #[structopt(long="depth", default_value="2")]
+    depth: usize,
 
     /// The position of the camera.
     #[structopt(long="from", default_value="(0.0, 0.0, -1.0)", parse(try_from_str))]
@@ -64,7 +67,7 @@ fn main() -> Result<(), ExitFailure> {
         args.light_pos,
         colour(args.light_colour.x(), args.light_colour.y(), args.light_colour.z())
     );
-    let world = World::with(vec![light], vec![binary_partition(2, objects)]);
+    let world = World::with(vec![light], vec![binary_partition(args.depth, objects)]);
     let mut cam = Camera::new(args.hsize, args.vsize, args.fov_degrees.to_radians());
     cam.orient(args.from, args.to, vector(args.up.x(), args.up.y(), args.up.z()));
 
