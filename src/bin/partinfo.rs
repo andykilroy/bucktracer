@@ -38,7 +38,7 @@ fn main() -> Result<(), ExitFailure> {
         print_bounding_box_info(0, &root);
     } else {
         let map = bbox_map(args.depth, objects);
-        for (ind, k, v) in map.iter() {
+        for (ind, (k, v)) in map.iter().enumerate() {
             println!("{}\t{}\t{}", ind, v.len(), k);
         }
 //        let root = map.groups();

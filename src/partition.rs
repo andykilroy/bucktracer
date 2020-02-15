@@ -1,4 +1,7 @@
 use crate::*;
+use std::boxed::Box;
+use std::borrow::Borrow;
+use std::vec::IntoIter;
 
 /// Arrange objects from a scene into a hierarchical
 /// structure to speed up finding intersections.
@@ -31,172 +34,165 @@ pub fn bbox_map(depth: usize, scene: Vec<Object>) -> BoundingBoxMap {
     box_map
 }
 
-fn bounding_box_tree(depth: usize, enclosure: Bounds) -> Vec<Bounds> {
-    let mut v = vec![];
-    v.push(enclosure.clone());
-    for i in 1..(depth+1) {
-        append_generation(&mut v, i);
-    }
-    return v;
-}
-
-fn count_in_generation(gen: usize) -> usize {
-    1 << (3 * gen)
-}
-
-fn tree_size(n: usize) -> usize {
-    let mut s = 1;
-    for i in 1..=n {
-        s += count_in_generation(i);
-    }
-    return s;
-}
-
-fn first_item_of_gen(n: usize) -> usize {
-    if n <= 0 {
-        return 0;
-    }
-    tree_size(n - 1)
-}
-
-// Defined only for gen >= 1.  v must always be prepared with at least
-// the first bounding box for generation 0 in it.
-fn append_generation(v: &mut Vec<Bounds>, gen: usize) {
-    let prev_gen = gen - 1;
-    let first_item_prev_gen = first_item_of_gen(prev_gen);
-    for i in 0..count_in_generation(prev_gen) {
-        append_bbox(v, &v[first_item_prev_gen + i].clone());
-    }
-}
-
-fn append_bbox(boxes: &mut Vec<Bounds>, enclosure: &Bounds) {
-    let min = enclosure.min();
-    let max = enclosure.max();
-    let one = (enclosure.max() - enclosure.min()).scale(0.5);
-    let i = vector(one.x(), 0.0, 0.0);
-    let j = vector(0.0, one.y(), 0.0);
-    let k = vector(0.0, 0.0, one.z());
-
-    boxes.push(Bounds::new(min, min + one));
-    boxes.push(Bounds::new(min + k, max - i - j));
-    boxes.push(Bounds::new(min + j, max - i - k));
-    boxes.push(Bounds::new(min + j + k, max - i));
-
-    boxes.push(Bounds::new(min + i, min + i + one));
-    boxes.push(Bounds::new(min + i + k, min + i + k + one));
-    boxes.push(Bounds::new(min + i + j, min + i + j + one));
-    boxes.push(Bounds::new(min + i + j + k, min + i + j + k + one));
-}
-
 #[derive(Debug)]
-pub struct BoundingBoxMap {
-    depth: usize,
-    bounding_boxes: Vec<Bounds>,
-    mapping: HashMap<usize, Vec<Object>>,
+struct TreeNode {
+    bbox: Bounds,
+    members: Vec<Object>,
+    children: Option<[Box<TreeNode>; 8]>,
 }
 
-impl BoundingBoxMap {
-    pub fn create(depth: usize, enclosure: Bounds) -> BoundingBoxMap {
-        BoundingBoxMap {
-            depth: depth,
-            bounding_boxes: bounding_box_tree(depth, enclosure),
-            mapping: HashMap::with_capacity(tree_size(depth))
-        }
+impl TreeNode {
+    fn with(bbox: Bounds) -> TreeNode {
+        TreeNode { bbox, members: vec![], children: None }
     }
 
-    pub fn put(&mut self, o: Object) -> Bounds {
-        for i in (0..self.bounding_boxes.len()).rev() {
-            if self.bounding_boxes[i].contains(&o.bounds()) {
-                return self.place(i, o);
+    fn put(&mut self, obj: &Object) -> Option<Bounds> {
+        if self.bbox.contains(&obj.bounds()) {
+            match self.children.as_mut() {
+                None => {
+                    self.members.push(obj.clone());
+                    Some(self.bbox)
+                },
+                Some(cs) => {
+                    for i in cs.iter_mut() {
+                        let x = i.put(obj);
+                        if x.is_some() {
+                            return x;
+                        }
+                    }
+                    self.members.push(obj.clone());
+                    return Some(self.bbox);
+                }
             }
-        }
-        return self.place(0, o);
-    }
-
-    pub fn iter(&self) -> BoundingBoxMapIterator {
-        BoundingBoxMapIterator::new(self)
-    }
-
-    fn place(&mut self, index: usize, o: Object) -> Bounds {
-        if self.mapping.contains_key(&index) {
-            self.mapping.get_mut(&index).unwrap().push(o);
-        } else {
-            self.mapping.insert(index, vec![o]);
-        }
-
-        self.bounding_boxes[index].clone()
-    }
-
-    pub fn groups(&self) -> Object {
-        match self.create_node(0, 0) {
-            None => group(vec![]),
-            Some(obj) => obj,
-        }
-    }
-
-    fn create_node(&self, index: usize, gen: usize) -> Option<Object> {
-        let mut v = vec![];
-        let members: Option<Object> = self.create_members(index);
-
-        if members.is_some() {
-            v.push(members.unwrap());
-        }
-
-        // TODO need to calculate the descendant 8 cells' indices and give them to extend method.
-        self.extend_with_children(gen + 1, &mut v);
-
-        if v.len() > 0 {
-            Some(group(v))
         } else {
             None
         }
     }
 
-    fn create_members(&self, index: usize) -> Option<Object> {
-        match self.mapping.get(&index) {
-            None => None,
-            Some(v) => Some(group(v.clone())),
+}
+
+fn append_children<'a>(current: &'a TreeNode, acc: &mut Vec<&'a TreeNode>) {
+    current.children.as_ref().and_then(|children| {
+        for c in children.iter() {
+            acc.push(c.borrow());
+        }
+        Some(())
+    });
+}
+
+fn bounding_box_tree(depth: usize, enclosure: Bounds) -> TreeNode {
+    let mut root = TreeNode::with(enclosure);
+    subdivide(&mut root, 0, depth);
+    return root;
+}
+
+/// Defined only for gen >= 1.  Recursively subdivide the box for this
+/// node by generating further child nodes and deciding what their bounding boxes are.
+fn subdivide(node: &mut TreeNode, gen: usize, max_depth: usize) {
+    if gen < max_depth {
+        let min = node.bbox.min();
+        let max = node.bbox.max();
+        let one = (node.bbox.max() - node.bbox.min()).scale(0.5);
+        let i = vector(one.x(), 0.0, 0.0);
+        let j = vector(0.0, one.y(), 0.0);
+        let k = vector(0.0, 0.0, one.z());
+
+        let mut b1: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min, min + one)));
+        let mut b2: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + k, max - i - j)));
+        let mut b3: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + j, max - i - k)));
+        let mut b4: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + j + k, max - i)));
+        let mut b5: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + i, min + i + one)));
+        let mut b6: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + i + k, min + i + k + one)));
+        let mut b7: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + i + j, min + i + j + one)));
+        let mut b8: Box<TreeNode> = Box::new(TreeNode::with(Bounds::new(min + i + j + k, min + i + j + k + one)));
+
+        let nextgen = gen + 1;
+        subdivide(b1.as_mut(), nextgen, max_depth);
+        subdivide(b2.as_mut(), nextgen, max_depth);
+        subdivide(b3.as_mut(), nextgen, max_depth);
+        subdivide(b4.as_mut(), nextgen, max_depth);
+        subdivide(b5.as_mut(), nextgen, max_depth);
+        subdivide(b6.as_mut(), nextgen, max_depth);
+        subdivide(b7.as_mut(), nextgen, max_depth);
+        subdivide(b8.as_mut(), nextgen, max_depth);
+
+        node.children = Some([b1, b2, b3, b4, b5, b6, b7, b8]);
+    }
+}
+
+#[derive(Debug)]
+pub struct BoundingBoxMap {
+    bounding_boxes: TreeNode,
+}
+
+impl BoundingBoxMap {
+    pub fn create(depth: usize, enclosure: Bounds) -> BoundingBoxMap {
+        BoundingBoxMap {
+            bounding_boxes: bounding_box_tree(depth, enclosure),
         }
     }
 
-    fn extend_with_children(&self, gen: usize, dest: &mut Vec<Object>) {
-        let start = first_item_of_gen(gen);
-        let end = first_item_of_gen(gen + 1);
-        if start < self.bounding_boxes.len() {
-            for i in start..end {
-                self.create_node(i, gen).and_then(|o| {
-                    dest.push(o);
-                    Some(())
-                });
+    pub fn put(&mut self, o: Object) -> Option<Bounds> {
+        self.bounding_boxes.put(&o)
+    }
+
+    pub fn iter(&self) -> IntoIter<(Bounds, Vec<Object>)> {
+        let mut v: Vec<(Bounds, Vec<Object>)> = vec![];
+        let mut visitor = |node: &TreeNode| {
+            if node.members.len() > 0 {
+                v.push((node.bbox, node.members.clone()));
             }
+        };
+        self.breadth_first_traverse(&mut visitor);
+        v.into_iter()
+    }
+
+    fn bounds_vec(&self) -> Vec<Bounds> {
+        let mut v: Vec<Bounds> = vec![];
+        self.breadth_first_traverse(&mut |node: &TreeNode|{
+            v.push(node.bbox);
+        });
+        v
+    }
+
+    pub fn breadth_first_traverse<F>(&self, consumer: &mut F)
+        where F: FnMut(&TreeNode) -> ()
+    {
+        let mut nodes: Vec<&TreeNode> = vec![&self.bounding_boxes];
+        while !nodes.is_empty() {
+            let i = nodes.remove(0);
+            consumer(i);
+            append_children(i, &mut nodes);
+        }
+    }
+
+    pub fn groups(&self) -> Object {
+        match create_node(&self.bounding_boxes) {
+            None => group(vec![]),
+            Some(obj) => obj,
         }
     }
 }
 
-pub struct BoundingBoxMapIterator<'a> {
-    current_index: usize,
-    map: &'a BoundingBoxMap,
-}
-
-impl BoundingBoxMapIterator<'_> {
-    fn new(map: &BoundingBoxMap) -> BoundingBoxMapIterator {
-        BoundingBoxMapIterator { current_index: 0, map }
+fn create_node(node: &TreeNode) -> Option<Object> {
+    let mut node_vec = vec![];
+    if node.members.len() > 0 {
+        node_vec.push(group(node.members.clone()));
     }
-}
-
-impl Iterator for BoundingBoxMapIterator<'_> {
-    type Item = (usize, Bounds, Vec<Object>);
-    fn next(&mut self) -> Option<Self::Item> {
-        for i in self.current_index..self.map.bounding_boxes.len() {
-            let opt = self.map.mapping.get(&i);
-            if opt.is_some() {
-                self.current_index = i + 1;
-                return Some((i, self.map.bounding_boxes[i], opt.unwrap().clone()))
-            } else {
-                self.current_index = i + 1;
-            }
+    node.children.as_ref().and_then(|arr|{
+        for i in arr.iter() {
+            create_node(i.borrow()).and_then(|o| {
+                node_vec.push(o);
+                Some(())
+            });
         }
-        return None;
+        Some(())
+    });
+
+    if node_vec.len() > 0 {
+        Some(group(node_vec))
+    } else {
+        None
     }
 }
 
@@ -225,30 +221,37 @@ mod test_partition {
     fn bounding_box_map___put_associates_object_with_smallest_bounding_box_that_contains_it() {
         let mut box_map = BoundingBoxMap::create(1, Bounds::unit());
         let o = unit_sphere().set_object_to_world_spc(translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
-        assert_eq!(box_map.put(o), Bounds::new(point(-1.0, -1.0, -1.0), point(0.0, 0.0, 0.0)));
+        assert_eq!(box_map.put(o),
+                   Some(Bounds::new(point(-1.0, -1.0, -1.0),
+                                    point(0.0, 0.0, 0.0))));
+    }
+
+    fn vec_of_bounds(tree: BoundingBoxMap) -> Vec<Bounds> {
+        tree.bounds_vec()
     }
 
     #[allow(non_snake_case)]
     #[test]
     fn size_of_box_tree_is_related_to_power_of_2() {
-        assert_eq!(bounding_box_tree(0, Bounds::unit()).len(), 1);
-        assert_eq!(bounding_box_tree(1, Bounds::unit()).len(), 8 + 1);
-        assert_eq!(bounding_box_tree(2, Bounds::unit()).len(), 64 + 8 + 1);
-        assert_eq!(bounding_box_tree(3, Bounds::unit()).len(), 512 + 64 + 8 + 1);
-        assert_eq!(bounding_box_tree(4, Bounds::unit()).len(), 4096 + 512 + 64 + 8 + 1);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(0, Bounds::unit())).len(), 1);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(1, Bounds::unit())).len(), 8 + 1);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(2, Bounds::unit())).len(), 64 + 8 + 1);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(3, Bounds::unit())).len(), 512 + 64 + 8 + 1);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(4, Bounds::unit())).len(), 4096 + 512 + 64 + 8 + 1);
     }
 
     #[allow(non_snake_case)]
     #[test]
     fn bounding_boxes_depth0() {
-        assert_eq!(bounding_box_tree(0, Bounds::unit()), vec![Bounds::unit()]);
+        assert_eq!(vec_of_bounds(BoundingBoxMap::create(0, Bounds::unit())),
+                   vec![Bounds::unit()]);
     }
 
     #[allow(non_snake_case)]
     #[test]
     fn bounding_boxes_depth1() {
         assert_eq!(
-            bounding_box_tree(1, Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0))),
+            vec_of_bounds(BoundingBoxMap::create(1, Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0)))),
             vec![
                 Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0)), // 0th lvl
                 Bounds::new(point(0.0, 0.0, 0.0), point(0.5, 0.5, 0.5)), // 1st lvl, 0
@@ -266,7 +269,8 @@ mod test_partition {
     #[allow(non_snake_case)]
     #[test]
     fn bounding_boxes_depth2() {
-        let all = bounding_box_tree(2, Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0)));
+        let enclosure = Bounds::new(point(0.0, 0.0, 0.0), point(1.0, 1.0, 1.0));
+        let all = vec_of_bounds(BoundingBoxMap::create(2, enclosure));
         assert_eq!(
             &all[9..=16],
             [
@@ -306,9 +310,10 @@ mod test_partition {
     #[test]
     fn bounding_box_iterator___one_element___gets_returned() {
         let mut map = BoundingBoxMap::create(2, Bounds::unit());
-        map.put(glass_sphere());
+        assert_eq!(map.put(glass_sphere()).unwrap(), Bounds::unit());
+
         let mut iter = map.iter();
-        assert_eq!(iter.next(), Some((0, Bounds::unit(), vec![glass_sphere()])));
+        assert_eq!(iter.next(), Some((Bounds::unit(), vec![glass_sphere()])));
         assert_eq!(iter.next(), None);
     }
 
@@ -326,10 +331,10 @@ mod test_partition {
         map.put(s12.clone());
         map.put(s13.clone());
         let mut iter = map.iter();
-        assert_eq!(iter.next(), Some((16, Bounds::new(point(-0.5, -0.5, -0.5), point(0.0, 0.0, 0.0)), vec![s10])));
-        assert_eq!(iter.next(), Some((23, Bounds::new(point(-0.5, -0.5,  0.0), point(0.0, 0.0, 0.5)), vec![s11])));
-        assert_eq!(iter.next(), Some((30, Bounds::new(point(-0.5,  0.0, -0.5), point(0.0, 0.5, 0.0)), vec![s12])));
-        assert_eq!(iter.next(), Some((37, Bounds::new(point(-0.5,  0.0,  0.0), point(0.0, 0.5, 0.5)), vec![s13])));
+        assert_eq!(iter.next(), Some((Bounds::new(point(-0.5, -0.5, -0.5), point(0.0, 0.0, 0.0)), vec![s10])));
+        assert_eq!(iter.next(), Some((Bounds::new(point(-0.5, -0.5,  0.0), point(0.0, 0.0, 0.5)), vec![s11])));
+        assert_eq!(iter.next(), Some((Bounds::new(point(-0.5,  0.0, -0.5), point(0.0, 0.5, 0.0)), vec![s12])));
+        assert_eq!(iter.next(), Some((Bounds::new(point(-0.5,  0.0,  0.0), point(0.0, 0.5, 0.5)), vec![s13])));
         assert_eq!(iter.next(), None);
     }
 }
