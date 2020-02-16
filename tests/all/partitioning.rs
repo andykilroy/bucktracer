@@ -153,11 +153,11 @@ fn do_not_add_groups_which_are_empty() {
 #[test]
 fn objects_placed_in_one_cell___depth2() {
     let root = unit_sphere();
-    let s0 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s1 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s2 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s3 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s4 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s0 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
+    let s1 = s0.clone();
+    let s2 = s0.clone();
+    let s3 = s0.clone();
+    let s4 = s0.clone();
 
     let groups = binary_partition(2, vec![
         root.clone(), s0.clone(), s1.clone(), s2.clone(), s3.clone(), s4.clone()
@@ -173,27 +173,27 @@ fn objects_placed_in_one_cell___depth2() {
             ])
         ])
     ]);
-//    assert_eq!(groups, expected);
+    assert_eq!(groups, expected);
 }
 
 #[allow(non_snake_case)]
 #[test]
 fn objects_at_multiple_levels() {
     let root = unit_sphere();
-    let s10 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s11 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s12 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s13 = unit_sphere().set_object_to_world_spc( translation(-0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s14 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s15 = unit_sphere().set_object_to_world_spc( translation( 0.25, -0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s16 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25, -0.25) * scaling(0.25, 0.25, 0.25)).clone();
-    let s17 = unit_sphere().set_object_to_world_spc( translation( 0.25,  0.25,  0.25) * scaling(0.25, 0.25, 0.25)).clone();
+    let s10 = unit_sphere().set_object_to_world_spc( translation(-0.50, -0.50, -0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s11 = unit_sphere().set_object_to_world_spc( translation(-0.50, -0.50,  0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s12 = unit_sphere().set_object_to_world_spc( translation(-0.50,  0.50, -0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s13 = unit_sphere().set_object_to_world_spc( translation(-0.50,  0.50,  0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s14 = unit_sphere().set_object_to_world_spc( translation( 0.50, -0.50, -0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s15 = unit_sphere().set_object_to_world_spc( translation( 0.50, -0.50,  0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s16 = unit_sphere().set_object_to_world_spc( translation( 0.50,  0.50, -0.50) * scaling(0.45, 0.45, 0.45)).clone();
+    let s17 = unit_sphere().set_object_to_world_spc( translation( 0.50,  0.50,  0.50) * scaling(0.45, 0.45, 0.45)).clone();
 
-    let s20 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s21 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s22 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s23 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
-    let s24 = unit_sphere().set_object_to_world_spc( translation(-0.125, -0.125, -0.125) * scaling(0.20, 0.20, 0.20)).clone();
+    let s20 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
+    let s21 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
+    let s22 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
+    let s23 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
+    let s24 = unit_sphere().set_object_to_world_spc( translation(-0.25, -0.25, -0.25) * scaling(0.20, 0.20, 0.20)).clone();
 
     let groups = binary_partition(2, vec![
         s10.clone(), s11.clone(), s12.clone(), s13.clone(), s14.clone(),
@@ -233,7 +233,7 @@ fn objects_at_multiple_levels() {
             group(vec![s17]),  // member of 1st cell on 1st level
         ]),
     ]);
-//    assert_eq!(groups, expected);
+    assert_eq!(groups, expected);
 }
 
 

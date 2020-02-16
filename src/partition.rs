@@ -29,7 +29,7 @@ pub fn bbox_map(depth: usize, scene: Vec<Object>) -> BoundingBoxMap {
     let flattened = flatten(&scene);
     let mut box_map = BoundingBoxMap::create(depth, Bounds::enclose(&flattened));
     for o in flattened {
-        box_map.put(o);
+        box_map.put(o).expect("could not place object");
     }
     box_map
 }
@@ -46,7 +46,7 @@ impl TreeNode {
         TreeNode { bbox, members: vec![], children: None }
     }
 
-    fn put(&mut self, obj: &Object) -> Option<Bounds> {
+    fn put(&mut self, obj_bounds: &Bounds, obj: &Object) -> Option<Bounds> {
         if self.bbox.contains(&obj.bounds()) {
             match self.children.as_mut() {
                 None => {
@@ -55,7 +55,7 @@ impl TreeNode {
                 },
                 Some(cs) => {
                     for i in cs.iter_mut() {
-                        let x = i.put(obj);
+                        let x = i.put(obj_bounds, obj);
                         if x.is_some() {
                             return x;
                         }
@@ -133,7 +133,8 @@ impl BoundingBoxMap {
     }
 
     pub fn put(&mut self, o: Object) -> Option<Bounds> {
-        self.bounding_boxes.put(&o)
+        let obj_bounds = o.bounds();
+        self.bounding_boxes.put(&obj_bounds, &o)
     }
 
     pub fn iter(&self) -> IntoIter<(Bounds, Vec<Object>)> {
