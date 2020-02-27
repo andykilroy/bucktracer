@@ -12,6 +12,7 @@ pub mod ppm;
 mod shape;
 pub mod wavefront;
 mod partition;
+mod intersect;
 
 use crate::math::*;
 pub use crate::shape::*;
