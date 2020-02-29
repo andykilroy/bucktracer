@@ -3,8 +3,9 @@ use crate::*;
 #[test]
 fn intersect_a_world_with_a_ray() {
     let world = World::default();
+    let mut tracer = RayTracer::new();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-    let intersects = world.intersect(&r);
+    let intersects = tracer.intersect(&r, &world);
     assert_eq!(intersects.len(), 4);
 
     assert_eq!(intersects[0].t_value, 4.0);
@@ -51,17 +52,19 @@ fn the_hit_when_an_intersection_occurs_on_inside() {
 
 #[test]
 fn shade_an_intersection_point() {
+    let mut tracer = RayTracer::new();
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape = &w.objects()[0];
     let i = intersection(4.0, &shape);
     let comps = singleton_hit_data(&r, &i);
-    let c = shade_hit(&w, &comps, RECURSION_LIMIT);
+    let c = shade_hit(&mut tracer, &w, &comps, RECURSION_LIMIT);
     assert_eq!(c, colour(0.38066, 0.47583, 0.2855));
 }
 
 #[test]
 fn shade_an_intersection_point_from_inside() {
+    let mut tracer = RayTracer::new();
     let light = point_light(point(0.0, 0.25, 0.0), RGB::white());
     let w = World::with(vec![light], World::default().objects().to_vec());
     let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
@@ -69,7 +72,7 @@ fn shade_an_intersection_point_from_inside() {
     let i = intersection(0.5, &shape);
 
     let comps = singleton_hit_data(&r, &i);
-    let c = shade_hit(&w, &comps, RECURSION_LIMIT);
+    let c = shade_hit(&mut tracer, &w, &comps, RECURSION_LIMIT);
     assert_eq!(c, colour(0.90498, 0.90498, 0.90498));
 }
 

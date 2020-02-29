@@ -21,6 +21,7 @@ fn main() -> Result<()> {
 }
 
 fn raytrace(cam: &Camera, world: &World) -> Canvas {
+    let mut tracer = RayTracer::new();
     let mut canv = canvas(cam.hsize() as usize, cam.vsize() as usize);
     let red = colour(1.0, 0.0, 0.0);
     let black = colour(0.0, 0.0, 0.0);
@@ -28,7 +29,7 @@ fn raytrace(cam: &Camera, world: &World) -> Canvas {
     for y in 0..cam.vsize() {
         for x in 0..cam.hsize() {
             let r = cam.ray_for_pixel(x, y);
-            let intersects = world.intersect(&r);
+            let intersects = tracer.intersect(&r, world);
             let col = match index_of_hit(&intersects) {
                 None => red,
                 Some(_) => black

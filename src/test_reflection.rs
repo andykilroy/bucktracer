@@ -15,6 +15,7 @@ fn compute_reflective_vector() {
 
 #[test]
 fn reflected_colour_for_non_reflective_material_is_black() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     w.objects[1].mut_material().set_reflective(0.0);
     w.objects[1].mut_material().set_ambient(1.0);
@@ -23,13 +24,14 @@ fn reflected_colour_for_non_reflective_material_is_black() {
     let i = intersection(1.0, &obj);
 
     assert_eq!(
-        w.reflected_colour(&singleton_hit_data(&r, &i), RECURSION_LIMIT),
+        tracer.reflected_colour(&singleton_hit_data(&r, &i), RECURSION_LIMIT, &w),
         RGB::black()
     );
 }
 
 #[test]
 fn reflected_colour_for_reflective_material() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
@@ -38,13 +40,14 @@ fn reflected_colour_for_reflective_material() {
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);
-    let rgb = w.reflected_colour(&singleton_hit_data(&r, &i), RECURSION_LIMIT);
+    let rgb = tracer.reflected_colour(&singleton_hit_data(&r, &i), RECURSION_LIMIT, &w);
 
     assert_eq!(rgb, colour(0.19033, 0.23791, 0.14274));
 }
 
 #[test]
 fn shade_hit_for_reflective_material() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
@@ -53,13 +56,14 @@ fn shade_hit_for_reflective_material() {
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);
-    let rgb = shade_hit(&w, &singleton_hit_data(&r, &i), RECURSION_LIMIT);
+    let rgb = shade_hit(&mut tracer, &w, &singleton_hit_data(&r, &i), RECURSION_LIMIT);
 
     assert_eq!(rgb, colour(0.87675, 0.92434, 0.82918));
 }
 
 #[test]
 fn colour_at_max_recursion_depth() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let mut p = plane();
     p.mut_material().set_reflective(0.5);
@@ -68,7 +72,7 @@ fn colour_at_max_recursion_depth() {
 
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let i = intersection(SQRT_2, &p);
-    let rgb = w.reflected_colour(&singleton_hit_data(&r, &i), 0);
+    let rgb = tracer.reflected_colour(&singleton_hit_data(&r, &i), 0, &w);
 
     assert_eq!(rgb, RGB::black());
 }

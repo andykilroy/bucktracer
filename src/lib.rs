@@ -12,7 +12,7 @@ pub mod ppm;
 mod shape;
 pub mod wavefront;
 mod partition;
-mod intersect;
+mod vecpool;
 
 use crate::math::*;
 pub use crate::shape::*;
@@ -21,6 +21,7 @@ pub use partition::binary_partition;
 pub use partition::flatten;
 // TODO for testing.  Remove once debugged
 pub use partition::bbox_map;
+use crate::vecpool::VectorPool;
 
 const EPSILON: f64 = 1e-5;
 
@@ -441,6 +442,110 @@ pub struct World {
     objects: Vec<Object>,
 }
 
+/// Performs ray tracing operations on a World.
+#[derive(Debug)]
+pub struct RayTracer {
+    intersection_pool: VectorPool,
+}
+
+impl RayTracer {
+    pub fn new() -> RayTracer {
+        RayTracer { intersection_pool: VectorPool::new() }
+    }
+
+    pub fn intersect(&mut self, r: &Ray, w: &World) -> Vec<Intersection> {
+        let mut v: Vec<Intersection> = self.intersection_pool.acquire();
+        for obj in w.objects().iter() {
+            append_intersects(r, obj, &mut v);
+        }
+
+        v.sort_by(|i1, i2| {
+            let t1 = i1.t_value;
+            let t2 = i2.t_value;
+            if t1 < t2 {
+                Ordering::Less
+            } else if t1 > t2 {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        });
+
+        v
+    }
+
+    pub fn colour_at_intersect(&mut self, r: &Ray, rlimit: u32, w: &World) -> RGB {
+        let ints = self.intersect(r, w);
+        let poss_hit = index_of_hit(&ints).and_then(|hit_index| {
+            let precomputed = hit_data(r, hit_index, &ints);
+            Some(shade_hit(self, w, &precomputed, rlimit))
+        });
+        let colour = poss_hit.unwrap_or_else(RGB::black);
+        self.intersection_pool.place_back(ints);
+        colour
+    }
+
+    fn reflected_colour(&mut self, comps: &HitCalculations, rlimit: u32, w: &World) -> RGB {
+        if rlimit == 0 {
+            return RGB::black();
+        }
+        if comps.object.material().reflective() == 0.0 {
+            RGB::black()
+        } else {
+            let reflected_ray = ray(comps.over_point, comps.reflectv);
+            let c = self.colour_at_intersect(&reflected_ray, rlimit - 1, w);
+            c * comps.object.material().reflective()
+        }
+    }
+
+    fn refracted_colour(&mut self, comps: &HitCalculations, rlimit: u32, w: &World) -> RGB {
+        if rlimit == 0 {
+            return RGB::black();
+        }
+        if comps.object.material().transparency() == 0.0 {
+            RGB::black()
+        } else {
+            let ratio = comps.n1 / comps.n2;
+            let cos_i = comps.eyev.dot(comps.normalv);
+            let sin2_t = ratio.powi(2) * (1.0 - cos_i.powi(2));
+
+            if sin2_t > 1.0 {
+                // total internal reflection occurs therefore no
+                // colour contributes.
+                RGB::black()
+            } else {
+                // Snell's law: for incoming ray i and refracted ray t,
+                // and angles theta_i and theta_t of i and t made respectively
+                // with the normal of the surface, the following relationship holds:
+                //
+                //    sin(theta_i)     n2
+                //    ------------  =  --
+                //    sin(theta_t)     n1
+
+                let cos_t = (1.0 - sin2_t).sqrt();
+                let direction =
+                    comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
+                let refract_ray = ray(comps.under_point, direction);
+                let c = self.colour_at_intersect(&refract_ray, rlimit - 1, w);
+                c * comps.object.material().transparency()
+            }
+        }
+    }
+
+    pub fn light_factor(&mut self, point: Tuple4, light: &RadialLightSource, w: &World) -> f64 {
+        let point_to_light = light.position() - point;
+        let mag = point_to_light.magnitude();
+        let r = ray(point, point_to_light.normalize());
+        let buf = self.intersect(&r, w);
+        let accumulatd: f64 = buf.iter()
+            .filter(|i| i.t_value >= 0.0 && i.t_value < mag)
+            .map(|h| h.intersected.material().transparency())
+            .fold(1.0, |x, y| x * y);
+        self.intersection_pool.place_back(buf);
+        accumulatd
+    }
+}
+
 impl World {
     pub fn empty() -> World {
         World {
@@ -480,96 +585,6 @@ impl World {
         &self.objects
     }
 
-    pub fn intersect(self: &Self, r: &Ray) -> Vec<Intersection> {
-        let mut v: Vec<Intersection> = Vec::with_capacity(2 * self.objects.len());
-        for obj in self.objects.iter() {
-            append_intersects(r, obj, &mut v);
-        }
-
-        v.sort_by(|i1, i2| {
-            let t1 = i1.t_value;
-            let t2 = i2.t_value;
-            if t1 < t2 {
-                Ordering::Less
-            } else if t1 > t2 {
-                Ordering::Greater
-            } else {
-                Ordering::Equal
-            }
-        });
-
-        v
-    }
-
-    pub fn colour_at_intersect(self: &Self, r: &Ray, rlimit: u32) -> RGB {
-        let ints = self.intersect(r);
-        let poss_hit = index_of_hit(&ints).and_then(|hit_index| {
-            let precomputed = hit_data(r, hit_index, &ints);
-            Some(shade_hit(self, &precomputed, rlimit))
-        });
-        poss_hit.unwrap_or_else(RGB::black)
-    }
-
-    fn reflected_colour(self: &Self, comps: &HitCalculations, rlimit: u32) -> RGB {
-        if rlimit == 0 {
-            return RGB::black();
-        }
-        if comps.object.material().reflective() == 0.0 {
-            RGB::black()
-        } else {
-            let reflected_ray = ray(comps.over_point, comps.reflectv);
-            let c = self.colour_at_intersect(&reflected_ray, rlimit - 1);
-            c * comps.object.material().reflective()
-        }
-    }
-
-    fn refracted_colour(&self, comps: &HitCalculations, rlimit: u32) -> RGB {
-        if rlimit == 0 {
-            return RGB::black();
-        }
-        if comps.object.material().transparency() == 0.0 {
-            RGB::black()
-        } else {
-            let ratio = comps.n1 / comps.n2;
-            let cos_i = comps.eyev.dot(comps.normalv);
-            let sin2_t = ratio.powi(2) * (1.0 - cos_i.powi(2));
-
-            if sin2_t > 1.0 {
-                // total internal reflection occurs therefore no
-                // colour contributes.
-                RGB::black()
-            } else {
-                // Snell's law: for incoming ray i and refracted ray t,
-                // and angles theta_i and theta_t of i and t made respectively
-                // with the normal of the surface, the following relationship holds:
-                //
-                //    sin(theta_i)     n2
-                //    ------------  =  --
-                //    sin(theta_t)     n1
-
-                let cos_t = (1.0 - sin2_t).sqrt();
-                let direction =
-                    comps.normalv.scale((ratio * cos_i) - cos_t) - (comps.eyev.scale(ratio));
-                let refract_ray = ray(comps.under_point, direction);
-                let c = self.colour_at_intersect(&refract_ray, rlimit - 1);
-                c * comps.object.material().transparency()
-            }
-        }
-    }
-
-    pub fn light_factor(&self, point: Tuple4, light: &RadialLightSource) -> f64 {
-        let point_to_light = light.position() - point;
-        let mag = point_to_light.magnitude();
-        let r = ray(point, point_to_light.normalize());
-
-        let accumulatd: f64 = self
-            .intersect(&r)
-            .iter()
-            .filter(|i| i.t_value >= 0.0 && i.t_value < mag)
-            .map(|h| h.intersected.material().transparency())
-            .fold(1.0, |x, y| x * y);
-        accumulatd
-    }
 }
 
 #[derive(Debug)]
@@ -655,7 +670,7 @@ fn find(objects: &[&Object], obj: &Object) -> Option<usize> {
     None
 }
 
-fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
+fn shade_hit(tracer: &mut RayTracer, world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
     world.lights.iter().fold(RGB::black(), |prev_colour, light| {
         let surface = lighting(
             light,
@@ -663,10 +678,10 @@ fn shade_hit(world: &World, comps: &HitCalculations, rlimit: u32) -> RGB {
             comps.normalv,
             &comps.object,
             comps.eyev,
-            world.light_factor(comps.over_point, light),
+            tracer.light_factor(comps.over_point, light, world),
         );
-        let reflected = world.reflected_colour(&comps, rlimit);
-        let refracted = world.refracted_colour(&comps, rlimit);
+        let reflected = tracer.reflected_colour(&comps, rlimit, world);
+        let refracted = tracer.refracted_colour(&comps, rlimit, world);
 
         let c = if comps.object.material().reflective() > 0.0
             && comps.object.material().transparency() > 0.0
@@ -799,11 +814,12 @@ impl Camera {
     pub fn render<F>(&self, w: &World, mut progress: F) -> Canvas
         where F: FnMut(u32, u32) -> ()
     {
+        let mut tracer = RayTracer::new();
         let mut canv = canvas(self.hsize as usize, self.vsize as usize);
         for y in 0..self.vsize {
             for x in 0..self.hsize {
                 let r = self.ray_for_pixel(x, y);
-                let c = w.colour_at_intersect(&r, RECURSION_LIMIT);
+                let c = tracer.colour_at_intersect(&r, RECURSION_LIMIT, &w);
                 canv.set_colour_at(x as usize, y as usize, c);
             }
             progress(y + 1, self.vsize);

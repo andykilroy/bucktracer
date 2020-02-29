@@ -155,9 +155,11 @@ fn default_material_is_not_reflective() {
 fn run_scenario(objs: Vec<Object>, expected_factor: f64) {
     let light = point_light(point(0.0, 5.0, 0.0), RGB::white());
     let w = World::with(vec![light], objs);
+    let mut tracer = RayTracer::new();
+
     let p = point(0.0, -5.0, 0.0);
 
-    assert_eq!(true, almost_eq(w.light_factor(p, &light), expected_factor));
+    assert_eq!(true, almost_eq(tracer.light_factor(p, &light, &w), expected_factor));
 }
 
 #[allow(non_snake_case)]

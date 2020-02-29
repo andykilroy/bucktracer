@@ -6,6 +6,7 @@ mod patterns;
 mod material;
 mod ppm;
 mod rays;
+mod raytracer;
 mod wavefront;
 mod world;
 mod partitioning;

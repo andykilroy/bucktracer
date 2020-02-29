@@ -1,9 +1,6 @@
 use crate::*;
-use std::iter::Extend;
-use std::ops::Index;
-use std::mem;
-use std::borrow::Borrow;
 
+#[derive(Debug)]
 pub struct VectorPool {
     store: Vec<Vec<Intersection>>,
 }
@@ -15,9 +12,7 @@ impl VectorPool {
 
     pub fn acquire(&mut self) -> Vec<Intersection> {
         match self.store.pop() {
-            Some(mut v) => {
-                v
-            },
+            Some(v) => v,
             None => Vec::with_capacity(16)
         }
     }
@@ -32,9 +27,10 @@ impl VectorPool {
     }
 }
 
+#[cfg(test)]
 mod test {
     use crate::*;
-    use crate::intersect::VectorPool;
+    use crate::vecpool::VectorPool;
 
     #[allow(non_snake_case)]
     #[test]
@@ -90,6 +86,7 @@ mod test {
         assert_eq!(pool.size(), 1);
     }
 
+    #[allow(non_snake_case)]
     #[test]
     fn acquire_several_vectors___and_use_them() {
         let mut pool = VectorPool::new();
@@ -111,6 +108,7 @@ mod test {
         assert_eq!(pool.size(), 3);
     }
 
+    #[allow(non_snake_case)]
     #[test]
     fn a_vectors_capacity_increases_with_use() {
         let mut pool = VectorPool::new();

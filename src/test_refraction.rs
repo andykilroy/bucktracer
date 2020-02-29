@@ -50,17 +50,19 @@ fn under_point_is_below_the_surface() {
 
 #[test]
 fn refracted_colour_of_opaque_surface_is_black() {
+    let mut tracer = RayTracer::new();
     let w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape = &w.objects[0];
     let xs = vec![intersection(4.0, shape), intersection(6.0, shape)];
     let comps = hit_data(&r, 0, &xs);
 
-    assert_eq!(w.refracted_colour(&comps, 5), RGB::black());
+    assert_eq!(tracer.refracted_colour(&comps, 5, &w), RGB::black());
 }
 
 #[test]
 fn refracted_colour_at_max_recursive_depth_is_black() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape: &mut Object = &mut w.objects[0];
@@ -68,11 +70,12 @@ fn refracted_colour_at_max_recursive_depth_is_black() {
 
     let xs = vec![intersection(4.0, &shape), intersection(6.0, &shape)];
     let comps = hit_data(&r, 0, &xs);
-    assert_eq!(w.refracted_colour(&comps, 0), RGB::black());
+    assert_eq!(tracer.refracted_colour(&comps, 0, &w), RGB::black());
 }
 
 #[test]
 fn refracted_colour_not_at_max_recursive_depth_is_not_black() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
     let shape: &mut Object = &mut w.objects[0];
@@ -80,13 +83,14 @@ fn refracted_colour_not_at_max_recursive_depth_is_not_black() {
 
     let xs = vec![intersection(4.0, &shape), intersection(6.0, &shape)];
     let comps = hit_data(&r, 0, &xs);
-    assert_ne!(w.refracted_colour(&comps, 5), RGB::black());
+    assert_ne!(tracer.refracted_colour(&comps, 5, &w), RGB::black());
 }
 
 const ROOT2_BY_2: f64 = SQRT_2 / 2.0;
 
 #[test]
 fn refracted_colour_under_total_internal_reflection_is_black() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let shape: &mut Object = &mut w.objects[0];
     shape.mut_material().set_transparency(1.0).set_refractive_index(1.5);
@@ -94,11 +98,12 @@ fn refracted_colour_under_total_internal_reflection_is_black() {
 
     let xs = vec![intersection(-ROOT2_BY_2, &shape), intersection(ROOT2_BY_2, &shape)];
     let comps = hit_data(&r, 1, &xs);
-    assert_eq!(w.refracted_colour(&comps, 5), RGB::black());
+    assert_eq!(tracer.refracted_colour(&comps, 5, &w), RGB::black());
 }
 
 #[test]
 fn refracted_colour_is_due_to_colour_of_refracted_ray() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     w.objects[0].mut_material()
         .set_ambient(1.0).set_pattern(Pattern::tester());
@@ -114,11 +119,12 @@ fn refracted_colour_is_due_to_colour_of_refracted_ray() {
     ];
 
     let comps = hit_data(&r, 2, &xs);
-    assert_eq!(w.refracted_colour(&comps, 5), colour(0.0, 0.99888, 0.04722));
+    assert_eq!(tracer.refracted_colour(&comps, 5, &w), colour(0.0, 0.99888, 0.04722));
 }
 
 #[test]
 fn shade_hit_transparent_material() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
 
     let mut floor = plane();
@@ -134,7 +140,7 @@ fn shade_hit_transparent_material() {
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let xs = vec![intersection(SQRT_2, &floor)];
     let comps = hit_data(&r, 0, &xs);
-    let c = shade_hit(&w, &comps, 5);
+    let c = shade_hit(&mut tracer,&w, &comps, 5);
 //    assert_eq!(c, colour(0.93642, 0.68642, 0.68642));
     assert_eq!(c, colour(1.12546, 0.68642, 0.68642));
 }
@@ -172,6 +178,7 @@ fn almost_eq(x1: f64, x2: f64) -> bool {
 #[allow(non_snake_case)]
 #[test]
 fn shade_hit_with_reflective_transparent_material() {
+    let mut tracer = RayTracer::new();
     let mut w = World::default();
     let r = ray(point(0.0, 0.0, -3.0), vector(0.0, -ROOT2_BY_2, ROOT2_BY_2));
     let mut floor = plane();
@@ -192,6 +199,6 @@ fn shade_hit_with_reflective_transparent_material() {
     let xs = vec![intersection(SQRT_2, &floor)];
     let comps = hit_data(&r, 0, &xs);
 //    assert_eq!(shade_hit(&w, &comps, 5), colour(0.93391, 0.69643, 0.69243));
-    assert_eq!(shade_hit(&w, &comps, 5), colour(1.11500, 0.69643, 0.69243));
+    assert_eq!(shade_hit(&mut tracer, &w, &comps, 5), colour(1.11500, 0.69643, 0.69243));
 
 }

@@ -173,7 +173,10 @@ fn two_groups_and_intersect_them() {
     let g2 = group(vec![c2.clone()]).set_object_to_world_spc(translation(-3.0, 0.0, 0.0)).clone();
 
     let w = World::with(vec![], vec![g1, g2]);
-    let ints = w.intersect(&ray(point(0.0, -3.0, 0.0), vector(1.0, 0.0, 0.0)));
+    let mut tracer = RayTracer::new();
+    let ray1 = ray(point(0.0, -3.0, 0.0), vector(1.0, 0.0, 0.0));
+
+    let ints = tracer.intersect(&ray1, &w);
 
     assert_eq!(ints.len(), 2);
     assert_eq!(ints[0].t_value(), 4.0 - std::f64::consts::SQRT_2);
