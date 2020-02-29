@@ -13,44 +13,24 @@ impl IntersectionSpace {
         IntersectionSpace {pool: vec![]}
     }
 
-    pub fn acquire(&mut self) -> IntersectionVec {
-        let ve : Vec<Intersection> = match self.pool.pop() {
-            Some(v) => v,
-            None => vec![]
-        };
-        IntersectionVec { origin: self, internal_vec: Some(ve) }
+    pub fn acquire(&mut self) -> Vec<Intersection> {
+        match self.pool.pop() {
+            Some(mut v) => {
+                v
+            },
+            None => Vec::with_capacity(16)
+        }
+    }
+
+    pub fn place_back(&mut self, mut v: Vec<Intersection>) {
+        v.clear();
+        self.pool.push(v);
     }
 
     pub fn size(&self) -> usize {
         self.pool.len()
     }
 }
-
-pub struct IntersectionVec<'a> {
-    origin: &'a mut IntersectionSpace,
-    internal_vec: Option<Vec<Intersection>>,
-}
-
-impl<'a> IntersectionVec<'a> {
-    pub fn get(&self, i: usize) -> Option<&Intersection> {
-        self.internal_vec.as_ref().and_then(|v|{
-            v.get(i)
-        })
-    }
-}
-
-impl<'a> Drop for IntersectionVec<'a> {
-    fn drop(&mut self) {
-        self.origin.pool.push(self.internal_vec.take().unwrap_or_default()) ;
-    }
-}
-
-impl Extend<Intersection> for IntersectionVec<'_> {
-    fn extend<T: IntoIterator<Item=Intersection>>(&mut self, iter: T) {
-        self.internal_vec.get_or_insert_with(||{vec![]}).extend(iter)
-    }
-}
-
 
 mod test {
     use crate::*;
@@ -82,6 +62,7 @@ mod test {
             let i = intersection(6.0, &obj);
             v.extend(Some(i));
             assert_eq!(v.get(0), Some(&intersection(6.0, &obj)));
+            space.place_back(v);
         }
 
         assert_eq!(space.size(), 1);
@@ -89,21 +70,61 @@ mod test {
 
     #[allow(non_snake_case)]
     #[test]
-    fn after_multiple_disposals___vectors_are_returned_back_to_pool() {
+    fn after_placing_back___on_acquiring_the_vector_again___vector_is_empty() {
         let mut space = IntersectionSpace::new();
-        let obj = unit_sphere();
-        assert_eq!(space.size(), 0);
 
         {
             let mut v1 = space.acquire();
-            let mut v2 = space.acquire();
-            let mut v3 = space.acquire();
-
-            // it's not the act of acquiring that increases the pool's size
-            assert_eq!(space.size(), 0);
+            let obj1 = unit_sphere();
+            let obj2 = cube();
+            v1.push(intersection(4.1, &obj1));
+            v1.push(intersection(5.0, &obj2));
+            space.place_back(v1);
         }
+
+        {
+            let mut v2 = space.acquire();
+            assert_eq!(v2.len(), 0);
+            space.place_back(v2);
+        }
+        assert_eq!(space.size(), 1);
+    }
+
+    #[test]
+    fn acquire_several_vectors___and_use_them() {
+        let mut space = IntersectionSpace::new();
+        let mut v1 = space.acquire();
+        let mut v2 = space.acquire();
+        let mut v3 = space.acquire();
+
+        let obj1 = cube();
+        let obj2 = unit_sphere();
+        let obj3 = glass_sphere();
+
+        v1.push(intersection(3.0, &obj1));
+        v2.push(intersection(3.0, &obj2));
+        v3.push(intersection(3.0, &obj3));
+        space.place_back(v1);
+        space.place_back(v2);
+        space.place_back(v3);
 
         assert_eq!(space.size(), 3);
     }
 
+    #[test]
+    fn a_vectors_capacity_increases_with_use() {
+        let mut space = IntersectionSpace::new();
+        let mut v1 = space.acquire();
+        let cap1 = v1.capacity();
+        println!("{}", v1.capacity());
+        let o = unit_sphere();
+
+        for i in 0..30 {
+            v1.push(intersection(3.0, &o));
+        }
+        space.place_back(v1);
+        let v2 = space.acquire();
+        println!("{}", v2.capacity());
+        assert!(cap1 < v2.capacity());
+    }
 }
