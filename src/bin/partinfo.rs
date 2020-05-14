@@ -35,12 +35,10 @@ fn main() -> Result<(), ExitFailure> {
         let root = group(objects);
         print_bounding_box_info(0, &root);
     } else {
-        let map = bbox_map(args.depth, objects);
+        let map = into_bounding_box_map(args.depth, objects);
         for (ind, (k, v)) in map.iter().enumerate() {
             println!("{}\t{}\t{}", ind, v.len(), k);
         }
-//        let root = map.groups();
-//        print_bounding_box_info(0, &root);
     }
     Ok(())
 }

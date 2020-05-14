@@ -21,11 +21,11 @@ use std::vec::IntoIter;
 /// smallest region that fully contains them.
 pub fn binary_partition(depth: usize, scene: Vec<Object>) -> Object {
     // TODO make the depth parameter unnecessary.  Decide an appropriate depth internally.
-    let box_map = bbox_map(depth, scene);
+    let box_map = into_bounding_box_map(depth, scene);
     box_map.groups()
 }
 
-pub fn bbox_map(depth: usize, scene: Vec<Object>) -> BoundingBoxMap {
+pub fn into_bounding_box_map(depth: usize, scene: Vec<Object>) -> BoundingBoxMap {
     let flattened = flatten(&scene);
     let mut box_map = BoundingBoxMap::create(depth, Bounds::enclose(&flattened));
     for o in flattened {

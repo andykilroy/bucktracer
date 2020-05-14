@@ -19,8 +19,7 @@ pub use crate::shape::*;
 
 pub use partition::binary_partition;
 pub use partition::flatten;
-// TODO for testing.  Remove once debugged
-pub use partition::bbox_map;
+pub use partition::into_bounding_box_map;
 use crate::vecpool::VectorPool;
 
 const EPSILON: f64 = 1e-5;
@@ -514,7 +513,8 @@ impl RayTracer {
                 // colour contributes.
                 RGB::black()
             } else {
-                // Snell's law: for incoming ray i and refracted ray t,
+                // Snell's law: for incoming ray i in a medium of refractive index n1,
+                // and refracted ray t in a medium of refractive index n2,
                 // and angles theta_i and theta_t of i and t made respectively
                 // with the normal of the surface, the following relationship holds:
                 //
